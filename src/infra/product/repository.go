@@ -22,7 +22,7 @@ func (r *repository) FindProductsByCategory(category string) ([]product.Product,
 		return tx.Where("category = ?", category).Find(&products).Error
 	})
 	if err != nil {
-		return []product.Product{}, err // Возвращаем ошибку, если не удалось сохранить заказ
+		return []product.Product{}, err // Возвращаем ошибку, если не удалось найти продукты
 	}
 	return products, nil
 }
@@ -35,14 +35,11 @@ func (r *repository) FindProductByID(productID uuid.UUID) (product.Product, erro
 			// TODO: Поменять на кастомную ошибку
 			return fmt.Errorf("product not found")
 		}
-		if result.Error != nil {
-			return result.Error // Возвращаем ошибку, если не удалось удалить заказ
-		}
-		return nil
+		return result.Error // Возвращаем ошибку, если не удалось найти продукт
 	})
 
 	if err != nil {
-		return product.Product{}, err // Возвращаем ошибку, если не удалось удалить заказ
+		return product.Product{}, err // Возвращаем ошибку, если не удалось найти продукт
 	}
 	return p, nil
 }
