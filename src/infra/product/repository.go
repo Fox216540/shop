@@ -12,7 +12,7 @@ type repository struct {
 	db *db.Database
 }
 
-func _(db *db.Database) product.Repository {
+func NewRepository(db *db.Database) product.Repository {
 	return &repository{db: db}
 }
 

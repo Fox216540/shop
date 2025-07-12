@@ -1,4 +1,4 @@
-package order
+package orderrepository
 
 import (
 	"fmt"
@@ -17,13 +17,27 @@ func NewRepository(db *db.Database) order.Repository {
 }
 
 func (r *repository) Save(o order.Order) (order.Order, error) {
+	newOrder := &OrderORM{
+		OrderID:  o.ID,
+		OrderNum: o.OrderNum,
+		Status:   o.Status,
+	}
+
+	for _, item := range o.ProductItems {
+		newOrder.ProductItems = append(newOrder.ProductItems, ProductItemORM{
+			OrderID:   o.ID,
+			ProductID: item.ProductID,
+			Quantity:  item.Quantity,
+		})
+	}
+
 	err := r.db.WithSession(func(tx *gorm.DB) error {
-		return tx.Save(o).Error
+		return tx.Create(newOrder).Error
 	})
 	if err != nil {
 		return order.Order{}, err // Возвращаем ошибку, если не удалось сохранить заказ
 	}
-	return o, nil
+	return fromORM(*newOrder), nil
 }
 
 func (r *repository) Remove(ID, userID uuid.UUID) error {
