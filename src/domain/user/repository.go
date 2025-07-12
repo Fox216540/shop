@@ -1,8 +1,11 @@
 package user
 
+import "github.com/google/uuid"
+
 type Repository interface {
-	Add(user User) (User, error)
-	Delete(user User) error
-	GetByID(id string) (User, error)
-	Update(user User) (User, error)
+	Add(u User) (User, error)
+	Delete(ID uuid.UUID) (uuid.UUID, error)
+	GetByID(ID uuid.UUID) (User, error)
+	FindByUsernameOrEmail(usernameOrEmail string) (User, error)
+	Update(u User) (User, error)
 }

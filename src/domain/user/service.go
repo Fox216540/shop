@@ -12,8 +12,7 @@ type Service interface {
 	LogoutAll(userID uuid.UUID) error
 	Update(u User) (User, error)
 	Delete(userID uuid.UUID) error
-	GetByID(userID uuid.UUID) (User, error)
 	Orders(userID uuid.UUID) ([]order.Order, error)
-	DeleteOrder(userID, orderID uuid.UUID) error
+	DeleteOrder(userID, orderID uuid.UUID) (uuid.UUID, error)
 	CreateOrder(o order.Order) (order.Order, error)
 }
