@@ -9,8 +9,8 @@ type ProductItem struct {
 
 type Order struct {
 	ID           uuid.UUID     `json:"id"`
-	OrderNum     string        `json:"order-num" binding:"required"` // Unique order number
-	UserId       uuid.UUID     `json:"user-id" binding:"required"`
-	ProductItems []ProductItem `json:"product_items" binding:"required"` // List of products in the order
+	OrderNum     string        `json:"order-num" validate:"required"` // Unique order number
+	UserId       uuid.UUID     `json:"user-id" validate:"required"`
+	ProductItems []ProductItem `json:"product-items" validate:"required"` // List of products in the order
 	Status       string        `json:"status"`
 }
