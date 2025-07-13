@@ -5,7 +5,10 @@ import (
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 	"shop/src/domain/order"
-	"shop/src/infra/db"
+	"shop/src/domain/product"
+	db "shop/src/infra/db/core"
+	models "shop/src/infra/order/models"
+	productmodel "shop/src/infra/product/models"
 )
 
 type repository struct {
@@ -17,27 +20,46 @@ func NewRepository(db *db.Database) order.Repository {
 }
 
 func (r *repository) Save(o order.Order) (order.Order, error) {
-	newOrder := &OrderORM{
-		OrderID:  o.ID,
-		OrderNum: o.OrderNum,
-		Status:   o.Status,
+	newOrder := &models.OrderORM{
+		OrderID:      o.ID,
+		OrderNum:     o.OrderNum,
+		Status:       o.Status,
+		ProductItems: make([]*models.ProductItemORM, len(o.ProductItems)),
 	}
 
-	for _, item := range o.ProductItems {
-		newOrder.ProductItems = append(newOrder.ProductItems, ProductItemORM{
-			OrderID:   o.ID,
-			ProductID: item.ProductID,
+	productUUIDs := make([]uuid.UUID, len(o.ProductItems))
+
+	for i, item := range o.ProductItems {
+		newOrder.ProductItems[i] = &models.ProductItemORM{
+			ProductID: item.Product.ID,
 			Quantity:  item.Quantity,
-		})
+			OrderID:   o.ID,
+		}
+		productUUIDs[i] = item.Product.ID
 	}
 
 	err := r.db.WithSession(func(tx *gorm.DB) error {
 		return tx.Create(newOrder).Error
 	})
 	if err != nil {
-		return order.Order{}, err // Возвращаем ошибку, если не удалось сохранить заказ
+		return order.Order{}, err
 	}
-	return fromORM(*newOrder), nil
+
+	var productORMs []productmodel.ProductORM
+
+	err = r.db.WithSession(func(tx *gorm.DB) error {
+		return tx.Where("ProductID IN ?", productUUIDs).Find(&productORMs).Error
+	})
+	if err != nil {
+		return order.Order{}, fmt.Errorf("failed to find products: %w", err)
+	}
+
+	productMap := make(map[uuid.UUID]product.Product)
+	for _, orm := range productORMs {
+		productMap[orm.ProductID] = productmodel.FromORM(orm)
+	}
+
+	return models.FromORM(*newOrder, productMap), nil
 }
 
 func (r *repository) Remove(ID, userID uuid.UUID) error {
