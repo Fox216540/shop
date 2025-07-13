@@ -9,6 +9,7 @@ import (
 )
 
 func ProductHandler(r *gin.Engine) {
+	ps := di.GetProductService()
 	// GetProductsByCategory
 	r.GET("/catalog/", func(c *gin.Context) {
 		var r dto.GetProductsByCategoryRequest
@@ -26,7 +27,6 @@ func ProductHandler(r *gin.Engine) {
 			categoryPtr = nil
 		}
 
-		ps := di.GetProductService()
 		products, err := ps.ProductsOfCategory(categoryPtr)
 
 		if err != nil {
@@ -59,7 +59,6 @@ func ProductHandler(r *gin.Engine) {
 
 		productID, _ := uuid.Parse(uri.ID)
 
-		ps := di.GetProductService()
 		product, err := ps.ProductById(productID)
 		if err != nil {
 			c.JSON(http.StatusNotFound, gin.H{"error": "Product not found"})
