@@ -1,6 +1,7 @@
 package orderrepository
 
 import (
+	"errors"
 	"fmt"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
@@ -23,6 +24,7 @@ func (r *repository) Save(o order.Order) (order.Order, error) {
 		OrderNum:     o.OrderNum,
 		Status:       o.Status,
 		UserID:       o.UserId,
+		Total:        o.Total,
 		ProductItems: make([]*models.ProductItemORM, len(o.ProductItems)),
 	}
 
@@ -101,4 +103,20 @@ func (r *repository) OrdersByUserID(userID uuid.UUID) ([]order.Order, error) {
 		domainOrders[i] = models.FromORM(ormOrder)
 	}
 	return domainOrders, nil
+}
+
+func (r *repository) CheckOrderNum(orderNum string) error {
+	err := r.db.WithSession(func(tx *gorm.DB) error {
+		err := tx.Where("order_num = ?", orderNum).First(&models.OrderORM{}).Error
+		if err == nil {
+			// Если заказ с таким номером найден, возвращаем ошибку
+			return fmt.Errorf("order number %s already exists", orderNum) // Если заказ с таким номером найден, возвращаем nil
+		}
+		if !errors.Is(err, gorm.ErrRecordNotFound) {
+			return err
+		}
+		// Если заказ с таким номером не найден, возвращаем nil
+		return nil
+	})
+	return err
 }
