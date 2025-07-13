@@ -22,6 +22,7 @@ func (r *repository) Save(o order.Order) (order.Order, error) {
 		OrderID:      o.ID,
 		OrderNum:     o.OrderNum,
 		Status:       o.Status,
+		UserID:       o.UserId,
 		ProductItems: make([]*models.ProductItemORM, len(o.ProductItems)),
 	}
 
