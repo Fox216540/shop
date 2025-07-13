@@ -10,7 +10,7 @@ import (
 func Migration(db *gorm.DB) error {
 	return db.AutoMigrate(
 		&product.ProductORM{},
-		&order.ProductItemORM{},
 		&order.OrderORM{},
-		&user.UserORM{})
+		&user.UserORM{},
+		&order.ProductItemORM{})
 }
