@@ -3,10 +3,11 @@ package user
 import "github.com/google/uuid"
 
 type User struct {
-	ID       uuid.UUID `json:"id" validate:"required"`
-	Username string    `json:"username" validate:"required,min=3,max=20"`
-	Email    string    `json:"email" validate:"required,email"`
-	Name     string    `json:"name" validate:"required,min=3,max=20"`
-	Number   string    `json:"number" validate:"required,min=3,max=20"`
-	Password string    `json:"password" validate:"required"`
+	ID       uuid.UUID // Unique identifier for the user
+	Username string    // Unique username for the user
+	Email    string    // User's email address
+	Name     string    // User's full name
+	Number   string    // User's phone number
+	Password string    // User's password (should be hashed in practice)
+	Address  string    // User's address
 }
