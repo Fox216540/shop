@@ -9,7 +9,7 @@ import (
 type ProductORM struct {
 	gorm.Model
 	ID          int       `gorm:"primaryKey;autoIncrement"`
-	ProductID   uuid.UUID `gorm:"type:uuid;not null;uniqueIndex"`
+	ProductID   uuid.UUID `gorm:"type:uuid;not null;default:gen_random_uuid();uniqueIndex"`
 	Name        string    `gorm:"not null;unique"`             // Unique product name
 	Img         string    `gorm:"not null"`                    // Product image URL
 	Price       float64   `gorm:"type:decimal(10,2);not null"` // Product price
