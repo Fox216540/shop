@@ -53,7 +53,9 @@ func (r *repository) Save(o order.Order) (order.Order, error) {
 
 func (r *repository) Remove(ID, userID uuid.UUID) error {
 	err := r.db.WithSession(func(tx *gorm.DB) error {
-		result := tx.Where("id = ? AND user_id = ?", ID, userID).Delete(&order.Order{})
+		result := tx.
+			Where("order_id = ? AND user_id = ?", ID, userID).
+			Delete(&models.OrderORM{})
 		if result.RowsAffected == 0 {
 			// TODO: Поменять на кастомную ошибку
 			return fmt.Errorf("order not found")
@@ -68,23 +70,35 @@ func (r *repository) Remove(ID, userID uuid.UUID) error {
 }
 
 func (r *repository) GetByID(ID uuid.UUID) (order.Order, error) {
-	var o order.Order
+	var o models.OrderORM
 	err := r.db.WithSession(func(tx *gorm.DB) error {
-		return tx.Where("id = ?", ID).First(&o).Error
+		return tx.
+			Preload("ProductItems.Product"). // подгружаем Product внутри ProductItems
+			Preload("ProductItems").
+			Where("id = ?", ID).
+			First(&o).Error
 	})
 	if err != nil {
 		return order.Order{}, err // Возвращаем ошибку, если не удалось найти заказ
 	}
-	return o, nil
+	return models.FromORM(o), nil
 }
 
 func (r *repository) OrdersByUserID(userID uuid.UUID) ([]order.Order, error) {
-	var orders []order.Order
+	var orders []models.OrderORM
 	err := r.db.WithSession(func(tx *gorm.DB) error {
-		return tx.Where("user_id = ?", userID).Find(&orders).Error
+		return tx.
+			Preload("ProductItems"). // подгружаем ProductItems
+			Preload("ProductItems.Product"). // подгружаем Product внутри ProductItems
+			Where("user_id = ?", userID).
+			Find(&orders).Error
 	})
 	if err != nil {
 		return nil, err // Возвращаем ошибку, если не удалось найти заказы пользователя
 	}
-	return orders, nil
+	domainOrders := make([]order.Order, len(orders))
+	for i, ormOrder := range orders {
+		domainOrders[i] = models.FromORM(ormOrder)
+	}
+	return domainOrders, nil
 }
