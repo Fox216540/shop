@@ -5,10 +5,8 @@ import (
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 	"shop/src/domain/order"
-	"shop/src/domain/product"
 	db "shop/src/infra/db/core"
 	models "shop/src/infra/order/models"
-	productmodel "shop/src/infra/product/models"
 )
 
 type repository struct {
@@ -27,39 +25,29 @@ func (r *repository) Save(o order.Order) (order.Order, error) {
 		ProductItems: make([]*models.ProductItemORM, len(o.ProductItems)),
 	}
 
-	productUUIDs := make([]uuid.UUID, len(o.ProductItems))
-
 	for i, item := range o.ProductItems {
 		newOrder.ProductItems[i] = &models.ProductItemORM{
 			ProductID: item.Product.ID,
 			Quantity:  item.Quantity,
 			OrderID:   o.ID,
 		}
-		productUUIDs[i] = item.Product.ID
 	}
 
 	err := r.db.WithSession(func(tx *gorm.DB) error {
-		return tx.Create(newOrder).Error
+		if err := tx.Create(newOrder).Error; err != nil {
+			return err
+		}
+		// Загрузим обратно с подгруженными продуктами
+		return tx.
+			Preload("ProductItems.Product").
+			Preload("ProductItems").
+			First(newOrder, "order_id = ?", newOrder.OrderID).Error
 	})
 	if err != nil {
 		return order.Order{}, err
 	}
 
-	var productORMs []productmodel.ProductORM
-
-	err = r.db.WithSession(func(tx *gorm.DB) error {
-		return tx.Where("ProductID IN ?", productUUIDs).Find(&productORMs).Error
-	})
-	if err != nil {
-		return order.Order{}, fmt.Errorf("failed to find products: %w", err)
-	}
-
-	productMap := make(map[uuid.UUID]product.Product)
-	for _, orm := range productORMs {
-		productMap[orm.ProductID] = productmodel.FromORM(orm)
-	}
-
-	return models.FromORM(*newOrder, productMap), nil
+	return models.FromORM(*newOrder), nil
 }
 
 func (r *repository) Remove(ID, userID uuid.UUID) error {
