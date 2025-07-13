@@ -3,7 +3,7 @@ package productdi
 import (
 	productservice "shop/src/app/product"
 	"shop/src/domain/product"
-	"shop/src/infra/db"
+	db "shop/src/infra/db/core"
 	productrepository "shop/src/infra/product"
 )
 
