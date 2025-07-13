@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"log"
+	order "shop/src/api/order"
 	product "shop/src/api/product"
 	"shop/src/infra/db"
 )
@@ -17,5 +18,6 @@ func main() {
 	defer db.Close()
 	r := gin.Default()
 	product.ProductHandler(r)
+	order.OrderHandler(r)
 	r.Run(":8080") // Start the server on port 8080
 }
