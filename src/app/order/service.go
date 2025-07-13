@@ -17,11 +17,11 @@ func (s *service) PlaceOrder(o order.Order) (order.Order, error) {
 	if o.ID == uuid.Nil {
 		o.ID = uuid.New()
 	}
-	o, err := s.r.Save(o)
+	orderSave, err := s.r.Save(o)
 	if err != nil {
 		return o, err // Возвращаем ошибку, если не удалось сохранить заказ
 	}
-	return o, nil
+	return orderSave, nil
 }
 
 func (s *service) CancelOrder(ID, userID uuid.UUID) (uuid.UUID, error) {
