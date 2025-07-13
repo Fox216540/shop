@@ -8,7 +8,7 @@ import (
 	dto "shop/src/api/product/dto"
 )
 
-func CatalogHandler(r *gin.Engine) {
+func ProductHandler(r *gin.Engine) {
 	r.GET("/catalog/", func(c *gin.Context) {
 		category := c.Query("category")
 		var categoryPtr *string
