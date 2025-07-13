@@ -2,14 +2,13 @@ package productdto
 
 import (
 	"github.com/google/uuid"
-	"shop/src/domain/product"
 )
 
 type GetProductByIDRequest struct {
-	ProductID string `json:"id" validate:"required,uuid"`
+	ID string `uri:"id" binding:"required,uuid"`
 }
 
-type GetProductByIDResponse struct {
+type ProductResponse struct {
 	ProductID          uuid.UUID `json:"id"`                                            // Product ID
 	ProductName        string    `json:"name" binding:"required,min=3,max=50"`          // Product name
 	ProductImg         string    `json:"img" binding:"required"`                        // Product image URL
@@ -20,9 +19,5 @@ type GetProductByIDResponse struct {
 }
 
 type GetProductsByCategoryRequest struct {
-	Category string `json:"category" binding:"required,min=3,max=20"` // Product category
-}
-
-type GetProductsByCategoryResponse struct {
-	Products []product.Product `json:"products"` // List of products in the category
+	Category string `form:"category" binding:"omitempty,min=3,max=20"` // Product category
 }

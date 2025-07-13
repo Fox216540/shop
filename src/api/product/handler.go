@@ -9,35 +9,63 @@ import (
 )
 
 func ProductHandler(r *gin.Engine) {
+	// GetProductsByCategory
 	r.GET("/catalog/", func(c *gin.Context) {
-		category := c.Query("category")
+		var r dto.GetProductsByCategoryRequest
+
+		if err := c.ShouldBindQuery(&r); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid query parameters", "details": err.Error()})
+			return
+		}
+
 		var categoryPtr *string
-		if category != "" {
-			categoryPtr = &category
+
+		if r.Category != "" {
+			categoryPtr = &r.Category
 		} else {
 			categoryPtr = nil
 		}
+
 		ps := di.GetProductService()
 		products, err := ps.ProductsOfCategory(categoryPtr)
+
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch product data"})
 			return
 		}
-		c.JSON(http.StatusOK, dto.GetProductsByCategoryResponse{Products: products})
+		var productsDTO []dto.ProductResponse
+		for _, p := range products {
+			productsDTO = append(productsDTO, dto.ProductResponse{
+				ProductID:          p.ID,
+				ProductName:        p.Name,
+				ProductImg:         p.Img,
+				ProductPrice:       p.Price,
+				ProductCategory:    p.Category,
+				ProductDescription: p.Description,
+				ProductStock:       p.Stock,
+			})
+		}
+
+		c.JSON(http.StatusOK, productsDTO)
 	})
+
+	// GetProductByID
 	r.GET("/catalog/:id", func(c *gin.Context) {
-		productID, err := uuid.Parse(c.Param("id"))
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid product ID"})
+		var uri dto.GetProductByIDRequest
+		if err := c.ShouldBindUri(&uri); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid product ID", "details": err.Error()})
 			return
 		}
+
+		productID, _ := uuid.Parse(uri.ID)
+
 		ps := di.GetProductService()
 		product, err := ps.ProductById(productID)
 		if err != nil {
 			c.JSON(http.StatusNotFound, gin.H{"error": "Product not found"})
 			return
 		}
-		c.JSON(http.StatusOK, dto.GetProductByIDResponse{
+		c.JSON(http.StatusOK, dto.ProductResponse{
 			ProductID:          product.ID,
 			ProductName:        product.Name,
 			ProductImg:         product.Img,
