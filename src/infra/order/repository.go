@@ -23,7 +23,7 @@ func (r *repository) Save(o order.Order) (order.Order, error) {
 		OrderID:      o.ID,
 		OrderNum:     o.OrderNum,
 		Status:       o.Status,
-		UserID:       o.UserId,
+		UserID:       o.UserID,
 		Total:        o.Total,
 		ProductItems: make([]*models.ProductItemORM, len(o.ProductItems)),
 	}
@@ -90,7 +90,7 @@ func (r *repository) OrdersByUserID(userID uuid.UUID) ([]order.Order, error) {
 	var orders []models.OrderORM
 	err := r.db.WithSession(func(tx *gorm.DB) error {
 		return tx.
-			Preload("ProductItems"). // подгружаем ProductItems
+			Preload("ProductItems").         // подгружаем ProductItems
 			Preload("ProductItems.Product"). // подгружаем Product внутри ProductItems
 			Where("user_id = ?", userID).
 			Find(&orders).Error

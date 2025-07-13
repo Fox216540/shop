@@ -37,7 +37,7 @@ func FromORM(orm OrderORM) order.Order {
 		ID:           orm.OrderID,
 		OrderNum:     orm.OrderNum,
 		Status:       orm.Status,
-		UserId:       orm.UserID,
+		UserID:       orm.UserID,
 		Total:        orm.Total,
 		ProductItems: make([]*order.Item, 0, len(orm.ProductItems)),
 	}
