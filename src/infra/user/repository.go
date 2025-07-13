@@ -23,6 +23,7 @@ func (r *repository) Add(u user.User) (user.User, error) {
 		Email:    u.Email,
 		Name:     u.Name,
 		Password: u.Password,
+		Address:  u.Address,
 	}
 	err := r.db.WithSession(func(tx *gorm.DB) error {
 		return tx.Create(&newUser).Error
@@ -77,6 +78,7 @@ func (r *repository) Update(u user.User) (user.User, error) {
 		Email:    u.Email,
 		Name:     u.Name,
 		Password: u.Password,
+		Address:  u.Address,
 	}
 
 	err := r.db.WithSession(func(tx *gorm.DB) error {
