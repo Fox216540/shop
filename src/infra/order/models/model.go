@@ -26,6 +26,7 @@ type OrderORM struct {
 	UserID       uuid.UUID         `gorm:"type:uuid;not null;index"`
 	OrderNum     string            `gorm:"type:varchar(50);not null;uniqueIndex"`
 	Status       string            `gorm:"type:varchar(50);not null"`
+	Total        float64           `gorm:"type:decimal(10,2);not null"` // Total order amount
 	ProductItems []*ProductItemORM `gorm:"foreignKey:OrderID;references:OrderID;constraint:OnDelete:CASCADE"`
 
 	User user.UserORM `gorm:"references:UserID"`
@@ -37,6 +38,7 @@ func FromORM(orm OrderORM) order.Order {
 		OrderNum:     orm.OrderNum,
 		Status:       orm.Status,
 		UserId:       orm.UserID,
+		Total:        orm.Total,
 		ProductItems: make([]*order.Item, 0, len(orm.ProductItems)),
 	}
 	for _, item := range orm.ProductItems {
