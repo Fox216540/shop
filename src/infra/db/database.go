@@ -6,14 +6,9 @@ import (
 	"gorm.io/gorm"
 	"log"
 	"os"
+	core "shop/src/infra/db/core"
+	mig "shop/src/infra/db/migration"
 )
-
-type Database struct {
-	DB *gorm.DB
-}
-
-// Глобальный объект Database
-var database *Database
 
 // Init инициализирует глобальный объект Database
 func Init() {
@@ -31,12 +26,17 @@ func Init() {
 	if err != nil {
 		log.Fatalf("failed to connect to database: %v", err)
 	}
-	database = &Database{DB: db}
-	err = database.DB.AutoMigrate(&User{}, &Product{}, &Order{})
+	core.InitDatabase(db)
+	core.GetDatabase()
+	err = mig.Migration(db)
+	if err != nil {
+		log.Fatalf("failed to run migrations: %v", err)
+	}
 }
 
 // Close завершает подключение к базе
 func Close() {
+	database := core.GetDatabase()
 	if database == nil || database.DB == nil {
 		return
 	}
@@ -46,8 +46,4 @@ func Close() {
 		return
 	}
 	sqlDB.Close()
-}
-
-func GetDatabase() *Database {
-	return database
 }
