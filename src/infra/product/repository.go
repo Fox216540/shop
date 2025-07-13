@@ -17,10 +17,17 @@ func NewRepository(db *db.Database) product.Repository {
 	return &repository{db: db}
 }
 
-func (r *repository) FindProductsByCategory(category string) ([]product.Product, error) {
+func (r *repository) FindProductsByCategory(category *string) ([]product.Product, error) {
 	var productsORM []models.ProductORM
 	err := r.db.WithSession(func(tx *gorm.DB) error {
-		return tx.Where("category = ?", category).Find(&productsORM).Error
+		if category == nil {
+			// Если категория не указана, возвращаем все продукты
+			return tx.Find(&productsORM).Error
+		} else {
+			// Иначе ищем продукты по указанной категории
+			// Используем Where для фильтрации по категории
+			return tx.Where("category = ?", *category).Find(&productsORM).Error
+		}
 	})
 	if err != nil {
 		return []product.Product{}, err // Возвращаем ошибку, если не удалось найти продукты
@@ -36,7 +43,7 @@ func (r *repository) FindProductsByCategory(category string) ([]product.Product,
 func (r *repository) FindProductByID(productID uuid.UUID) (product.Product, error) {
 	var p models.ProductORM
 	err := r.db.WithSession(func(tx *gorm.DB) error {
-		result := tx.Where("id = ?", productID).First(&p)
+		result := tx.Where("product_id = ?", productID).First(&p)
 		if result.RowsAffected == 0 {
 			// TODO: Поменять на кастомную ошибку
 			return fmt.Errorf("product not found")

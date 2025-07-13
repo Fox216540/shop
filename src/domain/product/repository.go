@@ -5,6 +5,6 @@ import (
 )
 
 type Repository interface {
-	FindProductsByCategory(category string) ([]Product, error)
+	FindProductsByCategory(category *string) ([]Product, error)
 	FindProductByID(productId uuid.UUID) (Product, error)
 }
