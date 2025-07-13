@@ -2,18 +2,19 @@ package userservice
 
 import (
 	"github.com/google/uuid"
+	"shop/src/app/order"
 	"shop/src/domain/order"
 	"shop/src/domain/user"
 )
 
 type service struct {
 	r user.Repository
-	o order.Service
+	o orderservice.Service
 }
 
 //TODO: Добавить хешер
 
-func NewUserService(r user.Repository, o order.Service) user.Service {
+func NewUserService(r user.Repository, o orderservice.Service) user.Service {
 	return &service{r: r, o: o}
 }
 

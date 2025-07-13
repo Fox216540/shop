@@ -1,35 +1,45 @@
 package orderservice
 
 import (
-	"fmt"
 	"github.com/google/uuid"
-	"math/rand"
+	"shop/src/app/product"
+	"shop/src/domain/idgenerator"
 	"shop/src/domain/order"
-	"time"
 )
 
 type service struct {
-	r order.Repository
+	r     order.Repository
+	ps    productservice.Service
+	idGen idgenerator.Generator
 }
 
-func NewOrderService(r order.Repository) order.Service {
-	return &service{r: r}
+func NewOrderService(
+	r order.Repository,
+	ps productservice.Service,
+	idGen idgenerator.Generator,
+) Service {
+	return &service{r: r, ps: ps, idGen: idGen}
 }
 
 func (s *service) PlaceOrder(o order.Order) (order.Order, error) {
+	var err error
 	if o.ID == uuid.Nil {
 		o.ID = uuid.New()
 	}
 
-	o.OrderNum = s.GenerateOrderNum() // Генерируем уникальный номер заказа
+	o = s.GenerateOrderNum(o) // Генерируем уникальный номер заказа
 
-	o.Total = s.CalculateTotal(o) // Вычисляем общую сумму заказа
+	o, err = s.CalculateTotalByIDs(o) // Вычисляем общую сумму заказа
 
-	savedOrder, err := s.r.Save(o)
+	if err != nil {
+		return o, err
+	}
+
+	o, err = s.r.Save(o)
 	if err != nil {
 		return o, err // Возвращаем ошибку, если не удалось сохранить заказ
 	}
-	return savedOrder, nil
+	return o, nil
 }
 
 func (s *service) CancelOrder(ID, userID uuid.UUID) (uuid.UUID, error) {
@@ -55,33 +65,26 @@ func (s *service) OrdersByUserID(userID uuid.UUID) ([]order.Order, error) {
 	return orders, nil
 }
 
-func (s *service) CalculateTotal(order order.Order) float64 {
+func (s *service) CalculateTotalByIDs(o order.Order) (order.Order, error) {
 	var total float64
-	if len(order.ProductItems) == 0 {
-		return 0 // Возвращаем 0, если нет товаров в заказе
+	for _, item := range o.ProductItems {
+		p, err := s.ps.ProductById(item.Product.ID)
+		if err != nil {
+			return order.Order{}, err
+		}
+		total += p.Price * float64(item.Quantity)
 	}
-	for _, item := range order.ProductItems {
-		total += item.Product.Price * float64(item.Quantity)
-	}
-	return total
+	o.Total = total
+	return o, nil
 }
 
-func (s *service) GenerateOrderNum() string {
-	// Генерируем уникальный номер заказа на основе текущей даты и случайного числа
-	datetime := time.Now().Format("20060102")
-	src := rand.NewSource(time.Now().UnixNano())
-	r := rand.New(src)
-
-	var orderNum string
-
-	for {
-		randomPart := r.Intn(10000)                                 // Генерируем новый случайный номер
-		orderNum = fmt.Sprintf("ORD-%s-%04d", datetime, randomPart) // Форматируем новый номер заказа
-		err := s.r.CheckOrderNum(orderNum)                          // Проверяем, существует ли уже такой номер заказа
-		if err == nil {
-			break // Если номер заказа уникален, выходим из цикла
-		}
+func (s *service) GenerateOrderNum(o order.Order) order.Order {
+	orderNum, err := s.idGen.NewID()
+	if err != nil {
+		return order.Order{}
 	}
 
-	return orderNum
+	o.OrderNum = orderNum
+
+	return o
 }

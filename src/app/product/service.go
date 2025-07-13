@@ -9,7 +9,7 @@ type service struct {
 	r product.Repository
 }
 
-func NewService(r product.Repository) product.Service {
+func NewService(r product.Repository) Service {
 	return &service{r: r}
 }
 
