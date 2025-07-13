@@ -2,10 +2,12 @@ package usermodels
 
 import (
 	"github.com/google/uuid"
+	"gorm.io/gorm"
 	"shop/src/domain/user"
 )
 
 type UserORM struct {
+	gorm.Model
 	ID       int       `gorm:"primaryKey;autoIncrement"`
 	UserID   uuid.UUID `gorm:"type:uuid;not null;uniqueIndex"`
 	Username string    `gorm:"type:varchar(20);not null;uniqueIndex"`
