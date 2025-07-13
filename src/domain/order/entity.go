@@ -11,9 +11,10 @@ type Item struct {
 }
 
 type Order struct {
-	ID           uuid.UUID `json:"id"`
-	OrderNum     string    `json:"order-num" validate:"required"` // Unique order number
-	UserId       uuid.UUID `json:"user-id" validate:"required"`
-	ProductItems []*Item   `json:"product-items" validate:"required"` // List of products in the order
-	Status       string    `json:"status"`
+	ID           uuid.UUID // Unique identifier for the order
+	OrderNum     string    // Unique order number
+	UserId       uuid.UUID // User ID who placed the order
+	ProductItems []*Item   // List of products in the order
+	Total        float64   // Total order amount
+	Status       string    // Order status
 }
