@@ -6,5 +6,6 @@ type Repository interface {
 	Save(o Order) (Order, error)
 	Remove(ID, userID uuid.UUID) error
 	GetByID(ID uuid.UUID) (Order, error)
+	CheckOrderNum(orderNum string) error
 	OrdersByUserID(userID uuid.UUID) ([]Order, error)
 }
