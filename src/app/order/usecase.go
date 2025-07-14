@@ -9,7 +9,7 @@ type Service interface {
 	PlaceOrder(o order.Order) (order.Order, error)
 	CancelOrder(ID, userID uuid.UUID) (uuid.UUID, error)
 	GetByID(ID uuid.UUID) (order.Order, error)
-	OrdersByUserID(userID uuid.UUID) ([]order.Order, error) //Для domain User
+	OrdersByUserID(userID uuid.UUID) ([]order.Order, error)
 	CalculateTotalByIDs(o order.Order) (order.Order, error)
 	GenerateOrderNum(o order.Order) order.Order
 }
