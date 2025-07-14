@@ -3,14 +3,15 @@ package userservice
 import (
 	"github.com/google/uuid"
 	"shop/src/domain/order"
+	"shop/src/domain/user"
 )
 
 type Service interface {
-	Register(u User) (User, error)
-	Login(usernameOrEmail, password string) (User, error)
+	Register(u user.User) (user.User, error)
+	Login(usernameOrEmail, password string) (user.User, error)
 	Logout(userID uuid.UUID) error
 	LogoutAll(userID uuid.UUID) error
-	Update(u User) (User, error)
+	Update(u user.User) (user.User, error)
 	Delete(userID uuid.UUID) error
 	Orders(userID uuid.UUID) ([]order.Order, error)
 	DeleteOrder(userID, orderID uuid.UUID) (uuid.UUID, error)
