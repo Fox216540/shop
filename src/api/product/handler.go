@@ -33,10 +33,10 @@ func ProductHandler(r *gin.Engine) {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch product data"})
 			return
 		}
-		var productsDTO []dto.ProductResponse
+		var productsDTO []dto.NewProductResponse
 		for _, p := range products {
-			productsDTO = append(productsDTO, dto.ProductResponse{
-				ProductID:          p.ID,
+			productsDTO = append(productsDTO, dto.NewProductResponse{
+				ProductID:          p.ID.String(),
 				ProductName:        p.Name,
 				ProductImg:         p.Img,
 				ProductPrice:       p.Price,
@@ -64,8 +64,8 @@ func ProductHandler(r *gin.Engine) {
 			c.JSON(http.StatusNotFound, gin.H{"error": "Product not found"})
 			return
 		}
-		c.JSON(http.StatusOK, dto.ProductResponse{
-			ProductID:          product.ID,
+		c.JSON(http.StatusOK, dto.NewProductResponse{
+			ProductID:          product.ID.String(),
 			ProductName:        product.Name,
 			ProductImg:         product.Img,
 			ProductPrice:       product.Price,
