@@ -17,33 +17,42 @@ func NewRepository(db *db.Database) product.Repository {
 	return &repository{db: db}
 }
 
-func (r *repository) FindProductsByCategory(category *string) ([]product.Product, error) {
+func (r *repository) FindProductsByCategoryID(ID *uuid.UUID) ([]product.Product, error) {
 	var productsORM []models.ProductORM
 	err := r.db.WithSession(func(tx *gorm.DB) error {
-		if category == nil {
+		if ID == nil {
 			// Если категория не указана, возвращаем все продукты
-			return tx.Find(&productsORM).Error
+			return tx.
+				Preload("Category").
+				Find(&productsORM).Error
 		} else {
 			// Иначе ищем продукты по указанной категории
 			// Используем Where для фильтрации по категории
-			return tx.Where("category = ?", *category).Find(&productsORM).Error
+			return tx.
+				Joins("Category").
+				Where(`"Category"."category_id" = ?`, *ID).
+				Preload("Category").
+				Find(&productsORM).Error
 		}
 	})
 	if err != nil {
 		return []product.Product{}, err // Возвращаем ошибку, если не удалось найти продукты
 	}
-	products := make([]product.Product, len(productsORM))
-	for i, p := range productsORM {
-		products[i] = models.FromORM(p)
+	products := make([]product.Product, 0, len(productsORM))
+	for _, p := range productsORM {
+		products = append(products, models.FromORM(p))
 	}
 
 	return products, nil
 }
 
-func (r *repository) FindProductByID(productID uuid.UUID) (product.Product, error) {
+func (r *repository) FindProductByID(ID uuid.UUID) (product.Product, error) {
 	var p models.ProductORM
 	err := r.db.WithSession(func(tx *gorm.DB) error {
-		result := tx.Where("product_id = ?", productID).First(&p)
+		result := tx.
+			Preload("Category").
+			Where("product_id = ?", ID).
+			First(&p)
 		if result.RowsAffected == 0 {
 			// TODO: Поменять на кастомную ошибку
 			return fmt.Errorf("product not found")

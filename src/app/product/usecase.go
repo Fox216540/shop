@@ -5,7 +5,7 @@ import (
 	"shop/src/domain/product"
 )
 
-type Service interface {
-	ProductsOfCategory(category *string) ([]product.Product, error)
-	ProductById(productId uuid.UUID) (product.Product, error)
+type UseCase interface {
+	ProductsOfCategoryID(category *uuid.UUID) ([]product.Product, error)
+	ProductByID(productId uuid.UUID) (product.Product, error)
 }

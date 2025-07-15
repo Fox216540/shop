@@ -19,28 +19,29 @@ func ProductHandler(r *gin.Engine) {
 			return
 		}
 
-		var categoryPtr *string
+		var categoryPtr *uuid.UUID
 
-		if r.Category != "" {
-			categoryPtr = &r.Category
+		if r.CategoryID != "" {
+			categoryUUID, _ := uuid.Parse(r.CategoryID)
+			categoryPtr = &categoryUUID
 		} else {
 			categoryPtr = nil
 		}
 
-		products, err := ps.ProductsOfCategory(categoryPtr)
+		products, err := ps.ProductsOfCategoryID(categoryPtr)
 
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch product data"})
 			return
 		}
-		var productsDTO []dto.NewProductResponse
+		var productsDTO []dto.ProductResponse
 		for _, p := range products {
-			productsDTO = append(productsDTO, dto.NewProductResponse{
+			productsDTO = append(productsDTO, dto.ProductResponse{
 				ProductID:          p.ID.String(),
 				ProductName:        p.Name,
 				ProductImg:         p.Img,
 				ProductPrice:       p.Price,
-				ProductCategory:    p.Category,
+				ProductCategoryID:  p.CategoryID.String(),
 				ProductDescription: p.Description,
 				ProductStock:       p.Stock,
 			})
@@ -59,17 +60,17 @@ func ProductHandler(r *gin.Engine) {
 
 		productID, _ := uuid.Parse(uri.ID)
 
-		product, err := ps.ProductById(productID)
+		product, err := ps.ProductByID(productID)
 		if err != nil {
 			c.JSON(http.StatusNotFound, gin.H{"error": "Product not found"})
 			return
 		}
-		c.JSON(http.StatusOK, dto.NewProductResponse{
+		c.JSON(http.StatusOK, dto.ProductResponse{
 			ProductID:          product.ID.String(),
 			ProductName:        product.Name,
 			ProductImg:         product.Img,
 			ProductPrice:       product.Price,
-			ProductCategory:    product.Category,
+			ProductCategoryID:  product.CategoryID.String(),
 			ProductDescription: product.Description,
 			ProductStock:       product.Stock,
 		})
