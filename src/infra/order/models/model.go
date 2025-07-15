@@ -9,7 +9,6 @@ import (
 )
 
 type ProductItemORM struct {
-	gorm.Model
 	ID        int       `gorm:"primaryKey;autoIncrement"`
 	OrderID   uuid.UUID `gorm:"type:uuid;not null;index"`
 	ProductID uuid.UUID `gorm:"type:uuid;not null;index"`
@@ -17,6 +16,10 @@ type ProductItemORM struct {
 	Product productORM.ProductORM `gorm:"references:ProductID"`
 
 	Quantity int `gorm:"not null"`
+}
+
+func (ProductItemORM) TableName() string {
+	return "order_product"
 }
 
 type OrderORM struct {
@@ -30,6 +33,10 @@ type OrderORM struct {
 	ProductItems []*ProductItemORM `gorm:"foreignKey:OrderID;references:OrderID;constraint:OnDelete:CASCADE"`
 
 	User user.UserORM `gorm:"references:UserID"`
+}
+
+func (OrderORM) TableName() string {
+	return "orders"
 }
 
 func FromORM(orm OrderORM) order.Order {

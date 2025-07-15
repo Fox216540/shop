@@ -17,6 +17,10 @@ type UserORM struct {
 	Address  string    `gorm:"type:varchar(100);not null"`
 }
 
+func (UserORM) TableName() string {
+	return "users"
+}
+
 func FromORM(orm UserORM) user.User {
 	return user.User{
 		ID:       orm.UserID,
