@@ -6,7 +6,7 @@ import (
 	productrepository "shop/src/infra/product"
 )
 
-func GetProductService() productservice.Service {
+func GetProductService() productservice.UseCase {
 	database := db.GetDatabase() // Получаем базу данных из пакета db
 	repo := productrepository.NewRepository(database)
 	return productservice.NewService(repo)
