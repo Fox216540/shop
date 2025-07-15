@@ -5,7 +5,7 @@ import (
 	"shop/src/domain/order"
 )
 
-type Service interface {
+type UseCase interface {
 	PlaceOrder(o order.Order) (order.Order, error)
 	CancelOrder(ID, userID uuid.UUID) (uuid.UUID, error)
 	GetByID(ID uuid.UUID) (order.Order, error)

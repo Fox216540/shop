@@ -9,15 +9,15 @@ import (
 
 type service struct {
 	r     order.Repository
-	ps    productservice.Service
+	ps    productservice.UseCase
 	idGen idgenerator.Generator
 }
 
 func NewOrderService(
 	r order.Repository,
-	ps productservice.Service,
+	ps productservice.UseCase,
 	idGen idgenerator.Generator,
-) Service {
+) UseCase {
 	return &service{r: r, ps: ps, idGen: idGen}
 }
 
@@ -68,7 +68,7 @@ func (s *service) OrdersByUserID(userID uuid.UUID) ([]order.Order, error) {
 func (s *service) CalculateTotalByIDs(o order.Order) (order.Order, error) {
 	var total float64
 	for _, item := range o.ProductItems {
-		p, err := s.ps.ProductById(item.Product.ID)
+		p, err := s.ps.ProductByID(item.Product.ID)
 		if err != nil {
 			return order.Order{}, err
 		}
