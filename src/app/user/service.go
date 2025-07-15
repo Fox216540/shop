@@ -9,12 +9,12 @@ import (
 
 type service struct {
 	r user.Repository
-	o orderservice.Service
+	o orderservice.UseCase
 }
 
 //TODO: Добавить хешер
 
-func NewUserService(r user.Repository, o orderservice.Service) user.Service {
+func NewUserService(r user.Repository, o orderservice.UseCase) UseCase {
 	return &service{r: r, o: o}
 }
 
