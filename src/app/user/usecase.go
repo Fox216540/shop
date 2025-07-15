@@ -6,7 +6,7 @@ import (
 	"shop/src/domain/user"
 )
 
-type Service interface {
+type UseCase interface {
 	Register(u user.User) (user.User, error)
 	Login(usernameOrEmail, password string) (user.User, error)
 	Logout(userID uuid.UUID) error
