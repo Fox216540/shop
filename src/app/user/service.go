@@ -98,7 +98,11 @@ func (s *service) Delete(userID uuid.UUID) error {
 }
 
 func (s *service) Orders(userID uuid.UUID) ([]order.Order, error) {
-	// TODO: Добавить проверку на есть ли пользователь с таким ID
+	_, err := s.r.GetByID(userID)
+	if err != nil {
+		return nil, err // Return error if unable to find user
+	}
+
 	orders, err := s.o.OrdersByUserID(userID)
 	if err != nil {
 		return nil, err // Return error if unable to find orders
@@ -107,7 +111,10 @@ func (s *service) Orders(userID uuid.UUID) ([]order.Order, error) {
 }
 
 func (s *service) DeleteOrder(userID, orderID uuid.UUID) (uuid.UUID, error) {
-	// TODO: Добавить проверку на есть ли пользователь с таким ID
+	_, err := s.r.GetByID(userID)
+	if err != nil {
+		return uuid.Nil, err // Return error if unable to find user
+	}
 	ID, err := s.o.CancelOrder(orderID, userID)
 	if err != nil {
 		return uuid.Nil, err // Return error if unable to delete order
@@ -115,15 +122,11 @@ func (s *service) DeleteOrder(userID, orderID uuid.UUID) (uuid.UUID, error) {
 	return ID, nil
 }
 
-func (s *service) CreateOrder(userID uuid.UUID, o order.Order) (order.Order, error) {
-	// TODO: Добавить проверку на есть ли пользователь с таким ID
+func (s *service) CreateOrder(userID uuid.UUID, productItems []*order.Item) (order.Order, error) {
 	// TODO: Принимать DTO
-	if o.ID == uuid.Nil {
-		o.ID = uuid.New() // Assuming GenerateID is a function that generates a new order ID
-	}
-	newOrder, err := s.o.PlaceOrder(o)
+	newOrder, err := s.o.PlaceOrder(userID, productItems)
 	if err != nil {
-		return o, err // Return error if unable to save order
+		return order.Order{}, err // Return error if unable to save order
 	}
 	return newOrder, nil
 }

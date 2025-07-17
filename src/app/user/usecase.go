@@ -16,5 +16,5 @@ type UseCase interface {
 	Delete(userID uuid.UUID) error
 	Orders(userID uuid.UUID) ([]order.Order, error)
 	DeleteOrder(userID, orderID uuid.UUID) (uuid.UUID, error)
-	CreateOrder(userID uuid.UUID, o order.Order) (order.Order, error)
+	CreateOrder(userID uuid.UUID, productItems []*order.Item) (order.Order, error)
 }
