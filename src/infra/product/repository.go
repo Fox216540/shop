@@ -65,3 +65,22 @@ func (r *repository) FindProductByID(ID uuid.UUID) (product.Product, error) {
 	}
 	return models.FromORM(p), nil
 }
+
+func (r *repository) FindProductsByIDs(IDs []uuid.UUID) ([]product.Product, error) {
+	var productsORM []models.ProductORM
+	err := r.db.WithSession(func(tx *gorm.DB) error {
+		return tx.
+			Where("product_id IN (?)", IDs).
+			Find(&productsORM).Error
+	})
+	if err != nil {
+		return []product.Product{}, err // Возвращаем ошибку, если не удалось найти продукты
+	}
+
+	products := make([]product.Product, 0, len(productsORM))
+	for _, p := range productsORM {
+		products = append(products, models.FromORM(p))
+	}
+
+	return products, nil
+}

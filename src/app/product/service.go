@@ -1,6 +1,7 @@
 package productservice
 
 import (
+	"errors"
 	"github.com/google/uuid"
 	"shop/src/domain/product"
 )
@@ -27,4 +28,16 @@ func (s *service) ProductByID(ID uuid.UUID) (product.Product, error) {
 		return p, err // Возвращаем ошибку, если не удалось найти продукт
 	}
 	return p, nil
+}
+
+func (s *service) ValidateProductsByIDs(IDs []uuid.UUID) error {
+	products, err := s.r.FindProductsByIDs(IDs)
+	if err != nil {
+		return err // Возвращаем ошибку, если не удалось найти продукты
+	}
+
+	if len(products) != len(IDs) {
+		return errors.New("some products not found") // Возвращаем ошибку, если не удалось найти продукты
+	}
+	return nil
 }
