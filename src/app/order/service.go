@@ -22,26 +22,35 @@ func NewOrderService(
 }
 
 func (s *service) PlaceOrder(userID uuid.UUID, productItems []*order.Item) (order.Order, error) {
-	var err error
-	var o order.Order
+	o := order.Order{
+		ID:           uuid.New(),
+		UserID:       userID,
+		ProductItems: productItems,
+	}
 
-	o.UserID = userID
-	o.ProductItems = productItems
+	var err error
 
 	o, err = s.GenerateOrderNum(o) // Генерируем уникальный номер заказа
-
 	if err != nil {
-		return o, nil
+		return o, err
 	}
 
 	o, err = s.CalculateTotalByProductIDs(o) // Вычисляем общую сумму заказа
+	if err != nil {
+		return o, err
+	}
 
+	productsIDs := make([]uuid.UUID, 0, len(o.ProductItems))
+	for _, item := range o.ProductItems {
+		productsIDs = append(productsIDs, item.Product.ID)
+	}
+
+	err = s.ps.ValidateProductsByIDs(productsIDs)
 	if err != nil {
 		return o, err
 	}
 
 	o, err = s.r.Save(o)
-
 	if err != nil {
 		return o, err // Возвращаем ошибку, если не удалось сохранить заказ
 	}
