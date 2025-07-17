@@ -21,24 +21,31 @@ func NewOrderService(
 	return &service{r: r, ps: ps, idGen: idGen}
 }
 
-func (s *service) PlaceOrder(o order.Order) (order.Order, error) {
+func (s *service) PlaceOrder(userID uuid.UUID, productItems []*order.Item) (order.Order, error) {
 	var err error
-	if o.ID == uuid.Nil {
-		o.ID = uuid.New()
+	var o order.Order
+
+	o.UserID = userID
+	o.ProductItems = productItems
+
+	o, err = s.GenerateOrderNum(o) // Генерируем уникальный номер заказа
+
+	if err != nil {
+		return o, nil
 	}
 
-	o = s.GenerateOrderNum(o) // Генерируем уникальный номер заказа
-
-	o, err = s.CalculateTotalByIDs(o) // Вычисляем общую сумму заказа
+	o, err = s.CalculateTotalByProductIDs(o) // Вычисляем общую сумму заказа
 
 	if err != nil {
 		return o, err
 	}
 
 	o, err = s.r.Save(o)
+
 	if err != nil {
 		return o, err // Возвращаем ошибку, если не удалось сохранить заказ
 	}
+
 	return o, nil
 }
 
@@ -65,7 +72,7 @@ func (s *service) OrdersByUserID(userID uuid.UUID) ([]order.Order, error) {
 	return orders, nil
 }
 
-func (s *service) CalculateTotalByIDs(o order.Order) (order.Order, error) {
+func (s *service) CalculateTotalByProductIDs(o order.Order) (order.Order, error) {
 	var total float64
 	for _, item := range o.ProductItems {
 		p, err := s.ps.ProductByID(item.Product.ID)
@@ -78,13 +85,13 @@ func (s *service) CalculateTotalByIDs(o order.Order) (order.Order, error) {
 	return o, nil
 }
 
-func (s *service) GenerateOrderNum(o order.Order) order.Order {
+func (s *service) GenerateOrderNum(o order.Order) (order.Order, error) {
 	orderNum, err := s.idGen.NewID()
 	if err != nil {
-		return order.Order{}
+		return order.Order{}, err
 	}
 
 	o.OrderNum = orderNum
 
-	return o
+	return o, nil
 }
