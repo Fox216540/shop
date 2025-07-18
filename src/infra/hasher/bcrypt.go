@@ -6,11 +6,10 @@ import (
 )
 
 type hasher struct {
-	h hash.Hasher
 }
 
-func NewHasher(h hash.Hasher) hash.Hasher {
-	return &hasher{h: h}
+func NewHasher() hash.Hasher {
+	return &hasher{}
 }
 
 func (h *hasher) Hash(password string) (string, error) {
