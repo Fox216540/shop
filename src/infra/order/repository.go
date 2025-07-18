@@ -1,4 +1,4 @@
-package orderrepository
+package order
 
 import (
 	"errors"
@@ -7,7 +7,7 @@ import (
 	"gorm.io/gorm"
 	"shop/src/domain/order"
 	db "shop/src/infra/db/core"
-	models "shop/src/infra/order/models"
+	"shop/src/infra/order/models"
 )
 
 type repository struct {
@@ -91,7 +91,7 @@ func (r *repository) OrdersByUserID(userID uuid.UUID) ([]order.Order, error) {
 	var ordersORM []models.OrderORM
 	err := r.db.WithSession(func(tx *gorm.DB) error {
 		return tx.
-			Preload("ProductItems").         // подгружаем ProductItems
+			Preload("ProductItems"). // подгружаем ProductItems
 			Preload("ProductItems.Product"). // подгружаем Product внутри ProductItems
 			Where("user_id = ?", userID).
 			Find(&ordersORM).Error

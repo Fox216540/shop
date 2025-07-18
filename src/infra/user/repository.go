@@ -1,11 +1,11 @@
-package userrepository
+package user
 
 import (
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 	"shop/src/domain/user"
 	db "shop/src/infra/db/core"
-	models "shop/src/infra/user/models"
+	"shop/src/infra/user/models"
 )
 
 type repository struct {

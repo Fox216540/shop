@@ -1,4 +1,4 @@
-package productrepository
+package product
 
 import (
 	"fmt"
@@ -6,7 +6,7 @@ import (
 	"gorm.io/gorm"
 	"shop/src/domain/product"
 	db "shop/src/infra/db/core"
-	models "shop/src/infra/product/models"
+	"shop/src/infra/product/models"
 )
 
 type repository struct {

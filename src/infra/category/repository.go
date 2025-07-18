@@ -1,9 +1,9 @@
-package categoryrepository
+package category
 
 import (
 	"gorm.io/gorm"
 	"shop/src/domain/category"
-	models "shop/src/infra/category/models"
+	"shop/src/infra/category/models"
 	db "shop/src/infra/db/core"
 )
 

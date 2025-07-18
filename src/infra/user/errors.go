@@ -1,1 +1,1 @@
-package userrepository
+package user

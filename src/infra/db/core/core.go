@@ -1,4 +1,4 @@
-package dbcore
+package core
 
 import "gorm.io/gorm"
 
