@@ -1,1 +1,1 @@
-package categoryrepository
+package category

@@ -1,4 +1,4 @@
-package idgeneratorinfra
+package idgenerator
 
 import (
 	"fmt"
