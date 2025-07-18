@@ -36,7 +36,7 @@ func (r *repository) Add(u user.User) (user.User, error) {
 
 func (r *repository) Delete(ID uuid.UUID) (uuid.UUID, error) {
 	err := r.db.WithSession(func(tx *gorm.DB) error {
-		result := tx.Where("id = ?", ID).Delete(&models.UserORM{})
+		result := tx.Unscoped().Where("user_id = ?", ID).Delete(&models.UserORM{})
 		if result.RowsAffected == 0 {
 			return gorm.ErrRecordNotFound // Возвращаем ошибку, если пользователь не найден
 		}
@@ -52,7 +52,7 @@ func (r *repository) Delete(ID uuid.UUID) (uuid.UUID, error) {
 func (r *repository) GetByID(ID uuid.UUID) (user.User, error) {
 	var u models.UserORM
 	err := r.db.WithSession(func(tx *gorm.DB) error {
-		return tx.Where("id = ?", ID).First(&u).Error
+		return tx.Where("user_id = ?", ID).First(&u).Error
 	})
 	if err != nil {
 		return user.User{}, err // Возвращаем ошибку, если не удалось найти пользователя
