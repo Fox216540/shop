@@ -8,5 +8,5 @@ import (
 type UseCase interface {
 	ProductsOfCategoryID(category *uuid.UUID) ([]product.Product, error)
 	ProductByID(productId uuid.UUID) (product.Product, error)
-	ValidateProductsByIDs(IDs []uuid.UUID) error
+	ProductsByIDs(IDs []uuid.UUID) ([]product.Product, error)
 }

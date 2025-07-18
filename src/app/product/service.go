@@ -30,14 +30,14 @@ func (s *service) ProductByID(ID uuid.UUID) (product.Product, error) {
 	return p, nil
 }
 
-func (s *service) ValidateProductsByIDs(IDs []uuid.UUID) error {
+func (s *service) ProductsByIDs(IDs []uuid.UUID) ([]product.Product, error) {
 	products, err := s.r.FindProductsByIDs(IDs)
 	if err != nil {
-		return err // Возвращаем ошибку, если не удалось найти продукты
+		return nil, err // Возвращаем ошибку, если не удалось найти продукты
 	}
 
 	if len(products) != len(IDs) {
-		return errors.New("some products not found") // Возвращаем ошибку, если не удалось найти продукты
+		return nil, errors.New("some products not found") // Возвращаем ошибку, если не удалось найти продукты
 	}
-	return nil
+	return products, nil
 }
