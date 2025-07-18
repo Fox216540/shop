@@ -1,4 +1,4 @@
-package handler
+package product
 
 import (
 	"github.com/gin-gonic/gin"
@@ -8,7 +8,7 @@ import (
 	"shop/src/api/product/dto"
 )
 
-func ProductHandler(r *gin.Engine) {
+func Handler(r *gin.Engine) {
 	ps := di.GetProductService()
 	// GetProductsByCategory
 	r.GET("/catalog/", func(c *gin.Context) {
