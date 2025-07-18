@@ -2,19 +2,20 @@ package order
 
 import (
 	"github.com/google/uuid"
+	"shop/src/app/product"
 	"shop/src/domain/idgenerator"
 	"shop/src/domain/order"
 )
 
 type service struct {
 	r     order.Repository
-	ps    productservice.UseCase
+	ps    product.UseCase
 	idGen idgenerator.Generator
 }
 
 func NewOrderService(
 	r order.Repository,
-	ps productservice.UseCase,
+	ps product.UseCase,
 	idGen idgenerator.Generator,
 ) UseCase {
 	return &service{r: r, ps: ps, idGen: idGen}
