@@ -2,7 +2,7 @@ package user
 
 import (
 	"github.com/google/uuid"
-	dto "shop/src/api/user/dto"
+	"shop/src/api/user/dto"
 	orderservice "shop/src/app/order"
 	"shop/src/domain/hasher"
 	"shop/src/domain/order"
@@ -20,7 +20,15 @@ func NewUserService(r user.Repository, o orderservice.UseCase, h hasher.Hasher) 
 }
 
 func (s *service) Register(userDto dto.RegisterRequest) (user.User, error) {
-	// TODO: Добавить проверку на уникальность логина и email
+	_, err := s.r.FindByUsernameOrEmail(userDto.Username)
+	if err == nil {
+		return user.User{}, err // Return error if user with the same username already exists
+	}
+	_, err = s.r.FindByUsernameOrEmail(userDto.Email)
+	if err == nil {
+		return user.User{}, err // Return error if user with the same email already exists
+	}
+
 	u := user.User{
 		Username: userDto.Username,
 		Email:    userDto.Email,
@@ -68,20 +76,34 @@ func (s *service) Login(usernameOrEmail, password string) (user.User, error) {
 
 func (s *service) Logout(userID uuid.UUID) error {
 	// TODO: Добавить вызов удаления токена из хранилища
-	// TODO: Добавить проверку на есть ли пользователь с таким ID
+	_, err := s.r.GetByID(userID)
+	if err != nil {
+		return err // Вернуть ошибку, если не удалось найти пользователя
+	}
+
 	if err := s.Logout(userID); err != nil {
 	}
+	return nil
 }
 
 func (s *service) LogoutAll(userID uuid.UUID) error {
 	// TODO: Добавить вызов удаления токена из хранилища
-	// TODO: Добавить проверку на есть ли пользователь с таким ID
+	_, err := s.r.GetByID(userID)
+	if err != nil {
+		return err // Вернуть ошибку, если не удалось найти пользователя
+	}
+
 	if err := s.LogoutAll(userID); err != nil {
 	}
+	return nil
 }
 
 func (s *service) Update(userID uuid.UUID, u user.User) (user.User, error) {
-	// TODO: Добавить проверку на есть ли пользователь с таким ID
+	// TODO: Добавить вызов обновления пользователя в хранилище
+	_, err := s.r.GetByID(userID)
+	if err != nil {
+		return u, err // Вернуть ошибку, если не удалось найти пользователя
+	}
 	updatedUser, err := s.r.Update(u)
 	if err != nil {
 		return updatedUser, err // Вернуть ошибку, если не удалось обновить пользователя
@@ -89,12 +111,17 @@ func (s *service) Update(userID uuid.UUID, u user.User) (user.User, error) {
 	return updatedUser, nil
 }
 
-func (s *service) Delete(userID uuid.UUID) error {
-	// TODO: Добавить проверку на есть ли пользователь с таким ID
-	if err := s.Delete(userID); err != nil {
-		return err // Вернуть ошибку, если не удалось удалить пользователя
+func (s *service) Delete(userID uuid.UUID) (user.User, error) {
+	// TODO: Добавить вызов удаления аккаунта из хранилища
+	u, err := s.r.GetByID(userID)
+	if err != nil {
+		return user.User{}, err // Вернуть ошибку, если не удалось найти пользователя
 	}
-	return nil
+	_, err = s.r.Delete(userID)
+	if err != nil {
+		return user.User{}, err // Вернуть ошибку, если не удалось удалить пользователя
+	}
+	return u, nil
 }
 
 func (s *service) Orders(userID uuid.UUID) ([]order.Order, error) {
