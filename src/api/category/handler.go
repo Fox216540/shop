@@ -1,4 +1,4 @@
-package handler
+package category
 
 import (
 	"github.com/gin-gonic/gin"
@@ -7,7 +7,7 @@ import (
 	"shop/src/api/category/dto"
 )
 
-func CategoryHandler(r *gin.Engine) {
+func Handler(r *gin.Engine) {
 	cs := di.GetCategoryService()
 	r.GET("/categories", func(c *gin.Context) {
 		categories, err := cs.GetCategories()
