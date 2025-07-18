@@ -1,4 +1,4 @@
-package categoriseservice
+package category
 
 import "shop/src/domain/category"
 

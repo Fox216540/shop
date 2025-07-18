@@ -1,8 +1,7 @@
-package orderservice
+package order
 
 import (
 	"github.com/google/uuid"
-	"shop/src/app/product"
 	"shop/src/domain/idgenerator"
 	"shop/src/domain/order"
 )

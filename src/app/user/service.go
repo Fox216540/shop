@@ -1,9 +1,9 @@
-package userservice
+package user
 
 import (
 	"github.com/google/uuid"
 	dto "shop/src/api/user/dto"
-	"shop/src/app/order"
+	orderservice "shop/src/app/order"
 	"shop/src/domain/hasher"
 	"shop/src/domain/order"
 	"shop/src/domain/user"

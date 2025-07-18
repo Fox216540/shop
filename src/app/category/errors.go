@@ -1,1 +1,1 @@
-package categoriseservice
+package category

@@ -1,1 +1,1 @@
-package productservice
+package product

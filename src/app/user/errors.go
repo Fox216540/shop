@@ -1,1 +1,1 @@
-package userservice
+package user

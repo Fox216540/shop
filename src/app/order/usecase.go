@@ -1,4 +1,4 @@
-package orderservice
+package order
 
 import (
 	"github.com/google/uuid"
