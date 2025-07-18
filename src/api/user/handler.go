@@ -1,20 +1,67 @@
-package handler
+package user
 
-import "github.com/gin-gonic/gin"
+import (
+	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
+	"net/http"
+	"shop/src/api/user/di"
+	"shop/src/api/user/dto"
+)
 
-func UserHandler(r *gin.Engine) {
-	// Здесь вы можете определить обработчики для маршрутов, связанных с пользователями
-	// Например:
-	r.GET("/users", getUsers)
-	r.POST("/users", createUser)
+func Handler(r *gin.Engine) {
+	us := di.GetUserService()
 
-	r.DELETE("/users/:id", deleteUser)
+	r.POST("/user", func(c *gin.Context) {
+		var r dto.RegisterRequest
 
-	// Пример простого обработчика
-	r.GET("/users", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "List of users",
-		})
+		if err := c.ShouldBindJSON(&r); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+			return
+		}
+
+		NewUser, err := us.Register(r)
+
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user"})
+			return
+		}
+
+		NewUserDTO := dto.UserResponse{
+			ID:       NewUser.ID,
+			Username: NewUser.Username,
+			Message:  "User created successfully",
+		}
+
+		c.JSON(http.StatusOK, NewUserDTO)
+
 	})
 
+	r.DELETE("/user/", func(c *gin.Context) {
+		var r dto.TestDeleteRequest
+
+		if err := c.ShouldBindJSON(&r); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+			return
+		}
+		uuidID, err := uuid.Parse(r.ID)
+
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+			return
+		}
+
+		deletedUser, err := us.Delete(uuidID)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete user"})
+			return
+		}
+
+		userDeletedDTO := dto.UserResponse{
+			ID:       deletedUser.ID,
+			Username: deletedUser.Username,
+			Message:  "User deleted successfully",
+		}
+
+		c.JSON(http.StatusOK, userDeletedDTO)
+	})
 }
