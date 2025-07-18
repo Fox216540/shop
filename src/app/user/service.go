@@ -137,16 +137,22 @@ func (s *service) Orders(userID uuid.UUID) ([]order.Order, error) {
 	return orders, nil
 }
 
-func (s *service) DeleteOrder(userID, orderID uuid.UUID) (uuid.UUID, error) {
+func (s *service) DeleteOrder(userID, orderID uuid.UUID) (order.Order, error) {
 	_, err := s.r.GetByID(userID)
 	if err != nil {
-		return uuid.Nil, err // Return error if unable to find user
+		return order.Order{}, err // Return error if unable to find user
 	}
-	ID, err := s.o.CancelOrder(orderID, userID)
+
+	o, err := s.o.GetByID(orderID)
 	if err != nil {
-		return uuid.Nil, err // Return error if unable to delete order
+		return order.Order{}, err // Return error if unable to find order
 	}
-	return ID, nil
+
+	_, err = s.o.Cancel(orderID, userID)
+	if err != nil {
+		return order.Order{}, err // Return error if unable to delete order
+	}
+	return o, nil
 }
 
 func (s *service) CreateOrder(userID uuid.UUID, productItems []*order.Item) (order.Order, error) {

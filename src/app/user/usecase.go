@@ -15,6 +15,6 @@ type UseCase interface {
 	Update(userID uuid.UUID, u user.User) (user.User, error)
 	Delete(userID uuid.UUID) (user.User, error)
 	Orders(userID uuid.UUID) ([]order.Order, error)
-	DeleteOrder(userID, orderID uuid.UUID) (uuid.UUID, error)
+	DeleteOrder(userID, orderID uuid.UUID) (order.Order, error)
 	CreateOrder(userID uuid.UUID, productItems []*order.Item) (order.Order, error)
 }
