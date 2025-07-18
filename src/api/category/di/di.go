@@ -1,13 +1,13 @@
-package categorydi
+package di
 
 import (
-	service "shop/src/app/category"
-	repo "shop/src/infra/category"
+	"shop/src/app/category"
+	r "shop/src/infra/category"
 	db "shop/src/infra/db/core"
 )
 
-func GetCategoryService() service.UseCase {
+func GetCategoryService() category.UseCase {
 	database := db.GetDatabase()
-	r := repo.NewRepository(database)
-	return service.NewService(r)
+	repo := r.NewRepository(database)
+	return category.NewService(repo)
 }

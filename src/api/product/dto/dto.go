@@ -1,4 +1,4 @@
-package productdto
+package dto
 
 type GetProductByIDRequest struct {
 	ID string `uri:"id" binding:"required,uuid"`

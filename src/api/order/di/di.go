@@ -1,17 +1,17 @@
-package orderdi
+package di
 
 import (
-	productdi "shop/src/api/product/di"
-	service "shop/src/app/order"
+	"shop/src/api/product/di"
+	"shop/src/app/order"
 	db "shop/src/infra/db/core"
 	idgen "shop/src/infra/idgenerator"
-	repo "shop/src/infra/order"
+	r "shop/src/infra/order"
 )
 
-func GetOrderService() service.UseCase {
+func GetOrderService() order.UseCase {
 	database := db.GetDatabase()
-	r := repo.NewRepository(database)
-	ps := productdi.GetProductService()
+	repo := r.NewRepository(database)
+	ps := di.GetProductService()
 	idGen := idgen.NewSonyFlakeGenerator()
-	return service.NewOrderService(r, ps, idGen)
+	return order.NewOrderService(repo, ps, idGen)
 }

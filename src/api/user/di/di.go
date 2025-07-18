@@ -1,15 +1,15 @@
-package userdi
+package di
 
 import (
-	orderdi "shop/src/api/order/di"
-	userservice "shop/src/app/user"
+	"shop/src/api/order/di"
+	"shop/src/app/user"
 	db "shop/src/infra/db/core"
-	userrepo "shop/src/infra/user"
+	r "shop/src/infra/user"
 )
 
-func GetUserService() userservice.Service {
+func GetUserService() user.UseCase {
 	database := db.GetDatabase()
-	r := userrepo.NewRepository(database)
-	orderService := orderdi.GetOrderService()
-	return userservice.NewUserService(r, orderService)
+	repo := r.NewRepository(database)
+	orderService := di.GetOrderService()
+	return user.NewUserService(repo, orderService)
 }

@@ -1,11 +1,11 @@
-package producthandler
+package handler
 
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"net/http"
-	di "shop/src/api/product/di"
-	dto "shop/src/api/product/dto"
+	"shop/src/api/product/di"
+	"shop/src/api/product/dto"
 )
 
 func ProductHandler(r *gin.Engine) {

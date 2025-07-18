@@ -1,10 +1,10 @@
-package categoryhandler
+package handler
 
 import (
 	"github.com/gin-gonic/gin"
 	"net/http"
-	di "shop/src/api/category/di"
-	dto "shop/src/api/category/dto"
+	"shop/src/api/category/di"
+	"shop/src/api/category/dto"
 )
 
 func CategoryHandler(r *gin.Engine) {

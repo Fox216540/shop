@@ -1,13 +1,13 @@
-package productdi
+package di
 
 import (
-	productservice "shop/src/app/product"
+	"shop/src/app/product"
 	db "shop/src/infra/db/core"
-	productrepository "shop/src/infra/product"
+	r "shop/src/infra/product"
 )
 
-func GetProductService() productservice.UseCase {
+func GetProductService() product.UseCase {
 	database := db.GetDatabase() // Получаем базу данных из пакета db
-	repo := productrepository.NewRepository(database)
-	return productservice.NewService(repo)
+	repo := r.NewRepository(database)
+	return product.NewService(repo)
 }
