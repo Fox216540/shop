@@ -1,10 +1,12 @@
 package order
 
 import (
+	"fmt"
 	"github.com/google/uuid"
 	"shop/src/app/product"
 	"shop/src/domain/idgenerator"
 	"shop/src/domain/order"
+	p "shop/src/domain/product"
 )
 
 type service struct {
@@ -21,23 +23,12 @@ func NewOrderService(
 	return &service{r: r, ps: ps, idGen: idGen}
 }
 
-func (s *service) PlaceOrder(userID uuid.UUID, productItems []*order.Item) (order.Order, error) {
+func (s *service) Place(userID uuid.UUID, productItems []*order.Item) (order.Order, error) {
+	var err error
 	o := order.Order{
 		ID:           uuid.New(),
 		UserID:       userID,
 		ProductItems: productItems,
-	}
-
-	var err error
-
-	o, err = s.GenerateOrderNum(o) // Генерируем уникальный номер заказа
-	if err != nil {
-		return o, err
-	}
-
-	o, err = s.CalculateTotalByProductIDs(o) // Вычисляем общую сумму заказа
-	if err != nil {
-		return o, err
 	}
 
 	productsIDs := make([]uuid.UUID, 0, len(o.ProductItems))
@@ -45,7 +36,30 @@ func (s *service) PlaceOrder(userID uuid.UUID, productItems []*order.Item) (orde
 		productsIDs = append(productsIDs, item.Product.ID)
 	}
 
-	err = s.ps.ValidateProductsByIDs(productsIDs)
+	products, err := s.ps.ProductsByIDs(productsIDs)
+	if err != nil {
+		return o, err
+	}
+
+	productMap := make(map[uuid.UUID]p.Product)
+	for _, prod := range products {
+		productMap[prod.ID] = prod
+	}
+
+	for _, item := range o.ProductItems {
+		if prod, ok := productMap[item.Product.ID]; ok {
+			item.Product = prod
+		} else {
+			return o, fmt.Errorf("product not found: %s", item.Product.ID)
+		}
+	}
+
+	o, err = s.generateOrderNum(o) // Генерируем уникальный номер заказа
+	if err != nil {
+		return o, err
+	}
+
+	o, err = s.calculateOrderTotal(o) // Вычисляем общую сумму заказа
 	if err != nil {
 		return o, err
 	}
@@ -58,7 +72,7 @@ func (s *service) PlaceOrder(userID uuid.UUID, productItems []*order.Item) (orde
 	return o, nil
 }
 
-func (s *service) CancelOrder(ID, userID uuid.UUID) (uuid.UUID, error) {
+func (s *service) Cancel(ID, userID uuid.UUID) (uuid.UUID, error) {
 	if err := s.r.Remove(ID, userID); err != nil {
 		return ID, err // Возвращаем ошибку, если не удалось удалить заказ
 	}
@@ -81,20 +95,16 @@ func (s *service) OrdersByUserID(userID uuid.UUID) ([]order.Order, error) {
 	return orders, nil
 }
 
-func (s *service) CalculateTotalByProductIDs(o order.Order) (order.Order, error) {
+func (s *service) calculateOrderTotal(o order.Order) (order.Order, error) {
 	var total float64
 	for _, item := range o.ProductItems {
-		p, err := s.ps.ProductByID(item.Product.ID)
-		if err != nil {
-			return order.Order{}, err
-		}
-		total += p.Price * float64(item.Quantity)
+		total += item.Product.Price * float64(item.Quantity)
 	}
 	o.Total = total
 	return o, nil
 }
 
-func (s *service) GenerateOrderNum(o order.Order) (order.Order, error) {
+func (s *service) generateOrderNum(o order.Order) (order.Order, error) {
 	orderNum, err := s.idGen.NewID()
 	if err != nil {
 		return order.Order{}, err
