@@ -20,21 +20,20 @@ func NewRepository(db *db.Database) order.Repository {
 
 func (r *repository) Save(o order.Order) (order.Order, error) {
 	newOrder := &models.OrderORM{
-		OrderID:      o.ID,
-		OrderNum:     o.OrderNum,
-		Status:       o.Status,
-		UserID:       o.UserID,
-		Total:        o.Total,
-		ProductItems: make([]*models.ProductItemORM, len(o.ProductItems)),
+		OrderID:    o.ID,
+		OrderNum:   o.OrderNum,
+		Status:     o.Status,
+		UserID:     o.UserID,
+		Total:      o.Total,
+		OrderItems: []*models.OrderItemORM{},
 	}
 
-	for _, item := range o.ProductItems {
-		newOrder.ProductItems = append(
-			newOrder.ProductItems, &models.ProductItemORM{
-				ProductID: item.Product.ID,
-				Quantity:  item.Quantity,
-				OrderID:   o.ID,
-			})
+	for _, item := range o.OrderItems {
+		newOrder.OrderItems = append(newOrder.OrderItems, &models.OrderItemORM{
+			ProductID: item.Product.ID,
+			Quantity:  item.Quantity,
+			OrderID:   o.ID,
+		})
 	}
 
 	err := r.db.WithSession(func(tx *gorm.DB) error {
@@ -43,8 +42,8 @@ func (r *repository) Save(o order.Order) (order.Order, error) {
 		}
 		// Загрузим обратно с подгруженными продуктами
 		return tx.
-			Preload("ProductItems.Product").
-			Preload("ProductItems").
+			Preload("OrderItems.Product").
+			Preload("OrderItems").
 			First(newOrder, "order_id = ?", newOrder.OrderID).Error
 	})
 	if err != nil {
@@ -76,8 +75,8 @@ func (r *repository) GetByID(ID uuid.UUID) (order.Order, error) {
 	var o models.OrderORM
 	err := r.db.WithSession(func(tx *gorm.DB) error {
 		return tx.
-			Preload("ProductItems.Product"). // подгружаем Product внутри ProductItems
-			Preload("ProductItems").
+			Preload("OrderItems.Product"). // подгружаем Product внутри OrderItems
+			Preload("OrderItems").
 			Where("id = ?", ID).
 			First(&o).Error
 	})
@@ -91,8 +90,8 @@ func (r *repository) OrdersByUserID(userID uuid.UUID) ([]order.Order, error) {
 	var ordersORM []models.OrderORM
 	err := r.db.WithSession(func(tx *gorm.DB) error {
 		return tx.
-			Preload("ProductItems"). // подгружаем ProductItems
-			Preload("ProductItems.Product"). // подгружаем Product внутри ProductItems
+			Preload("OrderItems"). // подгружаем OrderItems
+			Preload("OrderItems.Product"). // подгружаем Product внутри OrderItems
 			Where("user_id = ?", userID).
 			Find(&ordersORM).Error
 	})
