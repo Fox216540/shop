@@ -41,15 +41,15 @@ func (OrderORM) TableName() string {
 
 func FromORM(orm OrderORM) order.Order {
 	o := order.Order{
-		ID:           orm.OrderID,
-		OrderNum:     orm.OrderNum,
-		Status:       orm.Status,
-		UserID:       orm.UserID,
-		Total:        orm.Total,
-		ProductItems: make([]*order.Item, 0, len(orm.ProductItems)),
+		ID:         orm.OrderID,
+		OrderNum:   orm.OrderNum,
+		Status:     orm.Status,
+		UserID:     orm.UserID,
+		Total:      orm.Total,
+		OrderItems: make([]*order.Item, 0, len(orm.ProductItems)),
 	}
 	for _, item := range orm.ProductItems {
-		o.ProductItems = append(o.ProductItems, &order.Item{
+		o.OrderItems = append(o.OrderItems, &order.Item{
 			Product:  productORM.FromORM(item.Product),
 			Quantity: item.Quantity,
 		})
