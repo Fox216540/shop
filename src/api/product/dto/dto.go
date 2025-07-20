@@ -1,5 +1,7 @@
 package dto
 
+// TODO: Отсортировать DTO
+
 type GetProductByIDRequest struct {
 	ID string `uri:"id" binding:"required,uuid"`
 }

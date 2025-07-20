@@ -2,6 +2,8 @@ package dto
 
 import "github.com/google/uuid"
 
+// TODO: Отсортировать DTO
+
 type RegisterRequest struct {
 	Username string `json:"username" binding:"required"`
 	Email    string `json:"email" binding:"required,email"`
