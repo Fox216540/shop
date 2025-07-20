@@ -8,7 +8,7 @@ import (
 	user "shop/src/infra/user/models"
 )
 
-type ProductItemORM struct {
+type OrderItemORM struct {
 	ID        int       `gorm:"primaryKey;autoIncrement"`
 	OrderID   uuid.UUID `gorm:"type:uuid;not null;index"`
 	ProductID uuid.UUID `gorm:"type:uuid;not null;index"`
@@ -18,19 +18,19 @@ type ProductItemORM struct {
 	Quantity int `gorm:"not null"`
 }
 
-func (ProductItemORM) TableName() string {
+func (OrderItemORM) TableName() string {
 	return "order_product"
 }
 
 type OrderORM struct {
 	gorm.Model
-	ID           int               `gorm:"primaryKey;autoIncrement"`
-	OrderID      uuid.UUID         `gorm:"type:uuid;not null;uniqueIndex"`
-	UserID       uuid.UUID         `gorm:"type:uuid;not null;index"`
-	OrderNum     string            `gorm:"type:varchar(50);not null;uniqueIndex"`
-	Status       string            `gorm:"type:varchar(50);not null"`
-	Total        float64           `gorm:"type:decimal(10,2);not null"` // Total order amount
-	ProductItems []*ProductItemORM `gorm:"foreignKey:OrderID;references:OrderID;constraint:OnDelete:CASCADE"`
+	ID         int             `gorm:"primaryKey;autoIncrement"`
+	OrderID    uuid.UUID       `gorm:"type:uuid;not null;uniqueIndex"`
+	UserID     uuid.UUID       `gorm:"type:uuid;not null;index"`
+	OrderNum   string          `gorm:"type:varchar(50);not null;uniqueIndex"`
+	Status     string          `gorm:"type:varchar(50);not null"`
+	Total      float64         `gorm:"type:decimal(10,2);not null"` // Total order amount
+	OrderItems []*OrderItemORM `gorm:"foreignKey:OrderID;references:OrderID;constraint:OnDelete:CASCADE"`
 
 	User user.UserORM `gorm:"references:UserID"`
 }
@@ -46,9 +46,9 @@ func FromORM(orm OrderORM) order.Order {
 		Status:     orm.Status,
 		UserID:     orm.UserID,
 		Total:      orm.Total,
-		OrderItems: make([]*order.Item, 0, len(orm.ProductItems)),
+		OrderItems: make([]*order.Item, 0, len(orm.OrderItems)),
 	}
-	for _, item := range orm.ProductItems {
+	for _, item := range orm.OrderItems {
 		o.OrderItems = append(o.OrderItems, &order.Item{
 			Product:  productORM.FromORM(item.Product),
 			Quantity: item.Quantity,
