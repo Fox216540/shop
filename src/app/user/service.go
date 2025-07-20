@@ -6,6 +6,7 @@ import (
 	orderservice "shop/src/app/order"
 	"shop/src/domain/hasher"
 	"shop/src/domain/order"
+	"shop/src/domain/product"
 	"shop/src/domain/user"
 )
 
@@ -155,11 +156,30 @@ func (s *service) DeleteOrder(userID, orderID uuid.UUID) (order.Order, error) {
 	return o, nil
 }
 
-func (s *service) CreateOrder(userID uuid.UUID, productItems []*order.Item) (order.Order, error) {
-	// TODO: Принимать DTO
-	newOrder, err := s.o.PlaceOrder(userID, productItems)
+func (s *service) CreateOrder(userDTO dto.TestCreateOrderRequest) (order.Order, error) {
+	userID, err := uuid.Parse(userDTO.ID)
+	if err != nil {
+		return order.Order{}, err // Return error if unable to parse user ID
+	}
+
+	productItems := make([]*order.Item, len(userDTO.OrderItems)) // userDTO.OrderItems -> userDTO.OrderItems
+	for i, item := range userDTO.OrderItems {
+		uuidID, err := uuid.Parse(item.ProductID)
+		if err != nil {
+			return order.Order{}, err // Return error if unable to parse product ID
+		}
+		productItems[i] = &order.Item{
+			Product: product.Product{
+				ID: uuidID,
+			},
+			Quantity: item.Quantity,
+		}
+	}
+
+	newOrder, err := s.o.Place(userID, productItems)
 	if err != nil {
 		return order.Order{}, err // Return error if unable to save order
 	}
+
 	return newOrder, nil
 }
