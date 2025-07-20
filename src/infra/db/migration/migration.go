@@ -18,5 +18,5 @@ func Migration(db *gorm.DB) error {
 		&product.ProductORM{},
 		&order.OrderORM{},
 		&user.UserORM{},
-		&order.ProductItemORM{})
+		&order.OrderProductORM{})
 }
