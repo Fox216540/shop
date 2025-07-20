@@ -8,7 +8,7 @@ import (
 	user "shop/src/infra/user/models"
 )
 
-type OrderItemORM struct {
+type OrderProductORM struct {
 	ID        int       `gorm:"primaryKey;autoIncrement"`
 	OrderID   uuid.UUID `gorm:"type:uuid;not null;index"`
 	ProductID uuid.UUID `gorm:"type:uuid;not null;index"`
@@ -18,19 +18,19 @@ type OrderItemORM struct {
 	Quantity int `gorm:"not null"`
 }
 
-func (OrderItemORM) TableName() string {
+func (OrderProductORM) TableName() string {
 	return "order_product"
 }
 
 type OrderORM struct {
 	gorm.Model
-	ID         int             `gorm:"primaryKey;autoIncrement"`
-	OrderID    uuid.UUID       `gorm:"type:uuid;not null;uniqueIndex"`
-	UserID     uuid.UUID       `gorm:"type:uuid;not null;index"`
-	OrderNum   string          `gorm:"type:varchar(50);not null;uniqueIndex"`
-	Status     string          `gorm:"type:varchar(50);not null"`
-	Total      float64         `gorm:"type:decimal(10,2);not null"` // Total order amount
-	OrderItems []*OrderItemORM `gorm:"foreignKey:OrderID;references:OrderID;constraint:OnDelete:CASCADE"`
+	ID         int                `gorm:"primaryKey;autoIncrement"`
+	OrderID    uuid.UUID          `gorm:"type:uuid;not null;uniqueIndex"`
+	UserID     uuid.UUID          `gorm:"type:uuid;not null;index"`
+	OrderNum   string             `gorm:"type:varchar(50);not null;uniqueIndex"`
+	Status     string             `gorm:"type:varchar(50);not null"`
+	Total      float64            `gorm:"type:decimal(10,2);not null"` // Total order amount
+	OrderItems []*OrderProductORM `gorm:"foreignKey:OrderID;references:OrderID;constraint:OnDelete:CASCADE"`
 
 	User user.UserORM `gorm:"references:UserID"`
 }
