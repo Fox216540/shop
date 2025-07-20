@@ -10,7 +10,7 @@ import (
 
 func Handler(r *gin.Engine) {
 	us := di.GetUserService()
-
+	// Register
 	r.POST("/user", func(c *gin.Context) {
 		var r dto.RegisterRequest
 
@@ -35,7 +35,11 @@ func Handler(r *gin.Engine) {
 		c.JSON(http.StatusOK, NewUserDTO)
 
 	})
-
+	// Login
+	// Logout
+	// LogoutAll
+	// Update
+	// Delete
 	r.DELETE("/user/", func(c *gin.Context) {
 		var r dto.TestDeleteRequest
 
@@ -64,4 +68,30 @@ func Handler(r *gin.Engine) {
 
 		c.JSON(http.StatusOK, userDeletedDTO)
 	})
+	// Orders
+	// DeleteOrder
+	// CreateOrder
+	r.POST("/user/orders", func(c *gin.Context) {
+		var r dto.TestCreateOrderRequest
+
+		if err := c.ShouldBindJSON(&r); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+			return
+		}
+
+		o, err := us.CreateOrder(r)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create order"})
+			return
+		}
+
+		c.JSON(http.StatusOK, dto.CreateOrderResponse{
+			ID:       o.ID,
+			UserID:   o.UserID,
+			OrderNum: o.OrderNum,
+			Total:    o.Total,
+			Status:   o.Status,
+		})
+	})
+
 }
