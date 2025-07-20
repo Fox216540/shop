@@ -26,13 +26,13 @@ func NewOrderService(
 func (s *service) Place(userID uuid.UUID, productItems []*order.Item) (order.Order, error) {
 	var err error
 	o := order.Order{
-		ID:           uuid.New(),
-		UserID:       userID,
-		ProductItems: productItems,
+		ID:         uuid.New(),
+		UserID:     userID,
+		OrderItems: productItems,
 	}
 
-	productsIDs := make([]uuid.UUID, 0, len(o.ProductItems))
-	for _, item := range o.ProductItems {
+	productsIDs := make([]uuid.UUID, 0, len(o.OrderItems))
+	for _, item := range o.OrderItems {
 		productsIDs = append(productsIDs, item.Product.ID)
 	}
 
@@ -46,7 +46,7 @@ func (s *service) Place(userID uuid.UUID, productItems []*order.Item) (order.Ord
 		productMap[prod.ID] = prod
 	}
 
-	for _, item := range o.ProductItems {
+	for _, item := range o.OrderItems {
 		if prod, ok := productMap[item.Product.ID]; ok {
 			item.Product = prod
 		} else {
@@ -97,7 +97,7 @@ func (s *service) OrdersByUserID(userID uuid.UUID) ([]order.Order, error) {
 
 func (s *service) calculateOrderTotal(o order.Order) (order.Order, error) {
 	var total float64
-	for _, item := range o.ProductItems {
+	for _, item := range o.OrderItems {
 		total += item.Product.Price * float64(item.Quantity)
 	}
 	o.Total = total
