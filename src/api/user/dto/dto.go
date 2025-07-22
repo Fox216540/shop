@@ -61,3 +61,8 @@ type TestCreateOrderRequest struct {
 	ID         string        `json:"id" binding:"required,uuid"`
 	OrderItems []ItemRequest `json:"product_items" binding:"required"`
 }
+
+type TestDeleteOrderRequest struct {
+	UserID string `json:"userID" binding:"required,uuid"`
+	ID     string `json:"id" binding:"required,uuid"`
+}
