@@ -6,29 +6,42 @@ import (
 	"net/http"
 	"shop/src/api/product/di"
 	"shop/src/api/product/dto"
+	"shop/src/app/product"
 )
 
 func Handler(r *gin.Engine) {
 	ps := di.GetProductService()
 	// GetProductsByCategory
-	r.GET("/catalog/", func(c *gin.Context) {
-		var r dto.GetProductsByCategoryRequest
+	r.GET("/catalog/", getProductsByCategoryHandler(ps))
+	// GetProductByID
+	r.GET("/catalog/:id", getProductByIDHandler(ps))
+}
 
-		if err := c.ShouldBindQuery(&r); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid query parameters", "details": err.Error()})
+func parseCategoryID(c *gin.Context) (*uuid.UUID, error) {
+	var req dto.GetProductsByCategoryRequest
+	if err := c.ShouldBindQuery(&req); err != nil {
+		return nil, err
+	}
+	if req.CategoryID == "" {
+		return nil, nil
+	}
+	uid, err := uuid.Parse(req.CategoryID)
+	if err != nil {
+		return nil, err
+	}
+	return &uid, nil
+}
+
+func getProductsByCategoryHandler(ps product.UseCase) gin.HandlerFunc {
+	//GetProductsByCategory
+	return func(c *gin.Context) {
+		categoryID, err := parseCategoryID(c)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid category ID", "details": err.Error()})
 			return
 		}
 
-		var categoryPtr *uuid.UUID
-
-		if r.CategoryID != "" {
-			categoryUUID, _ := uuid.Parse(r.CategoryID)
-			categoryPtr = &categoryUUID
-		} else {
-			categoryPtr = nil
-		}
-
-		products, err := ps.ProductsOfCategoryID(categoryPtr)
+		products, err := ps.ProductsOfCategoryID(categoryID)
 
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch product data"})
@@ -48,10 +61,12 @@ func Handler(r *gin.Engine) {
 		}
 
 		c.JSON(http.StatusOK, productsDTO)
-	})
+	}
+}
 
-	// GetProductByID
-	r.GET("/catalog/:id", func(c *gin.Context) {
+func getProductByIDHandler(ps product.UseCase) gin.HandlerFunc {
+	//GetProductByID
+	return func(c *gin.Context) {
 		var uri dto.GetProductByIDRequest
 		if err := c.ShouldBindUri(&uri); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid product ID", "details": err.Error()})
@@ -60,19 +75,19 @@ func Handler(r *gin.Engine) {
 
 		productID, _ := uuid.Parse(uri.ID)
 
-		product, err := ps.ProductByID(productID)
+		Product, err := ps.ProductByID(productID)
 		if err != nil {
 			c.JSON(http.StatusNotFound, gin.H{"error": "Product not found"})
 			return
 		}
 		c.JSON(http.StatusOK, dto.ProductResponse{
-			ProductID:          product.ID.String(),
-			ProductName:        product.Name,
-			ProductImg:         product.Img,
-			ProductPrice:       product.Price,
-			ProductCategoryID:  product.CategoryID.String(),
-			ProductDescription: product.Description,
-			ProductStock:       product.Stock,
+			ProductID:          Product.ID.String(),
+			ProductName:        Product.Name,
+			ProductImg:         Product.Img,
+			ProductPrice:       Product.Price,
+			ProductCategoryID:  Product.CategoryID.String(),
+			ProductDescription: Product.Description,
+			ProductStock:       Product.Stock,
 		})
-	})
+	}
 }
