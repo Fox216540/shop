@@ -23,35 +23,67 @@ func NewOrderService(
 	return &service{r: r, ps: ps, idGen: idGen}
 }
 
-func (s *service) Place(userID uuid.UUID, productItems []*order.Item) (order.Order, error) {
-	var err error
-	o := order.Order{
+func (s *service) createNewOrder(userID uuid.UUID, items []*order.Item) order.Order {
+	return order.Order{
 		ID:         uuid.New(),
 		UserID:     userID,
-		OrderItems: productItems,
+		OrderItems: items,
+	}
+}
+
+func (s *service) enrichProducts(items []*order.Item) error {
+	productIDs := make([]uuid.UUID, len(items))
+	for i, item := range items {
+		productIDs[i] = item.Product.ID
 	}
 
-	productsIDs := make([]uuid.UUID, 0, len(o.OrderItems))
-	for _, item := range o.OrderItems {
-		productsIDs = append(productsIDs, item.Product.ID)
-	}
-
-	products, err := s.ps.ProductsByIDs(productsIDs)
+	products, err := s.ps.ProductsByIDs(productIDs)
 	if err != nil {
-		return o, err
+		return err
 	}
 
-	productMap := make(map[uuid.UUID]p.Product)
+	productMap := make(map[uuid.UUID]p.Product, len(products))
 	for _, prod := range products {
 		productMap[prod.ID] = prod
 	}
 
-	for _, item := range o.OrderItems {
+	for _, item := range items {
 		if prod, ok := productMap[item.Product.ID]; ok {
 			item.Product = prod
 		} else {
-			return o, fmt.Errorf("product not found: %s", item.Product.ID)
+			return fmt.Errorf("product not found: %s", item.Product.ID)
 		}
+	}
+
+	return nil
+}
+
+func (s *service) generateOrderNum(o order.Order) (order.Order, error) {
+	orderNum, err := s.idGen.NewID()
+	if err != nil {
+		return order.Order{}, err
+	}
+
+	o.OrderNum = orderNum
+
+	return o, nil
+}
+
+func (s *service) calculateOrderTotal(o order.Order) (order.Order, error) {
+	var total float64
+	for _, item := range o.OrderItems {
+		total += item.Product.Price * float64(item.Quantity)
+	}
+	o.Total = total
+	return o, nil
+}
+
+func (s *service) Place(userID uuid.UUID, productItems []*order.Item) (order.Order, error) {
+	var err error
+	o := s.createNewOrder(userID, productItems)
+
+	if err = s.enrichProducts(o.OrderItems); err != nil {
+		return o, err
 	}
 
 	o, err = s.generateOrderNum(o) // Генерируем уникальный номер заказа
@@ -93,24 +125,4 @@ func (s *service) OrdersByUserID(userID uuid.UUID) ([]order.Order, error) {
 		return nil, err // Возвращаем ошибку, если не удалось найти заказы пользователя
 	}
 	return orders, nil
-}
-
-func (s *service) calculateOrderTotal(o order.Order) (order.Order, error) {
-	var total float64
-	for _, item := range o.OrderItems {
-		total += item.Product.Price * float64(item.Quantity)
-	}
-	o.Total = total
-	return o, nil
-}
-
-func (s *service) generateOrderNum(o order.Order) (order.Order, error) {
-	orderNum, err := s.idGen.NewID()
-	if err != nil {
-		return order.Order{}, err
-	}
-
-	o.OrderNum = orderNum
-
-	return o, nil
 }

@@ -138,10 +138,15 @@ func (s *service) Orders(userID uuid.UUID) ([]order.Order, error) {
 	return orders, nil
 }
 
-func (s *service) DeleteOrder(userID, orderID uuid.UUID) (order.Order, error) {
-	_, err := s.r.GetByID(userID)
+func (s *service) DeleteOrder(userDTO dto.TestDeleteOrderRequest) (order.Order, error) {
+	orderID, err := uuid.Parse(userDTO.ID)
 	if err != nil {
-		return order.Order{}, err // Return error if unable to find user
+		return order.Order{}, err // Return error if unable to parse order ID
+	}
+
+	userID, err := uuid.Parse(userDTO.UserID)
+	if err != nil {
+		return order.Order{}, err // Return error if unable to parse user ID
 	}
 
 	o, err := s.o.GetByID(orderID)
