@@ -53,10 +53,10 @@ func (r *repository) Save(o order.Order) (order.Order, error) {
 	return models.FromORM(*newOrder), nil
 }
 
-// TODO: Поменять на полное удаление
 func (r *repository) Remove(ID, userID uuid.UUID) error {
 	err := r.db.WithSession(func(tx *gorm.DB) error {
 		result := tx.
+			Unscoped().
 			Where("order_id = ? AND user_id = ?", ID, userID).
 			Delete(&models.OrderORM{})
 		if result.RowsAffected == 0 {
