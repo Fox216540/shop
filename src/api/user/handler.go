@@ -4,9 +4,12 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"net/http"
+	orderDTO "shop/src/api/order/dto"
+	productDTO "shop/src/api/product/dto"
 	"shop/src/api/user/di"
 	"shop/src/api/user/dto"
 	"shop/src/app/user"
+	"shop/src/domain/order"
 )
 
 // TODO: разбить на под функции
@@ -25,7 +28,7 @@ func Handler(r *gin.Engine) {
 	// Delete
 	r.DELETE("/user/", deleteHandler(us))
 	// Orders
-	//r.GET("/user/orders", ordersHandler(us))
+	r.GET("/user/orders", ordersHandler(us))
 	// CreateOrder
 	r.POST("/user/order/create", createOrderHandler(us))
 	// DeleteOrder
@@ -91,6 +94,65 @@ func deleteHandler(us user.UseCase) gin.HandlerFunc {
 	}
 }
 
+func mapProductsToResponse(products []*order.Item) []orderDTO.ItemsResponse {
+	var productsDTO []orderDTO.ItemsResponse
+	for _, p := range products {
+		productsDTO = append(productsDTO, orderDTO.ItemsResponse{
+			Quantity: p.Quantity,
+			Product: productDTO.ProductResponse{
+				ProductID:    p.Product.ID.String(),
+				ProductName:  p.Product.Name,
+				ProductImg:   p.Product.Img,
+				ProductPrice: p.Product.Price,
+			},
+		})
+	}
+	return productsDTO
+}
+
+func mapOrdersToResponse(orders []order.Order) []orderDTO.OrderResponse {
+	var ordersDTO []orderDTO.OrderResponse
+	for _, o := range orders {
+		ordersDTO = append(ordersDTO, orderDTO.OrderResponse{
+			ID:       o.ID,
+			UserID:   o.UserID,
+			OrderNum: o.OrderNum,
+			Total:    o.Total,
+			Status:   o.Status,
+			Items:    mapProductsToResponse(o.OrderItems),
+		})
+	}
+	return ordersDTO
+}
+
+func ordersHandler(us user.UseCase) gin.HandlerFunc {
+	//Orders
+	return func(c *gin.Context) {
+		var r dto.TestGetOrdersRequest
+
+		if err := c.ShouldBindJSON(&r); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+			return
+		}
+
+		uid, err := uuid.Parse(r.UserID)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+			return
+		}
+
+		orders, err := us.Orders(uid)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch order data"})
+			return
+		}
+
+		ordersDTO := mapOrdersToResponse(orders)
+
+		c.JSON(http.StatusOK, ordersDTO)
+	}
+}
+
 func createOrderHandler(us user.UseCase) gin.HandlerFunc {
 	//CreateOrder
 	return func(c *gin.Context) {
@@ -133,7 +195,15 @@ func deleteOrderHandler(us user.UseCase) gin.HandlerFunc {
 			return
 		}
 
-		c.JSON(http.StatusOK, gin.H{"message": "Order deleted successfully"})
+		orderDeletedDTO := orderDTO.OrderResponse{
+			ID:       o.ID,
+			UserID:   o.UserID,
+			OrderNum: o.OrderNum,
+			Total:    o.Total,
+			Status:   o.Status,
+		}
+
+		c.JSON(http.StatusOK, orderDeletedDTO)
 
 	}
 }
