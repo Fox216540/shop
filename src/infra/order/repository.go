@@ -53,6 +53,7 @@ func (r *repository) Save(o order.Order) (order.Order, error) {
 	return models.FromORM(*newOrder), nil
 }
 
+// TODO: Поменять на полное удаление
 func (r *repository) Remove(ID, userID uuid.UUID) error {
 	err := r.db.WithSession(func(tx *gorm.DB) error {
 		result := tx.
@@ -77,7 +78,7 @@ func (r *repository) GetByID(ID uuid.UUID) (order.Order, error) {
 		return tx.
 			Preload("OrderItems.Product"). // подгружаем Product внутри OrderItems
 			Preload("OrderItems").
-			Where("id = ?", ID).
+			Where("order_id = ?", ID).
 			First(&o).Error
 	})
 	if err != nil {
