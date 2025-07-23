@@ -22,7 +22,7 @@ func Handler(r *gin.Engine) {
 	// Logout
 	//r.POST("/user/logout", logoutHandler(us))
 	// LogoutAll
-	//r.POST("/user/logoutall", logoutAllHandler(us))
+	//r.POST("/user/logout-all", logoutAllHandler(us))
 	// Update
 	//r.PATCH("/user/", updateHandler(us))
 	// Delete
