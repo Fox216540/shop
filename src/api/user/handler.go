@@ -12,7 +12,6 @@ import (
 	"shop/src/domain/order"
 )
 
-// TODO: разбить на под функции
 func Handler(r *gin.Engine) {
 	us := di.GetUserService()
 	// Register
