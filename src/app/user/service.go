@@ -5,29 +5,33 @@ import (
 	"shop/src/api/user/dto"
 	orderservice "shop/src/app/order"
 	"shop/src/domain/hasher"
+	"shop/src/domain/jwt"
 	"shop/src/domain/order"
 	"shop/src/domain/product"
+	"shop/src/domain/tokenstorage"
 	"shop/src/domain/user"
 )
 
 type service struct {
-	r user.Repository
-	o orderservice.UseCase
-	h hasher.Hasher
+	r   user.Repository
+	o   orderservice.UseCase
+	h   hasher.Hasher
+	jwt jwt.Service
+	ts  tokenstorage.TokenStorage
 }
 
 func NewUserService(r user.Repository, o orderservice.UseCase, h hasher.Hasher) UseCase {
 	return &service{r: r, o: o, h: h}
 }
 
-func (s *service) Register(userDto dto.RegisterRequest) (user.User, error) {
+func (s *service) Register(userDto dto.RegisterRequest) (user.User, string, error) {
 	_, err := s.r.FindByUsernameOrEmail(userDto.Username)
 	if err == nil {
-		return user.User{}, err // Return error if user with the same username already exists
+		return user.User{}, "", err // Return error if user with the same username already exists
 	}
 	_, err = s.r.FindByUsernameOrEmail(userDto.Email)
 	if err == nil {
-		return user.User{}, err // Return error if user with the same email already exists
+		return user.User{}, "", err // Return error if user with the same email already exists
 	}
 
 	u := user.User{
@@ -49,6 +53,16 @@ func (s *service) Register(userDto dto.RegisterRequest) (user.User, error) {
 	u.Password = passwordHashed
 
 	u, err = s.r.Add(u)
+
+	refreshToken, err := s.jwt.GenerateRefreshToken(u.ID)
+
+	accessToken, err := s.jwt.GenerateAccessToken(u.ID, u.Username)
+
+	if err != nil {
+		return u, err // Return error if unable to generate tokens
+	}
+
+	err = s.ts.Set(refreshToken, u.ID)
 
 	if err != nil {
 		return u, err // Return error if unable to save user
