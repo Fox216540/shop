@@ -18,7 +18,6 @@ func NewRepository(db *db.Database) user.Repository {
 
 func (r *repository) Add(u user.User) (user.User, error) {
 	newUser := &models.UserORM{
-		UserID:   u.ID,
 		Username: u.Username,
 		Email:    u.Email,
 		Name:     u.Name,
