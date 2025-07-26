@@ -6,12 +6,12 @@ import (
 	"gorm.io/gorm"
 	"log"
 	"os"
-	core "shop/src/infra/db/core"
+	"shop/src/infra/db/core"
 	mig "shop/src/infra/db/migration"
 )
 
 // Init инициализирует глобальный объект Database
-func Init() {
+func InitPostgres() {
 	user := os.Getenv("POSTGRES_USER")
 	password := os.Getenv("POSTGRES_PASSWORD")
 	host := os.Getenv("POSTGRES_HOST")
@@ -35,7 +35,7 @@ func Init() {
 }
 
 // Close завершает подключение к базе
-func Close() {
+func ClosePostgres() {
 	database := core.GetDatabase()
 	if database == nil || database.DB == nil {
 		return
