@@ -15,8 +15,10 @@ func main() {
 	if err != nil {
 		log.Fatalf("Error loading .env file")
 	}
-	db.Init()
-	defer db.Close()
+	db.InitPostgres()
+	db.InitRedis()
+	defer db.ClosePostgres()
+	defer db.CloseRedis()
 	r := gin.Default()
 	product.Handler(r)
 	category.Handler(r)
