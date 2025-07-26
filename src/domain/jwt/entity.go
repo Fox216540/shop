@@ -4,7 +4,12 @@ import (
 	"github.com/google/uuid"
 )
 
-type JWT struct {
+type User struct {
 	UserID   uuid.UUID
 	Username string
+}
+
+type Tokens struct {
+	AccessToken  string
+	RefreshToken string
 }
