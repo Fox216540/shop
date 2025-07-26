@@ -19,6 +19,18 @@ type UserResponse struct {
 	Message  string    `json:"message"`
 }
 
+type TestTokensResponse struct {
+	RefreshToken string `json:"refresh_token"`
+	AccessToken  string `json:"access_token"`
+}
+
+type UserWithTokensResponse struct {
+	ID       uuid.UUID          `json:"id"`
+	Username string             `json:"username"`
+	Tokens   TestTokensResponse `json:"tokens"`
+	Message  string             `json:"message"`
+}
+
 // Request
 
 type RegisterRequest struct {
