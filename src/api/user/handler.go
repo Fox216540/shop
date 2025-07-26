@@ -44,16 +44,22 @@ func registerHandler(us user.UseCase) gin.HandlerFunc {
 			return
 		}
 
-		NewUser, err := us.Register(r)
+		NewUser, tokens, err := us.Register(r)
 
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user"})
 			return
 		}
 
-		NewUserDTO := dto.UserResponse{
+		tokensDTO := dto.TestTokensResponse{
+			AccessToken:  tokens.AccessToken,
+			RefreshToken: tokens.RefreshToken,
+		}
+
+		NewUserDTO := dto.UserWithTokensResponse{
 			ID:       NewUser.ID,
 			Username: NewUser.Username,
+			Tokens:   tokensDTO,
 			Message:  "User created successfully",
 		}
 
