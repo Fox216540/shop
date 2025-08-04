@@ -17,7 +17,7 @@ func Handler(r *gin.Engine) {
 	// Register
 	r.POST("/user", registerHandler(us))
 	// Login
-	//r.POST("/user/login", loginHandler(us))
+	r.POST("/user/login", loginHandler(us))
 	// Logout
 	//r.POST("/user/logout", logoutHandler(us))
 	// LogoutAll
@@ -64,6 +64,39 @@ func registerHandler(us user.UseCase) gin.HandlerFunc {
 		}
 
 		c.JSON(http.StatusOK, NewUserDTO)
+	}
+}
+
+func loginHandler(us user.UseCase) gin.HandlerFunc {
+	//Login
+	return func(c *gin.Context) {
+		var r dto.TestLoginRequest
+
+		if err := c.ShouldBindJSON(&r); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+			return
+		}
+
+		User, tokens, err := us.Login(r.UsernameOrEmail, r.Password)
+
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to login user"})
+			return
+		}
+
+		tokensDTO := dto.TestTokensResponse{
+			AccessToken:  tokens.AccessToken,
+			RefreshToken: tokens.RefreshToken,
+		}
+
+		userDTO := dto.UserWithTokensResponse{
+			ID:       User.ID,
+			Username: User.Username,
+			Tokens:   tokensDTO,
+			Message:  "User logged in successfully",
+		}
+
+		c.JSON(http.StatusOK, userDTO)
 	}
 }
 

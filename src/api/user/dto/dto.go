@@ -63,3 +63,8 @@ type TestDeleteOrderRequest struct {
 type TestGetOrdersRequest struct {
 	UserID string `json:"user_id" binding:"required,uuid"`
 }
+
+type TestLoginRequest struct {
+	UsernameOrEmail string `json:"username_or_email" binding:"required"`
+	Password        string `json:"password" binding:"required"`
+}
