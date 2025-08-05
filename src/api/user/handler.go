@@ -23,9 +23,11 @@ func Handler(r *gin.Engine) {
 	// LogoutAll
 	r.POST("/user/logout-all", logoutAllHandler(us))
 	// Update
-	//r.PATCH("/user/", updateHandler(us))
+	//r.PATCH("/user", updateHandler(us))
+	//Update username
+	//r.PATCH("/user/username", updateUsernameHandler(us))
 	// Delete
-	r.DELETE("/user/", deleteHandler(us))
+	r.DELETE("/user", deleteHandler(us))
 	// Orders
 	r.GET("/user/orders", ordersHandler(us))
 	// CreateOrder
