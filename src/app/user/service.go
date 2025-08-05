@@ -136,15 +136,27 @@ func (s *service) Login(usernameOrEmail, password string) (user.User, jwt.Tokens
 
 func (s *service) Logout(token string) error {
 	jwtUser, err := s.jwt.DecodeRefreshToken(token)
+	// TODO: Вернуть кастомную ошибку
 	if err != nil {
 		return err
 	}
 
+	ok, err := s.ts.Exists(jwtUser.JTI)
+	// TODO: Вернуть кастомную ошибку
+	if err != nil {
+		return err
+	}
+	// TODO: Вернуть кастомную ошибку
+	if !ok {
+		return err
+	}
+
 	_, err = s.r.GetByID(jwtUser.UserID)
+	// TODO: Вернуть кастомную ошибку
 	if err != nil {
 		return err // Вернуть ошибку, если не удалось найти пользователя
 	}
-
+	// TODO: Вернуть кастомную ошибку
 	if err = s.ts.Delete(jwtUser.JTI, jwtUser.UserID); err != nil {
 		return err
 	}
@@ -161,6 +173,16 @@ func (s *service) LogoutAll(token string) error {
 	_, err = s.r.GetByID(jwtUser.UserID)
 	if err != nil {
 		return err // Вернуть ошибку, если не удалось найти пользователя
+	}
+
+	ok, err := s.ts.Exists(jwtUser.JTI)
+	// TODO: Вернуть кастомную ошибку
+	if err != nil {
+		return err
+	}
+	// TODO: Вернуть кастомную ошибку
+	if !ok {
+		return err
 	}
 
 	if err = s.ts.DeleteAll(jwtUser.UserID); err != nil {
