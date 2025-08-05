@@ -14,6 +14,7 @@ type UserORM struct {
 	Email    string    `gorm:"type:varchar(50);not null;uniqueIndex"`
 	Name     string    `gorm:"type:varchar(20);not null"`
 	Password string    `gorm:"type:varchar(100);not null"`
+	Phone    string    `gorm:"type:varchar(20);not null;uniqueIndex"`
 	Address  string    `gorm:"type:varchar(100);not null"`
 }
 
@@ -29,5 +30,6 @@ func FromORM(orm UserORM) user.User {
 		Name:     orm.Name,
 		Password: orm.Password,
 		Address:  orm.Address,
+		Phone:    orm.Phone,
 	}
 }
