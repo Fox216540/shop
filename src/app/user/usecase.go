@@ -11,8 +11,8 @@ import (
 type UseCase interface {
 	Register(userDto dto.RegisterRequest) (user.User, jwt.Tokens, error)
 	Login(usernameOrEmail, password string) (user.User, jwt.Tokens, error)
-	Logout(userID uuid.UUID, token string) error
-	LogoutAll(userID uuid.UUID) error
+	Logout(token string) error
+	LogoutAll(token string) error
 	Update(userID uuid.UUID, u user.User) (user.User, error)
 	Delete(userID uuid.UUID) (user.User, error)
 	Orders(userID uuid.UUID) ([]order.Order, error)
