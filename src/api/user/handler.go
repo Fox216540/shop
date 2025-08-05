@@ -19,7 +19,7 @@ func Handler(r *gin.Engine) {
 	// Login
 	r.POST("/user/login", loginHandler(us))
 	// Logout
-	//r.POST("/user/logout", logoutHandler(us))
+	r.POST("/user/logout", logoutHandler(us))
 	// LogoutAll
 	//r.POST("/user/logout-all", logoutAllHandler(us))
 	// Update
@@ -97,6 +97,31 @@ func loginHandler(us user.UseCase) gin.HandlerFunc {
 		}
 
 		c.JSON(http.StatusOK, userDTO)
+	}
+}
+
+func logoutHandler(us user.UseCase) gin.HandlerFunc {
+	//Logout
+	return func(c *gin.Context) {
+		var r dto.TestLogoutRequest
+
+		if err := c.ShouldBindJSON(&r); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+			return
+		}
+
+		err := us.Logout(r.RefreshToken)
+
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to logout user"})
+			return
+		}
+
+		DTO := dto.MessageResponse{
+			Message: "User logged out successfully",
+		}
+
+		c.JSON(http.StatusOK, DTO)
 	}
 }
 
