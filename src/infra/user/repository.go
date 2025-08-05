@@ -79,6 +79,7 @@ func (r *repository) Update(u user.User) (user.User, error) {
 		Name:     u.Name,
 		Password: u.Password,
 		Address:  u.Address,
+		Phone:    u.Phone,
 	}
 
 	err := r.db.WithSession(func(tx *gorm.DB) error {
