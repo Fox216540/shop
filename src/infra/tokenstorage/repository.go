@@ -62,7 +62,7 @@ func (r *repository) DeleteAll(userID uuid.UUID) error {
 	if err != nil {
 		return err
 	}
-
+	// TODO: Вывести кастомную ошибку
 	if len(jtis) == 0 {
 		return fmt.Errorf("refresh tokens set does not exist or is empty")
 	}
@@ -70,10 +70,9 @@ func (r *repository) DeleteAll(userID uuid.UUID) error {
 	// Формируем список ключей для удаления
 	keysToDelete := make([]string, 0, len(jtis)+1)
 	for _, jti := range jtis {
-		keysToDelete = append(keysToDelete, fmt.Sprintf("refresh:%s", jti))
+		keysToDelete = append(keysToDelete, jti)
 	}
 	keysToDelete = append(keysToDelete, setKey) // Добавляем сам set
-
 	// Удаляем всё одной командой
 	if err := r.rdb.Del(ctx, keysToDelete...).Err(); err != nil {
 		return err
