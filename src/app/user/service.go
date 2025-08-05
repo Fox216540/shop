@@ -191,10 +191,27 @@ func (s *service) LogoutAll(token string) error {
 	return nil
 }
 
-func (s *service) Update(userID uuid.UUID, u user.User) (user.User, error) {
-	_, err := s.r.GetByID(userID)
+func (s *service) UpdateWithoutUsername(userID uuid.UUID, newUser user.User) (user.User, error) {
+	u, err := s.r.GetByID(userID)
 	if err != nil {
 		return u, err // Вернуть ошибку, если не удалось найти пользователя
+	}
+	// TODO: Проверить, что email не занят
+	if newUser.Email != "" {
+		u.Email = newUser.Email
+	}
+	if newUser.Password != "" {
+		u.Password = newUser.Password
+	}
+	if newUser.Name != "" {
+		u.Name = newUser.Name
+	}
+	if newUser.Address != "" {
+		u.Address = newUser.Address
+	}
+	// TODO: Проверить, что phone не занят
+	if newUser.Phone != "" {
+		u.Phone = newUser.Phone
 	}
 	updatedUser, err := s.r.Update(u)
 	if err != nil {
@@ -203,6 +220,19 @@ func (s *service) Update(userID uuid.UUID, u user.User) (user.User, error) {
 	return updatedUser, nil
 }
 
+func (s *service) UpdateUsername(userID uuid.UUID, username string) (user.User, error) {
+	u, err := s.r.GetByID(userID)
+	if err != nil {
+		return u, err // Вернуть ошибку, если не удалось найти пользователя
+	}
+	// TODO: Проверить, что username не занят
+	u.Username = username
+	updatedUser, err := s.r.Update(u)
+	if err != nil {
+		return updatedUser, err // Вернуть ошибку, если не удалось обновить пользователя
+	}
+	return updatedUser, nil
+}
 func (s *service) Delete(userID uuid.UUID) (user.User, error) {
 	u, err := s.r.GetByID(userID)
 	if err != nil {
