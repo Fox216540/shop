@@ -7,6 +7,6 @@ import (
 type TokenStorage interface {
 	Set(jti, userID uuid.UUID) error
 	Exists(jti uuid.UUID) (bool, error)
-	Delete(jti uuid.UUID) error
+	Delete(jti, userID uuid.UUID) error
 	DeleteAll(userID uuid.UUID) error
 }
