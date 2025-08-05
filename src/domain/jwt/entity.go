@@ -4,9 +4,10 @@ import (
 	"github.com/google/uuid"
 )
 
-type User struct {
+type JWTUser struct {
 	UserID   uuid.UUID
 	Username string
+	JTI      uuid.UUID
 }
 
 type Tokens struct {
