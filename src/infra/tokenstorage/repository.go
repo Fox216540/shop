@@ -41,8 +41,12 @@ func (r *repository) Exists(jti uuid.UUID) (bool, error) {
 	return false, error(nil)
 }
 
-func (r *repository) Delete(jti uuid.UUID) error {
+func (r *repository) Delete(jti, userID uuid.UUID) error {
 	ctx := context.Background()
+	userSetKey := fmt.Sprintf("user:%s:refresh_tokens", userID.String())
+	if err := r.rdb.SRem(ctx, userSetKey, jti.String()).Err(); err != nil {
+		return err
+	}
 	err := r.rdb.Del(ctx, jti.String()).Err()
 	if err != nil {
 		return err
@@ -52,10 +56,29 @@ func (r *repository) Delete(jti uuid.UUID) error {
 
 func (r *repository) DeleteAll(userID uuid.UUID) error {
 	ctx := context.Background()
-	err := r.rdb.Del(ctx, userID.String()).Err()
+	setKey := fmt.Sprintf("user:%s:refresh_tokens", userID.String())
+
+	jtis, err := r.rdb.SMembers(ctx, setKey).Result()
 	if err != nil {
 		return err
 	}
 
-	return error(nil)
+	if len(jtis) == 0 {
+		return fmt.Errorf("refresh tokens set does not exist or is empty")
+	}
+
+	// Формируем список ключей для удаления
+	keysToDelete := make([]string, 0, len(jtis)+1)
+	for _, jti := range jtis {
+		keysToDelete = append(keysToDelete, fmt.Sprintf("refresh:%s", jti))
+	}
+	keysToDelete = append(keysToDelete, setKey) // Добавляем сам set
+
+	// Удаляем всё одной командой
+	if err := r.rdb.Del(ctx, keysToDelete...).Err(); err != nil {
+		return err
+	}
+
+	return nil
+
 }
