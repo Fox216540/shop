@@ -5,6 +5,9 @@ import (
 )
 
 // Response
+type MessageResponse struct {
+	Message string `json:"message"`
+}
 
 type CreateOrderResponse struct {
 	ID       uuid.UUID `json:"id"`
@@ -67,4 +70,8 @@ type TestGetOrdersRequest struct {
 type TestLoginRequest struct {
 	UsernameOrEmail string `json:"username_or_email" binding:"required"`
 	Password        string `json:"password" binding:"required"`
+}
+
+type TestLogoutRequest struct {
+	RefreshToken string `json:"refresh_token" binding:"required"`
 }
