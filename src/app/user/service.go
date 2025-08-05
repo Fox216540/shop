@@ -134,26 +134,36 @@ func (s *service) Login(usernameOrEmail, password string) (user.User, jwt.Tokens
 	return u, jwtTokens, nil
 }
 
-func (s *service) Logout(userID uuid.UUID, token string) error {
-	_, err := s.r.GetByID(userID)
+func (s *service) Logout(token string) error {
+	jwtUser, err := s.jwt.DecodeRefreshToken(token)
+	if err != nil {
+		return err
+	}
+
+	_, err = s.r.GetByID(jwtUser.UserID)
 	if err != nil {
 		return err // Вернуть ошибку, если не удалось найти пользователя
 	}
-	//TODO: проверить токен
-	if err = s.ts.Delete(uuid.New()); err != nil {
+
+	if err = s.ts.Delete(jwtUser.JTI, jwtUser.UserID); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (s *service) LogoutAll(userID uuid.UUID) error {
-	_, err := s.r.GetByID(userID)
+func (s *service) LogoutAll(token string) error {
+	jwtUser, err := s.jwt.DecodeRefreshToken(token)
+	if err != nil {
+		return err
+	}
+
+	_, err = s.r.GetByID(jwtUser.UserID)
 	if err != nil {
 		return err // Вернуть ошибку, если не удалось найти пользователя
 	}
 
-	if err = s.ts.DeleteAll(userID); err != nil {
+	if err = s.ts.DeleteAll(jwtUser.UserID); err != nil {
 		return err
 	}
 	return nil
