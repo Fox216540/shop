@@ -73,49 +73,60 @@ func (s *service) GenerateAccessToken(userID uuid.UUID, username string) (string
 	return token.SignedString(secret)
 }
 
-func (s *service) DecodeRefreshToken(token string) (jwtdomain.User, error) {
+func (s *service) DecodeRefreshToken(token string) (jwtdomain.JWTUser, error) {
 	parsedToken, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
 		return []byte(os.Getenv("REFRESH_TOKEN_SECRET")), nil
 	})
 	if err != nil {
-		return jwtdomain.User{}, err
+		return jwtdomain.JWTUser{}, err
 	}
 	claims, ok := parsedToken.Claims.(jwt.MapClaims)
 	if !ok || !parsedToken.Valid {
-		return jwtdomain.User{}, err
+		return jwtdomain.JWTUser{}, err
 	}
 	userID, err := uuid.Parse(claims["sub"].(string))
 	if err != nil {
-		return jwtdomain.User{}, err
+		return jwtdomain.JWTUser{}, err
 	}
-	return jwtdomain.User{
+	jti, err := uuid.Parse(claims["jti"].(string))
+	if err != nil {
+		return jwtdomain.JWTUser{}, err
+	}
+	return jwtdomain.JWTUser{
 		UserID: userID,
+		JTI:    jti,
 	}, nil
 }
 
-func (s *service) DecodeAccessToken(token string) (jwtdomain.User, error) {
+func (s *service) DecodeAccessToken(token string) (jwtdomain.JWTUser, error) {
 	parsedToken, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
 		return []byte(os.Getenv("REFRESH_TOKEN_SECRET")), nil
 	})
 	if err != nil {
-		return jwtdomain.User{}, err
+		return jwtdomain.JWTUser{}, err
 	}
 	claims, ok := parsedToken.Claims.(jwt.MapClaims)
 	if !ok || !parsedToken.Valid {
-		return jwtdomain.User{}, err
+		return jwtdomain.JWTUser{}, err
 	}
 	userID, err := uuid.Parse(claims["sub"].(string))
 	if err != nil {
-		return jwtdomain.User{}, err
+		return jwtdomain.JWTUser{}, err
 	}
 
 	username, ok := claims["username"].(string)
 	if !ok {
-		return jwtdomain.User{}, err
+		return jwtdomain.JWTUser{}, err
 	}
 
-	return jwtdomain.User{
+	jti, err := uuid.Parse(claims["jti"].(string))
+	if err != nil {
+		return jwtdomain.JWTUser{}, err
+	}
+
+	return jwtdomain.JWTUser{
 		UserID:   userID,
 		Username: username,
+		JTI:      jti,
 	}, nil
 }
