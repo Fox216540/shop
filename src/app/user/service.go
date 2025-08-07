@@ -1,6 +1,7 @@
 package user
 
 import (
+	"errors"
 	"fmt"
 	"github.com/google/uuid"
 	"shop/src/api/user/dto"
@@ -49,6 +50,7 @@ func (s *service) Register(userDto dto.RegisterRequest) (user.User, jwt.Tokens, 
 		Name:     userDto.Name,
 		Password: userDto.Password,
 		Address:  userDto.Address,
+		Phone:    userDto.Phone,
 	}
 
 	passwordHashed, err := s.h.Hash(u.Password)
@@ -100,14 +102,8 @@ func (s *service) Login(usernameOrEmail, password string) (user.User, jwt.Tokens
 		return u, jwt.Tokens{}, err // Return error if unable to find user
 	}
 
-	isValidPass, err := s.h.Verify(password, u.Password)
-
-	if !isValidPass {
+	if err = s.h.Verify(password, u.Password); err != nil {
 		return u, jwt.Tokens{}, err // Password is invalid
-	}
-
-	if err != nil {
-		return u, jwt.Tokens{}, err // Assuming ErrInvalidCredentials is defined in the user package
 	}
 
 	refreshToken, refreshJTI, err := s.jwt.GenerateRefreshToken(u.ID)
@@ -191,48 +187,93 @@ func (s *service) LogoutAll(token string) error {
 	return nil
 }
 
-func (s *service) UpdateWithoutUsername(userID uuid.UUID, newUser user.User) (user.User, error) {
+func (s *service) UpdateUsername(userID uuid.UUID, newUsername string) (user.User, error) {
 	u, err := s.r.GetByID(userID)
 	if err != nil {
-		return u, err // Вернуть ошибку, если не удалось найти пользователя
+		return user.User{}, err // Вернуть ошибку, если не удалось найти пользователя
 	}
-	// TODO: Проверить, что email не занят
-	if newUser.Email != "" {
-		u.Email = newUser.Email
+	isExists, err := s.r.ExistsUsernameOrEmail(newUsername)
+	if isExists {
+		//TODO: Вернуть кастомную ошибку
+		return user.User{}, errors.New("username already exists") // Вернуть ошибку, если пользователь с таким именем уже существует
 	}
-	if newUser.Password != "" {
-		u.Password = newUser.Password
-	}
-	if newUser.Name != "" {
-		u.Name = newUser.Name
-	}
-	if newUser.Address != "" {
-		u.Address = newUser.Address
-	}
-	// TODO: Проверить, что phone не занят
-	if newUser.Phone != "" {
-		u.Phone = newUser.Phone
-	}
-	updatedUser, err := s.r.Update(u)
+	u.Username = newUsername
+	u, err = s.r.Update(u)
 	if err != nil {
-		return updatedUser, err // Вернуть ошибку, если не удалось обновить пользователя
+		return user.User{}, err // Вернуть ошибку, если не удалось обновить пользователя
 	}
-	return updatedUser, nil
+	return u, nil
 }
 
-func (s *service) UpdateUsername(userID uuid.UUID, username string) (user.User, error) {
+func (s *service) UpdateEmail(userID uuid.UUID, newEmail string) (user.User, error) {
 	u, err := s.r.GetByID(userID)
 	if err != nil {
-		return u, err // Вернуть ошибку, если не удалось найти пользователя
+		return user.User{}, err // Вернуть ошибку, если не удалось найти пользователя
 	}
-	// TODO: Проверить, что username не занят
-	u.Username = username
-	updatedUser, err := s.r.Update(u)
+	isExists, err := s.r.ExistsUsernameOrEmail(newEmail)
+	if !isExists {
+		//TODO: Вернуть кастомную ошибку
+		return user.User{}, errors.New("email already exists") // Вернуть ошибку, если пользователь с таким именем уже существует
+	}
+	u.Email = newEmail
+	u, err = s.r.Update(u)
 	if err != nil {
-		return updatedUser, err // Вернуть ошибку, если не удалось обновить пользователя
+		return user.User{}, err // Вернуть ошибку, если не удалось обновить пользователя
 	}
-	return updatedUser, nil
+	return u, nil
 }
+
+func (s *service) UpdatePassword(userID uuid.UUID, newPassword string) (user.User, error) {
+	u, err := s.r.GetByID(userID)
+	if err != nil {
+		return user.User{}, err // Вернуть ошибку, если не удалось найти пользователя
+	}
+	if err = s.h.Verify(newPassword, u.Password); err == nil {
+		return user.User{}, err
+	}
+	hashedPassword, err := s.h.Hash(newPassword)
+	if err != nil {
+		return user.User{}, err
+	}
+	u.Password = hashedPassword
+	u, err = s.r.Update(u)
+	if err != nil {
+		return user.User{}, err // Вернуть ошибку, если не удалось обновить пользователя
+	}
+	return u, nil
+}
+
+func (s *service) UpdatePhone(userID uuid.UUID, newPhone string) (user.User, error) {
+	u, err := s.r.GetByID(userID)
+	if err != nil {
+		return user.User{}, err // Вернуть ошибку, если не удалось найти пользователя
+	}
+	exists, err := s.r.ExistsPhone(newPhone)
+	if exists {
+		return user.User{}, err
+	}
+	u.Phone = newPhone
+	u, err = s.r.Update(u)
+	if err != nil {
+		return user.User{}, err // Вернуть ошибку, если не удалось обновить пользователя
+	}
+	return u, nil
+}
+
+func (s *service) UpdateProfile(userID uuid.UUID, newUser user.User) (user.User, error) {
+	u, err := s.r.GetByID(userID)
+	if err != nil {
+		return user.User{}, err // Вернуть ошибку, если не удалось найти пользователя
+	}
+	u.Name = newUser.Name
+	u.Address = newUser.Address
+	u, err = s.r.Update(u)
+	if err != nil {
+		return user.User{}, err // Вернуть ошибку, если не удалось обновить пользователя
+	}
+	return u, nil
+}
+
 func (s *service) Delete(userID uuid.UUID) (user.User, error) {
 	u, err := s.r.GetByID(userID)
 	if err != nil {
