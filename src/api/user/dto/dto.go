@@ -42,6 +42,7 @@ type RegisterRequest struct {
 	Name     string `json:"name" binding:"required"`
 	Password string `json:"password" binding:"required"`
 	Address  string `json:"address" binding:"required"`
+	Phone    string `json:"phone" binding:"required"`
 }
 
 type TestDeleteRequest struct {
@@ -74,4 +75,9 @@ type TestLoginRequest struct {
 
 type TestLogoutRequest struct {
 	RefreshToken string `json:"refresh_token" binding:"required"`
+}
+
+type TestUpdateUsernameRequest struct {
+	ID       string `json:"id" binding:"required,uuid"`
+	Username string `json:"username" binding:"required"`
 }
