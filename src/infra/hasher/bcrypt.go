@@ -22,10 +22,10 @@ func (h *hasher) Hash(password string) (string, error) {
 	return string(hashedPassword), nil
 }
 
-func (h *hasher) Verify(password string, hash string) (bool, error) {
+func (h *hasher) Verify(password string, hash string) error {
 	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
 	if err != nil {
-		return false, err
+		return err
 	}
-	return true, nil
+	return nil
 }
