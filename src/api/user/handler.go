@@ -22,10 +22,16 @@ func Handler(r *gin.Engine) {
 	r.POST("/user/logout", logoutHandler(us))
 	// LogoutAll
 	r.POST("/user/logout-all", logoutAllHandler(us))
-	// Update
-	//r.PATCH("/user", updateHandler(us))
-	//Update username
-	//r.PATCH("/user/username", updateUsernameHandler(us))
+	// Update username
+	r.PATCH("/user/username", updateUsernameHandler(us))
+	// Update email
+	//r.PATCH("/user/email", updateEmailHandler(us))
+	// Update password
+	//r.PATCH("/user/password", updatePasswordHandler(us))
+	// Update phone
+	//r.PATCH("/user/phone", updatePhoneHandler(us))
+	// Update profile
+	//r.PATCH("/user/profile", updateProfileHandler(us))
 	// Delete
 	r.DELETE("/user", deleteHandler(us))
 	// Orders
@@ -149,6 +155,33 @@ func logoutAllHandler(us user.UseCase) gin.HandlerFunc {
 		}
 
 		c.JSON(http.StatusOK, DTO)
+	}
+}
+
+func updateUsernameHandler(us user.UseCase) gin.HandlerFunc {
+	//Update username
+	return func(c *gin.Context) {
+		var r dto.TestUpdateUsernameRequest
+		if err := c.ShouldBindJSON(&r); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+			return
+		}
+		ID, err := uuid.Parse(r.ID)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+			return
+		}
+		updatedUser, err := us.UpdateUsername(ID, r.Username)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update user"})
+			return
+		}
+		userUpdatedDTO := dto.UserResponse{
+			ID:       updatedUser.ID,
+			Username: updatedUser.Username,
+			Message:  "User username updated successfully",
+		}
+		c.JSON(http.StatusOK, userUpdatedDTO)
 	}
 }
 
