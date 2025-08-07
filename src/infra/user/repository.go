@@ -1,6 +1,7 @@
 package user
 
 import (
+	"errors"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 	"shop/src/domain/user"
@@ -24,6 +25,7 @@ func (r *repository) Add(u user.User) (user.User, error) {
 		Name:     u.Name,
 		Password: u.Password,
 		Address:  u.Address,
+		Phone:    u.Phone,
 	}
 	err := r.db.WithSession(func(tx *gorm.DB) error {
 		return tx.Create(&newUser).Error
@@ -81,12 +83,49 @@ func (r *repository) Update(u user.User) (user.User, error) {
 		Address:  u.Address,
 		Phone:    u.Phone,
 	}
-
 	err := r.db.WithSession(func(tx *gorm.DB) error {
-		return tx.Save(&updateUser).Error
+		return tx.
+			Model(&models.UserORM{}).
+			Where("user_id = ?", updateUser.UserID).
+			Updates(map[string]interface{}{
+				"username": updateUser.Username,
+				"email":    updateUser.Email,
+				"name":     updateUser.Name,
+				"password": updateUser.Password,
+				"address":  updateUser.Address,
+				"phone":    updateUser.Phone,
+			}).Error
 	})
 	if err != nil {
 		return user.User{}, err // Возвращаем ошибку, если не удалось обновить пользователя
 	}
 	return models.FromORM(*updateUser), nil
+}
+
+func (r *repository) ExistsPhone(phone string) (bool, error) {
+	var u models.UserORM
+	err := r.db.WithSession(func(tx *gorm.DB) error {
+		return tx.Where("phone = ?", phone).First(&u).Error
+	})
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return false, nil
+		}
+		return false, err // Возвращаем ошибку, если не удалось найти пользователя
+	}
+	return true, nil
+}
+
+func (r *repository) ExistsUsernameOrEmail(usernameOrEmail string) (bool, error) {
+	var u models.UserORM
+	err := r.db.WithSession(func(tx *gorm.DB) error {
+		return tx.Where("username = ? OR email = ?", usernameOrEmail, usernameOrEmail).First(&u).Error
+	})
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return false, nil
+		}
+		return false, err // Возвращаем ошибку, если не удалось найти пользователя
+	}
+	return true, nil
 }
