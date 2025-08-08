@@ -176,10 +176,14 @@ func updateUsernameHandler(us user.UseCase) gin.HandlerFunc {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update user"})
 			return
 		}
-		userUpdatedDTO := dto.UserResponse{
+		tokensDTO := dto.TestTokensResponse{
+			AccessToken: tokens.AccessToken,
+		}
+		userUpdatedDTO := dto.UserWithTokensResponse{
 			ID:       updatedUser.ID,
 			Username: updatedUser.Username,
 			Message:  "User username updated successfully",
+			Tokens:   tokensDTO,
 		}
 		c.JSON(http.StatusOK, userUpdatedDTO)
 	}
