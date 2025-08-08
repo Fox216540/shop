@@ -202,8 +202,11 @@ func (s *service) UpdateUsername(userID uuid.UUID, newUsername string) (user.Use
 	if err != nil {
 		return user.User{}, jwt.Tokens{}, err // Вернуть ошибку, если не удалось обновить пользователя
 	}
-	// TODO: Сделать обновление токенов
-	return u, jwt.Tokens{}, nil
+	accessToken, err := s.jwt.GenerateAccessToken(u.ID, u.Username)
+	tokens := jwt.Tokens{
+		AccessToken: accessToken,
+	}
+	return u, tokens, nil
 }
 
 func (s *service) UpdateEmail(userID uuid.UUID, newEmail string) (user.User, error) {
