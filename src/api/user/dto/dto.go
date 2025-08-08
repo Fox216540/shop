@@ -81,3 +81,24 @@ type TestUpdateUsernameRequest struct {
 	ID       string `json:"id" binding:"required,uuid"`
 	Username string `json:"username" binding:"required"`
 }
+
+type TestUpdatePasswordRequest struct {
+	ID       string `json:"id" binding:"required,uuid"`
+	Password string `json:"password" binding:"required"`
+}
+
+type TestUpdateEmailRequest struct {
+	ID    string `json:"id" binding:"required,uuid"`
+	Email string `json:"email" binding:"required,email"`
+}
+
+type TestUpdatePhoneRequest struct {
+	ID    string `json:"id" binding:"required,uuid"`
+	Phone string `json:"phone" binding:"required"`
+}
+
+type TestUpdateProfileRequest struct {
+	ID      string `json:"id" binding:"required,uuid"`
+	Name    string `json:"name"`
+	Address string `json:"address"`
+}
