@@ -187,22 +187,23 @@ func (s *service) LogoutAll(token string) error {
 	return nil
 }
 
-func (s *service) UpdateUsername(userID uuid.UUID, newUsername string) (user.User, error) {
+func (s *service) UpdateUsername(userID uuid.UUID, newUsername string) (user.User, jwt.Tokens, error) {
 	u, err := s.r.GetByID(userID)
 	if err != nil {
-		return user.User{}, err // Вернуть ошибку, если не удалось найти пользователя
+		return user.User{}, jwt.Tokens{}, err // Вернуть ошибку, если не удалось найти пользователя
 	}
 	isExists, err := s.r.ExistsUsernameOrEmail(newUsername)
 	if isExists {
 		//TODO: Вернуть кастомную ошибку
-		return user.User{}, errors.New("username already exists") // Вернуть ошибку, если пользователь с таким именем уже существует
+		return user.User{}, jwt.Tokens{}, errors.New("username already exists") // Вернуть ошибку, если пользователь с таким именем уже существует
 	}
 	u.Username = newUsername
 	u, err = s.r.Update(u)
 	if err != nil {
-		return user.User{}, err // Вернуть ошибку, если не удалось обновить пользователя
+		return user.User{}, jwt.Tokens{}, err // Вернуть ошибку, если не удалось обновить пользователя
 	}
-	return u, nil
+	// TODO: Сделать обновление токенов
+	return u, jwt.Tokens{}, nil
 }
 
 func (s *service) UpdateEmail(userID uuid.UUID, newEmail string) (user.User, error) {
@@ -211,7 +212,7 @@ func (s *service) UpdateEmail(userID uuid.UUID, newEmail string) (user.User, err
 		return user.User{}, err // Вернуть ошибку, если не удалось найти пользователя
 	}
 	isExists, err := s.r.ExistsUsernameOrEmail(newEmail)
-	if !isExists {
+	if isExists {
 		//TODO: Вернуть кастомную ошибку
 		return user.User{}, errors.New("email already exists") // Вернуть ошибку, если пользователь с таким именем уже существует
 	}
@@ -260,13 +261,21 @@ func (s *service) UpdatePhone(userID uuid.UUID, newPhone string) (user.User, err
 	return u, nil
 }
 
-func (s *service) UpdateProfile(userID uuid.UUID, newUser user.User) (user.User, error) {
+func (s *service) UpdateProfile(userDTO dto.TestUpdateProfileRequest) (user.User, error) {
+	userID, err := uuid.Parse(userDTO.ID)
+	if err != nil {
+		return user.User{}, err
+	}
 	u, err := s.r.GetByID(userID)
 	if err != nil {
 		return user.User{}, err // Вернуть ошибку, если не удалось найти пользователя
 	}
-	u.Name = newUser.Name
-	u.Address = newUser.Address
+	if userDTO.Name != "" {
+		u.Name = userDTO.Name
+	}
+	if userDTO.Address != "" {
+		u.Address = userDTO.Address
+	}
 	u, err = s.r.Update(u)
 	if err != nil {
 		return user.User{}, err // Вернуть ошибку, если не удалось обновить пользователя
