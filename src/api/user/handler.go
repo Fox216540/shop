@@ -25,13 +25,13 @@ func Handler(r *gin.Engine) {
 	// Update username
 	r.PATCH("/user/username", updateUsernameHandler(us))
 	// Update email
-	//r.PATCH("/user/email", updateEmailHandler(us))
+	r.PATCH("/user/email", updateEmailHandler(us))
 	// Update password
-	//r.PATCH("/user/password", updatePasswordHandler(us))
+	r.PATCH("/user/password", updatePasswordHandler(us))
 	// Update phone
-	//r.PATCH("/user/phone", updatePhoneHandler(us))
+	r.PATCH("/user/phone", updatePhoneHandler(us))
 	// Update profile
-	//r.PATCH("/user/profile", updateProfileHandler(us))
+	r.PATCH("/user/profile", updateProfileHandler(us))
 	// Delete
 	r.DELETE("/user", deleteHandler(us))
 	// Orders
@@ -171,7 +171,7 @@ func updateUsernameHandler(us user.UseCase) gin.HandlerFunc {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
 			return
 		}
-		updatedUser, err := us.UpdateUsername(ID, r.Username)
+		updatedUser, tokens, err := us.UpdateUsername(ID, r.Username)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update user"})
 			return
@@ -180,6 +180,110 @@ func updateUsernameHandler(us user.UseCase) gin.HandlerFunc {
 			ID:       updatedUser.ID,
 			Username: updatedUser.Username,
 			Message:  "User username updated successfully",
+		}
+		c.JSON(http.StatusOK, userUpdatedDTO)
+	}
+}
+
+func updatePasswordHandler(us user.UseCase) gin.HandlerFunc {
+	//Update password
+	return func(c *gin.Context) {
+		var r dto.TestUpdatePasswordRequest
+		if err := c.ShouldBindJSON(&r); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+			return
+		}
+		ID, err := uuid.Parse(r.ID)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+			return
+		}
+		updatedUser, err := us.UpdatePassword(ID, r.Password)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update user"})
+			return
+		}
+		userUpdatedDTO := dto.UserResponse{
+			ID:       updatedUser.ID,
+			Username: updatedUser.Username,
+			Message:  "User password updated successfully",
+		}
+		c.JSON(http.StatusOK, userUpdatedDTO)
+	}
+}
+
+func updateEmailHandler(us user.UseCase) gin.HandlerFunc {
+	//Update email
+	return func(c *gin.Context) {
+		var r dto.TestUpdateEmailRequest
+		if err := c.ShouldBindJSON(&r); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+			return
+		}
+		ID, err := uuid.Parse(r.ID)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+			return
+		}
+		updatedUser, err := us.UpdateEmail(ID, r.Email)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update user"})
+			return
+		}
+		userUpdatedDTO := dto.UserResponse{
+			ID:       updatedUser.ID,
+			Username: updatedUser.Username,
+			Message:  "User email updated successfully",
+		}
+		c.JSON(http.StatusOK, userUpdatedDTO)
+	}
+}
+
+func updatePhoneHandler(us user.UseCase) gin.HandlerFunc {
+	//Update phone
+	return func(c *gin.Context) {
+		var r dto.TestUpdatePhoneRequest
+		if err := c.ShouldBindJSON(&r); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+			return
+		}
+		ID, err := uuid.Parse(r.ID)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+			return
+		}
+		updatedUser, err := us.UpdatePhone(ID, r.Phone)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update user"})
+			return
+		}
+		userUpdatedDTO := dto.UserResponse{
+			ID:       updatedUser.ID,
+			Username: updatedUser.Username,
+			Message:  "User phone updated successfully",
+		}
+		c.JSON(http.StatusOK, userUpdatedDTO)
+	}
+}
+
+func updateProfileHandler(us user.UseCase) gin.HandlerFunc {
+	//Update profile
+	return func(c *gin.Context) {
+		var r dto.TestUpdateProfileRequest
+		if err := c.ShouldBindJSON(&r); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+			return
+		}
+
+		updatedUser, err := us.UpdateProfile(r)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update user"})
+			return
+		}
+		userUpdatedDTO := dto.UserResponse{
+			ID:       updatedUser.ID,
+			Username: updatedUser.Username,
+			Message:  "User profile updated successfully",
 		}
 		c.JSON(http.StatusOK, userUpdatedDTO)
 	}
