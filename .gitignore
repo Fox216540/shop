@@ -1,9 +1,2 @@
-# IntelliJ project files
-.idea
-venv
-.venv
-*.iml
-out
-gen
 logs
 .env
