@@ -6,7 +6,7 @@ import (
 
 type Service interface {
 	GenerateRefreshToken(userID uuid.UUID) (string, uuid.UUID, error)
-	GenerateAccessToken(userID uuid.UUID, username string) (string, error)
+	GenerateAccessToken(userID uuid.UUID) (string, error)
 	DecodeRefreshToken(token string) (JWTUser, error)
 	DecodeAccessToken(token string) (JWTUser, error)
 }
