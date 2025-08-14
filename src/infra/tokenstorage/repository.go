@@ -12,6 +12,8 @@ type repository struct {
 	rdb *redis.Client
 }
 
+//TODO: добавить ttl
+
 func NewRepository(rdb *redis.Client) tokenstorage.TokenStorage {
 	return &repository{rdb: rdb}
 }
