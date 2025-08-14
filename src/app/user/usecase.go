@@ -17,6 +17,7 @@ type UseCase interface {
 	UpdatePassword(userID uuid.UUID, newPassword string) (user.User, error)
 	UpdatePhone(userID uuid.UUID, newPhone string) (user.User, error)
 	UpdateProfile(userID uuid.UUID, userDTO dto.UpdateProfileRequest) (user.User, error)
+	RefreshTokens(token string) (jwt.Tokens, error)
 	Delete(userID uuid.UUID) (user.User, error)
 	Orders(userID uuid.UUID) ([]order.Order, error)
 	DeleteOrder(userID, orderID uuid.UUID) (order.Order, error)
