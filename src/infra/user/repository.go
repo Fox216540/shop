@@ -20,7 +20,6 @@ func NewRepository(db *db.Database) user.Repository {
 func (r *repository) Add(u user.User) (user.User, error) {
 	newUser := &models.UserORM{
 		UserID:   u.ID,
-		Username: u.Username,
 		Email:    u.Email,
 		Name:     u.Name,
 		Password: u.Password,
@@ -62,10 +61,10 @@ func (r *repository) GetByID(ID uuid.UUID) (user.User, error) {
 	return models.FromORM(u), nil
 }
 
-func (r *repository) FindByUsernameOrEmail(usernameOrEmail string) (user.User, error) {
+func (r *repository) FindByPhoneOrEmail(phoneOrEmail string) (user.User, error) {
 	var u models.UserORM
 	err := r.db.WithSession(func(tx *gorm.DB) error {
-		return tx.Where("username = ? OR email = ?", usernameOrEmail, usernameOrEmail).First(&u).Error
+		return tx.Where("phone = ? OR email = ?", phoneOrEmail, phoneOrEmail).First(&u).Error
 	})
 	if err != nil {
 		return user.User{}, err // Возвращаем ошибку, если не удалось найти пользователя
@@ -76,7 +75,6 @@ func (r *repository) FindByUsernameOrEmail(usernameOrEmail string) (user.User, e
 func (r *repository) Update(u user.User) (user.User, error) {
 	updateUser := &models.UserORM{
 		UserID:   u.ID,
-		Username: u.Username,
 		Email:    u.Email,
 		Name:     u.Name,
 		Password: u.Password,
@@ -88,7 +86,6 @@ func (r *repository) Update(u user.User) (user.User, error) {
 			Model(&models.UserORM{}).
 			Where("user_id = ?", updateUser.UserID).
 			Updates(map[string]interface{}{
-				"username": updateUser.Username,
 				"email":    updateUser.Email,
 				"name":     updateUser.Name,
 				"password": updateUser.Password,
@@ -116,10 +113,10 @@ func (r *repository) ExistsPhone(phone string) (bool, error) {
 	return true, nil
 }
 
-func (r *repository) ExistsUsernameOrEmail(usernameOrEmail string) (bool, error) {
+func (r *repository) ExistsEmail(email string) (bool, error) {
 	var u models.UserORM
 	err := r.db.WithSession(func(tx *gorm.DB) error {
-		return tx.Where("username = ? OR email = ?", usernameOrEmail, usernameOrEmail).First(&u).Error
+		return tx.Where("email = ?", email).First(&u).Error
 	})
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
