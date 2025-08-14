@@ -1,45 +1,115 @@
 package user
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"net/http"
+	jwtdi "shop/src/api/jwt/di"
 	orderDTO "shop/src/api/order/dto"
 	productDTO "shop/src/api/product/dto"
 	"shop/src/api/user/di"
 	"shop/src/api/user/dto"
 	"shop/src/app/user"
+	"shop/src/core/middleware"
 	"shop/src/domain/order"
 )
 
 func Handler(r *gin.Engine) {
 	us := di.GetUserService()
+	jwtService := jwtdi.GetJwtService()
 	// Register
-	r.POST("/user", registerHandler(us))
+	r.POST(
+		"/user",
+		registerHandler(us),
+	)
 	// Login
-	r.POST("/user/login", loginHandler(us))
+	r.POST(
+		"/user/login",
+		loginHandler(us),
+	)
 	// Logout
-	r.POST("/user/logout", logoutHandler(us))
+	r.POST(
+		"/user/logout",
+		logoutHandler(us),
+	)
 	// LogoutAll
-	r.POST("/user/logout-all", logoutAllHandler(us))
-	// Update username
-	r.PATCH("/user/username", updateUsernameHandler(us))
+	r.POST(
+		"/user/logout-all",
+		logoutAllHandler(us),
+	)
 	// Update email
-	r.PATCH("/user/email", updateEmailHandler(us))
+	r.PATCH(
+		"/user/email",
+		middleware.JWTMiddleware(jwtService),
+		updateEmailHandler(us),
+	)
 	// Update password
-	r.PATCH("/user/password", updatePasswordHandler(us))
+	r.PATCH(
+		"/user/password",
+		middleware.JWTMiddleware(jwtService),
+		updatePasswordHandler(us),
+	)
 	// Update phone
-	r.PATCH("/user/phone", updatePhoneHandler(us))
+	r.PATCH(
+		"/user/phone",
+		middleware.JWTMiddleware(jwtService),
+		updatePhoneHandler(us),
+	)
 	// Update profile
-	r.PATCH("/user/profile", updateProfileHandler(us))
+	r.PATCH(
+		"/user/profile",
+		middleware.JWTMiddleware(jwtService),
+		updateProfileHandler(us),
+	)
 	// Delete
-	r.DELETE("/user", deleteHandler(us))
+	r.DELETE(
+		"/user",
+		middleware.JWTMiddleware(jwtService),
+		deleteHandler(us),
+	)
 	// Orders
-	r.GET("/user/orders", ordersHandler(us))
+	r.GET(
+		"/user/orders",
+		middleware.JWTMiddleware(jwtService),
+		ordersHandler(us),
+	)
 	// CreateOrder
-	r.POST("/user/order/create", createOrderHandler(us))
+	r.POST(
+		"/user/order/create",
+		middleware.JWTMiddleware(jwtService),
+		createOrderHandler(us),
+	)
 	// DeleteOrder
-	r.POST("/user/order/delete", deleteOrderHandler(us))
+	r.POST(
+		"/user/order/delete",
+		middleware.JWTMiddleware(jwtService),
+		deleteOrderHandler(us),
+	)
+}
+
+func getUserIDFromContext(c *gin.Context) (uuid.UUID, error) {
+	val, exists := c.Get("user_id")
+	if !exists {
+		return uuid.Nil, fmt.Errorf("user not authenticated")
+	}
+	id, ok := val.(uuid.UUID)
+	if !ok {
+		return uuid.Nil, fmt.Errorf("invalid user ID type")
+	}
+	return id, nil
+}
+
+func getBadResponse(c *gin.Context) {
+	c.JSON(http.StatusBadRequest, gin.H{"error": "Bad request"})
+}
+
+func getNotFoundResponse(c *gin.Context) {
+	c.JSON(http.StatusNotFound, gin.H{"error": "Not found"})
+}
+
+func getInternalServerErrorResponse(c *gin.Context) {
+	c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
 }
 
 func registerHandler(us user.UseCase) gin.HandlerFunc {
@@ -65,10 +135,10 @@ func registerHandler(us user.UseCase) gin.HandlerFunc {
 		}
 
 		NewUserDTO := dto.UserWithTokensResponse{
-			ID:       NewUser.ID,
-			Username: NewUser.Username,
-			Tokens:   tokensDTO,
-			Message:  "User created successfully",
+			ID:      NewUser.ID,
+			Name:    NewUser.Name,
+			Tokens:  tokensDTO,
+			Message: "User created successfully",
 		}
 
 		c.JSON(http.StatusOK, NewUserDTO)
@@ -78,17 +148,17 @@ func registerHandler(us user.UseCase) gin.HandlerFunc {
 func loginHandler(us user.UseCase) gin.HandlerFunc {
 	//Login
 	return func(c *gin.Context) {
-		var r dto.TestLoginRequest
+		var r dto.LoginRequest
 
 		if err := c.ShouldBindJSON(&r); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+			getBadResponse(c)
 			return
 		}
 
-		User, tokens, err := us.Login(r.UsernameOrEmail, r.Password)
+		User, tokens, err := us.Login(r.PhoneOrEmail, r.Password)
 
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to login user"})
+			getInternalServerErrorResponse(c)
 			return
 		}
 
@@ -98,10 +168,10 @@ func loginHandler(us user.UseCase) gin.HandlerFunc {
 		}
 
 		userDTO := dto.UserWithTokensResponse{
-			ID:       User.ID,
-			Username: User.Username,
-			Tokens:   tokensDTO,
-			Message:  "User logged in successfully",
+			ID:      User.ID,
+			Name:    User.Name,
+			Tokens:  tokensDTO,
+			Message: "User logged in successfully",
 		}
 
 		c.JSON(http.StatusOK, userDTO)
@@ -111,17 +181,17 @@ func loginHandler(us user.UseCase) gin.HandlerFunc {
 func logoutHandler(us user.UseCase) gin.HandlerFunc {
 	//Logout
 	return func(c *gin.Context) {
-		var r dto.TestLogoutRequest
+		var r dto.LogoutRequest
 
 		if err := c.ShouldBindJSON(&r); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+			getBadResponse(c)
 			return
 		}
 
 		err := us.Logout(r.RefreshToken)
 
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to logout user"})
+			getInternalServerErrorResponse(c)
 			return
 		}
 
@@ -136,17 +206,17 @@ func logoutHandler(us user.UseCase) gin.HandlerFunc {
 func logoutAllHandler(us user.UseCase) gin.HandlerFunc {
 	//LogoutAll
 	return func(c *gin.Context) {
-		var r dto.TestLogoutRequest
+		var r dto.LogoutRequest
 
 		if err := c.ShouldBindJSON(&r); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+			getBadResponse(c)
 			return
 		}
 
 		err := us.LogoutAll(r.RefreshToken)
 
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to logout user"})
+			getInternalServerErrorResponse(c)
 			return
 		}
 
@@ -157,60 +227,29 @@ func logoutAllHandler(us user.UseCase) gin.HandlerFunc {
 		c.JSON(http.StatusOK, DTO)
 	}
 }
-
-func updateUsernameHandler(us user.UseCase) gin.HandlerFunc {
-	//Update username
-	return func(c *gin.Context) {
-		var r dto.TestUpdateUsernameRequest
-		if err := c.ShouldBindJSON(&r); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
-			return
-		}
-		ID, err := uuid.Parse(r.ID)
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
-			return
-		}
-		updatedUser, tokens, err := us.UpdateUsername(ID, r.Username)
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update user"})
-			return
-		}
-		tokensDTO := dto.TestTokensResponse{
-			AccessToken: tokens.AccessToken,
-		}
-		userUpdatedDTO := dto.UserWithTokensResponse{
-			ID:       updatedUser.ID,
-			Username: updatedUser.Username,
-			Message:  "User username updated successfully",
-			Tokens:   tokensDTO,
-		}
-		c.JSON(http.StatusOK, userUpdatedDTO)
-	}
-}
-
 func updatePasswordHandler(us user.UseCase) gin.HandlerFunc {
 	//Update password
 	return func(c *gin.Context) {
-		var r dto.TestUpdatePasswordRequest
+		var r dto.UpdatePasswordRequest
 		if err := c.ShouldBindJSON(&r); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+			getBadResponse(c)
 			return
 		}
-		ID, err := uuid.Parse(r.ID)
+
+		ID, err := getUserIDFromContext(c)
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+			getBadResponse(c)
 			return
 		}
-		updatedUser, err := us.UpdatePassword(ID, r.Password)
+		updatedUser, err := us.UpdatePassword(ID, r.NewPassword)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update user"})
+			getInternalServerErrorResponse(c)
 			return
 		}
 		userUpdatedDTO := dto.UserResponse{
-			ID:       updatedUser.ID,
-			Username: updatedUser.Username,
-			Message:  "User password updated successfully",
+			ID:      updatedUser.ID,
+			Name:    updatedUser.Name,
+			Message: "User password updated successfully",
 		}
 		c.JSON(http.StatusOK, userUpdatedDTO)
 	}
@@ -219,25 +258,25 @@ func updatePasswordHandler(us user.UseCase) gin.HandlerFunc {
 func updateEmailHandler(us user.UseCase) gin.HandlerFunc {
 	//Update email
 	return func(c *gin.Context) {
-		var r dto.TestUpdateEmailRequest
+		var r dto.UpdateEmailRequest
 		if err := c.ShouldBindJSON(&r); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+			getBadResponse(c)
 			return
 		}
-		ID, err := uuid.Parse(r.ID)
+		ID, err := getUserIDFromContext(c)
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+			getBadResponse(c)
 			return
 		}
-		updatedUser, err := us.UpdateEmail(ID, r.Email)
+		updatedUser, err := us.UpdateEmail(ID, r.NewEmail)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update user"})
+			getInternalServerErrorResponse(c)
 			return
 		}
 		userUpdatedDTO := dto.UserResponse{
-			ID:       updatedUser.ID,
-			Username: updatedUser.Username,
-			Message:  "User email updated successfully",
+			ID:      updatedUser.ID,
+			Name:    updatedUser.Name,
+			Message: "User email updated successfully",
 		}
 		c.JSON(http.StatusOK, userUpdatedDTO)
 	}
@@ -246,25 +285,25 @@ func updateEmailHandler(us user.UseCase) gin.HandlerFunc {
 func updatePhoneHandler(us user.UseCase) gin.HandlerFunc {
 	//Update phone
 	return func(c *gin.Context) {
-		var r dto.TestUpdatePhoneRequest
+		var r dto.UpdatePhoneRequest
 		if err := c.ShouldBindJSON(&r); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+			getBadResponse(c)
 			return
 		}
-		ID, err := uuid.Parse(r.ID)
+		ID, err := getUserIDFromContext(c)
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+			getBadResponse(c)
 			return
 		}
-		updatedUser, err := us.UpdatePhone(ID, r.Phone)
+		updatedUser, err := us.UpdatePhone(ID, r.NewPhone)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update user"})
+			getInternalServerErrorResponse(c)
 			return
 		}
 		userUpdatedDTO := dto.UserResponse{
-			ID:       updatedUser.ID,
-			Username: updatedUser.Username,
-			Message:  "User phone updated successfully",
+			ID:      updatedUser.ID,
+			Name:    updatedUser.Name,
+			Message: "User phone updated successfully",
 		}
 		c.JSON(http.StatusOK, userUpdatedDTO)
 	}
@@ -273,21 +312,25 @@ func updatePhoneHandler(us user.UseCase) gin.HandlerFunc {
 func updateProfileHandler(us user.UseCase) gin.HandlerFunc {
 	//Update profile
 	return func(c *gin.Context) {
-		var r dto.TestUpdateProfileRequest
+		var r dto.UpdateProfileRequest
 		if err := c.ShouldBindJSON(&r); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
 			return
 		}
-
-		updatedUser, err := us.UpdateProfile(r)
+		ID, err := getUserIDFromContext(c)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body 2"})
+			return
+		}
+		updatedUser, err := us.UpdateProfile(ID, r)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update user"})
 			return
 		}
 		userUpdatedDTO := dto.UserResponse{
-			ID:       updatedUser.ID,
-			Username: updatedUser.Username,
-			Message:  "User profile updated successfully",
+			ID:      updatedUser.ID,
+			Name:    updatedUser.Name,
+			Message: "User profile updated successfully",
 		}
 		c.JSON(http.StatusOK, userUpdatedDTO)
 	}
@@ -296,29 +339,22 @@ func updateProfileHandler(us user.UseCase) gin.HandlerFunc {
 func deleteHandler(us user.UseCase) gin.HandlerFunc {
 	//Delete
 	return func(c *gin.Context) {
-		var r dto.TestDeleteRequest
-
-		if err := c.ShouldBindJSON(&r); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
-			return
-		}
-		uuidID, err := uuid.Parse(r.ID)
-
+		ID, err := getUserIDFromContext(c)
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body 2"})
 			return
 		}
 
-		deletedUser, err := us.Delete(uuidID)
+		deletedUser, err := us.Delete(ID)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete user"})
 			return
 		}
 
 		userDeletedDTO := dto.UserResponse{
-			ID:       deletedUser.ID,
-			Username: deletedUser.Username,
-			Message:  "User deleted successfully",
+			ID:      deletedUser.ID,
+			Name:    deletedUser.Name,
+			Message: "User deleted successfully",
 		}
 
 		c.JSON(http.StatusOK, userDeletedDTO)
@@ -359,20 +395,13 @@ func mapOrdersToResponse(orders []order.Order) []orderDTO.OrderResponse {
 func ordersHandler(us user.UseCase) gin.HandlerFunc {
 	//Orders
 	return func(c *gin.Context) {
-		var r dto.TestGetOrdersRequest
-
-		if err := c.ShouldBindJSON(&r); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
-			return
-		}
-
-		uid, err := uuid.Parse(r.UserID)
+		ID, err := getUserIDFromContext(c)
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body 2"})
 			return
 		}
 
-		orders, err := us.Orders(uid)
+		orders, err := us.Orders(ID)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch order data"})
 			return
@@ -387,14 +416,20 @@ func ordersHandler(us user.UseCase) gin.HandlerFunc {
 func createOrderHandler(us user.UseCase) gin.HandlerFunc {
 	//CreateOrder
 	return func(c *gin.Context) {
-		var r dto.TestCreateOrderRequest
+		var r dto.CreateOrderRequest
 
 		if err := c.ShouldBindJSON(&r); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
 			return
 		}
 
-		o, err := us.CreateOrder(r)
+		ID, err := getUserIDFromContext(c)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body 2"})
+			return
+		}
+
+		o, err := us.CreateOrder(ID, r)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create order"})
 			return
@@ -413,28 +448,38 @@ func createOrderHandler(us user.UseCase) gin.HandlerFunc {
 func deleteOrderHandler(us user.UseCase) gin.HandlerFunc {
 	//DeleteOrder
 	return func(c *gin.Context) {
-		var r dto.TestDeleteOrderRequest
+		var r dto.DeleteOrderRequest
 
 		if err := c.ShouldBindJSON(&r); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+			getBadResponse(c)
 			return
 		}
 
-		o, err := us.DeleteOrder(r)
+		ID, err := getUserIDFromContext(c)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body 2"})
+			return
+		}
+
+		orderID, err := uuid.Parse(r.OrderID)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid order ID"})
+			return
+		}
+
+		o, err := us.DeleteOrder(ID, orderID)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete order"})
 			return
 		}
 
-		orderDeletedDTO := orderDTO.OrderResponse{
+		c.JSON(http.StatusOK, orderDTO.OrderResponse{
 			ID:       o.ID,
 			UserID:   o.UserID,
 			OrderNum: o.OrderNum,
 			Total:    o.Total,
 			Status:   o.Status,
-		}
-
-		c.JSON(http.StatusOK, orderDeletedDTO)
+		})
 
 	}
 }
