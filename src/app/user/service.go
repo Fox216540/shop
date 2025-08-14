@@ -2,7 +2,6 @@ package user
 
 import (
 	"errors"
-	"fmt"
 	"github.com/google/uuid"
 	"shop/src/api/user/dto"
 	orderservice "shop/src/app/order"
@@ -33,6 +32,24 @@ func NewUserService(
 		r: r, o: o, jwt: jwt, ts: ts, h: h}
 }
 
+func (s *service) existsEmailAndPhone(email, phone string) (bool, error) {
+	exists, err := s.r.ExistsEmail(email)
+	if err != nil {
+		return false, err // Return error if unable to check if email exists
+	}
+	if exists {
+		return false, errors.New("email already exists") // Return error if email already exists
+	}
+	exists, err = s.r.ExistsPhone(phone)
+	if err != nil {
+		return false, err // Return error if unable to check if phone exists
+	}
+	if exists {
+		return false, errors.New("phone already exists") // Return error if phone already exists
+	}
+	return true, nil
+}
+
 func (s *service) Register(userDto dto.RegisterRequest) (user.User, jwt.Tokens, error) {
 	u := user.User{
 		ID:       uuid.New(),
@@ -41,6 +58,14 @@ func (s *service) Register(userDto dto.RegisterRequest) (user.User, jwt.Tokens, 
 		Password: userDto.Password,
 		Address:  userDto.Address,
 		Phone:    userDto.Phone,
+	}
+
+	exists, err := s.existsEmailAndPhone(u.Email, u.Phone) // Check if email or phone already exists(u.Email)
+	if err != nil {
+		return u, jwt.Tokens{}, err // Return error if unable to check if email or phone exists
+	}
+	if !exists {
+		return u, jwt.Tokens{}, errors.New("email or phone already exists") // Return error if email or phone already exists
 	}
 
 	passwordHashed, err := s.h.Hash(u.Password)
@@ -57,11 +82,7 @@ func (s *service) Register(userDto dto.RegisterRequest) (user.User, jwt.Tokens, 
 		return u, jwt.Tokens{}, err // Return error if unable to add user
 	}
 
-	fmt.Println(u.ID)
-
 	refreshToken, refreshJTI, err := s.jwt.GenerateRefreshToken(u.ID)
-
-	fmt.Println(refreshToken)
 
 	if err != nil {
 		return u, jwt.Tokens{}, err // Return error if unable to generate tokens
@@ -248,6 +269,41 @@ func (s *service) UpdateProfile(userID uuid.UUID, userDTO dto.UpdateProfileReque
 		return user.User{}, err // Вернуть ошибку, если не удалось обновить пользователя
 	}
 	return u, nil
+}
+
+func (s *service) RefreshTokens(token string) (jwt.Tokens, error) {
+	jwtUser, err := s.jwt.DecodeRefreshToken(token)
+	if err != nil {
+		return jwt.Tokens{}, err
+	}
+	_, err = s.r.GetByID(jwtUser.UserID)
+	if err != nil {
+		return jwt.Tokens{}, err // Вернуть ошибку, если не удалось найти пользователя
+	}
+
+	if err = s.ts.Delete(jwtUser.JTI, jwtUser.UserID); err != nil {
+		return jwt.Tokens{}, err
+	}
+
+	refreshToken, refreshJTI, err := s.jwt.GenerateRefreshToken(jwtUser.UserID)
+	if err != nil {
+		return jwt.Tokens{}, err // Вернуть ошибку, если не удалось обновить токен
+	}
+
+	if err = s.ts.Set(refreshJTI, jwtUser.UserID); err != nil {
+		return jwt.Tokens{}, err
+	}
+
+	accessToken, err := s.jwt.GenerateAccessToken(jwtUser.UserID)
+	if err != nil {
+		return jwt.Tokens{}, err // Вернуть ошибку, если не удалось обновить токен
+	}
+
+	return jwt.Tokens{
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken,
+	}, nil
+
 }
 
 func (s *service) Delete(userID uuid.UUID) (user.User, error) {
