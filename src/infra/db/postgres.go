@@ -5,18 +5,19 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"log"
-	"os"
+	"shop/src/core/settings"
 	"shop/src/infra/db/core"
 	mig "shop/src/infra/db/migration"
 )
 
 // Init инициализирует глобальный объект Database
 func InitPostgres() {
-	user := os.Getenv("POSTGRES_USER")
-	password := os.Getenv("POSTGRES_PASSWORD")
-	host := os.Getenv("POSTGRES_HOST")
-	port := os.Getenv("POSTGRES_PORT")
-	databaseName := os.Getenv("POSTGRES_DB")
+	config := settings.Config
+	user := config.PostgresUser
+	password := config.PostgresPassword
+	host := config.PostgresHost
+	port := config.PostgresPort
+	databaseName := config.PostgresDatabase
 	fmt.Println(user, password, host, port, databaseName)
 	dsn := fmt.Sprintf(
 		"host=%s user=%s password=%s dbname=%s port=%s sslmode=disable",
