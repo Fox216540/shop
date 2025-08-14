@@ -34,18 +34,8 @@ func NewUserService(
 }
 
 func (s *service) Register(userDto dto.RegisterRequest) (user.User, jwt.Tokens, error) {
-	//_, err := s.r.FindByUsernameOrEmail(userDto.Username)
-	//if err == nil {
-	//	return user.User{}, jwt.Tokens{}, err // Return error if user with the same username already exists
-	//}
-	//_, err = s.r.FindByUsernameOrEmail(userDto.Email)
-	//if err == nil {
-	//	return user.User{}, jwt.Tokens{}, err // Return error if user with the same email already exists
-	//}
-
 	u := user.User{
 		ID:       uuid.New(),
-		Username: userDto.Username,
 		Email:    userDto.Email,
 		Name:     userDto.Name,
 		Password: userDto.Password,
@@ -77,7 +67,7 @@ func (s *service) Register(userDto dto.RegisterRequest) (user.User, jwt.Tokens, 
 		return u, jwt.Tokens{}, err // Return error if unable to generate tokens
 	}
 
-	accessToken, err := s.jwt.GenerateAccessToken(u.ID, u.Username)
+	accessToken, err := s.jwt.GenerateAccessToken(u.ID)
 
 	if err != nil {
 		return u, jwt.Tokens{}, err // Return error if unable to generate tokens
@@ -95,9 +85,9 @@ func (s *service) Register(userDto dto.RegisterRequest) (user.User, jwt.Tokens, 
 	return u, jwtTokens, nil
 }
 
-func (s *service) Login(usernameOrEmail, password string) (user.User, jwt.Tokens, error) {
+func (s *service) Login(phoneOrEmail, password string) (user.User, jwt.Tokens, error) {
 
-	u, err := s.r.FindByUsernameOrEmail(usernameOrEmail)
+	u, err := s.r.FindByPhoneOrEmail(phoneOrEmail)
 	if err != nil {
 		return u, jwt.Tokens{}, err // Return error if unable to find user
 	}
@@ -112,7 +102,7 @@ func (s *service) Login(usernameOrEmail, password string) (user.User, jwt.Tokens
 		return u, jwt.Tokens{}, err // Return error if unable to generate tokens
 	}
 
-	accessToken, err := s.jwt.GenerateAccessToken(u.ID, u.Username)
+	accessToken, err := s.jwt.GenerateAccessToken(u.ID)
 
 	if err != nil {
 		return u, jwt.Tokens{}, err // Return error if unable to generate tokens
@@ -187,34 +177,12 @@ func (s *service) LogoutAll(token string) error {
 	return nil
 }
 
-func (s *service) UpdateUsername(userID uuid.UUID, newUsername string) (user.User, jwt.Tokens, error) {
-	u, err := s.r.GetByID(userID)
-	if err != nil {
-		return user.User{}, jwt.Tokens{}, err // Вернуть ошибку, если не удалось найти пользователя
-	}
-	isExists, err := s.r.ExistsUsernameOrEmail(newUsername)
-	if isExists {
-		//TODO: Вернуть кастомную ошибку
-		return user.User{}, jwt.Tokens{}, errors.New("username already exists") // Вернуть ошибку, если пользователь с таким именем уже существует
-	}
-	u.Username = newUsername
-	u, err = s.r.Update(u)
-	if err != nil {
-		return user.User{}, jwt.Tokens{}, err // Вернуть ошибку, если не удалось обновить пользователя
-	}
-	accessToken, err := s.jwt.GenerateAccessToken(u.ID, u.Username)
-	tokens := jwt.Tokens{
-		AccessToken: accessToken,
-	}
-	return u, tokens, nil
-}
-
 func (s *service) UpdateEmail(userID uuid.UUID, newEmail string) (user.User, error) {
 	u, err := s.r.GetByID(userID)
 	if err != nil {
 		return user.User{}, err // Вернуть ошибку, если не удалось найти пользователя
 	}
-	isExists, err := s.r.ExistsUsernameOrEmail(newEmail)
+	isExists, err := s.r.ExistsEmail(newEmail)
 	if isExists {
 		//TODO: Вернуть кастомную ошибку
 		return user.User{}, errors.New("email already exists") // Вернуть ошибку, если пользователь с таким именем уже существует
@@ -264,20 +232,16 @@ func (s *service) UpdatePhone(userID uuid.UUID, newPhone string) (user.User, err
 	return u, nil
 }
 
-func (s *service) UpdateProfile(userDTO dto.TestUpdateProfileRequest) (user.User, error) {
-	userID, err := uuid.Parse(userDTO.ID)
-	if err != nil {
-		return user.User{}, err
-	}
+func (s *service) UpdateProfile(userID uuid.UUID, userDTO dto.UpdateProfileRequest) (user.User, error) {
 	u, err := s.r.GetByID(userID)
 	if err != nil {
 		return user.User{}, err // Вернуть ошибку, если не удалось найти пользователя
 	}
-	if userDTO.Name != "" {
-		u.Name = userDTO.Name
+	if userDTO.NewName != "" {
+		u.Name = userDTO.NewName
 	}
-	if userDTO.Address != "" {
-		u.Address = userDTO.Address
+	if userDTO.NewAddress != "" {
+		u.Address = userDTO.NewAddress
 	}
 	u, err = s.r.Update(u)
 	if err != nil {
@@ -311,22 +275,11 @@ func (s *service) Orders(userID uuid.UUID) ([]order.Order, error) {
 	return orders, nil
 }
 
-func (s *service) DeleteOrder(userDTO dto.TestDeleteOrderRequest) (order.Order, error) {
-	orderID, err := uuid.Parse(userDTO.ID)
-	if err != nil {
-		return order.Order{}, err // Return error if unable to parse order ID
-	}
-
-	userID, err := uuid.Parse(userDTO.UserID)
-	if err != nil {
-		return order.Order{}, err // Return error if unable to parse user ID
-	}
-
+func (s *service) DeleteOrder(userID uuid.UUID, orderID uuid.UUID) (order.Order, error) {
 	o, err := s.o.GetByID(orderID)
 	if err != nil {
 		return order.Order{}, err // Return error if unable to find order
 	}
-
 	_, err = s.o.Cancel(orderID, userID)
 	if err != nil {
 		return order.Order{}, err // Return error if unable to delete order
@@ -334,12 +287,7 @@ func (s *service) DeleteOrder(userDTO dto.TestDeleteOrderRequest) (order.Order, 
 	return o, nil
 }
 
-func (s *service) CreateOrder(userDTO dto.TestCreateOrderRequest) (order.Order, error) {
-	userID, err := uuid.Parse(userDTO.ID)
-	if err != nil {
-		return order.Order{}, err // Return error if unable to parse user ID
-	}
-
+func (s *service) CreateOrder(userID uuid.UUID, userDTO dto.CreateOrderRequest) (order.Order, error) {
 	productItems := make([]*order.Item, len(userDTO.OrderItems)) // userDTO.OrderItems -> userDTO.OrderItems
 	for i, item := range userDTO.OrderItems {
 		uuidID, err := uuid.Parse(item.ProductID)
