@@ -4,7 +4,6 @@ import "github.com/google/uuid"
 
 type User struct {
 	ID       uuid.UUID // Unique identifier for the user
-	Username string    // Unique username for the user
 	Email    string    // User's email address
 	Name     string    // User's full name
 	Phone    string    // User's phone number
