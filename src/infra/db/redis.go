@@ -5,15 +5,16 @@ import (
 	"fmt"
 	"github.com/redis/go-redis/v9"
 	"log"
-	"os"
+	"shop/src/core/settings"
 	"shop/src/infra/db/core"
 )
 
 // Init инициализирует Redis клиента
 func InitRedis() {
-	host := os.Getenv("REDIS_HOST")
-	port := os.Getenv("REDIS_PORT")
-	password := os.Getenv("REDIS_PASSWORD") // может быть пустым
+	config := settings.Config
+	host := config.RedisHost
+	port := config.RedisPort
+	password := config.RedisPassword // может быть пустым
 
 	addr := fmt.Sprintf("%s:%s", host, port)
 
