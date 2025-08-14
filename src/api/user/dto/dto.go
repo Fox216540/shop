@@ -17,9 +17,9 @@ type CreateOrderResponse struct {
 	Status   string    `json:"status"`
 }
 type UserResponse struct {
-	ID       uuid.UUID `json:"id"`
-	Username string    `json:"username"`
-	Message  string    `json:"message"`
+	ID      uuid.UUID `json:"id"`
+	Name    string    `json:"name"`
+	Message string    `json:"message"`
 }
 
 type TestTokensResponse struct {
@@ -28,16 +28,15 @@ type TestTokensResponse struct {
 }
 
 type UserWithTokensResponse struct {
-	ID       uuid.UUID          `json:"id"`
-	Username string             `json:"username"`
-	Tokens   TestTokensResponse `json:"tokens"`
-	Message  string             `json:"message"`
+	ID      uuid.UUID          `json:"id"`
+	Name    string             `json:"name"`
+	Tokens  TestTokensResponse `json:"tokens"`
+	Message string             `json:"message"`
 }
 
 // Request
 
 type RegisterRequest struct {
-	Username string `json:"username" binding:"required"`
 	Email    string `json:"email" binding:"required,email"`
 	Name     string `json:"name" binding:"required"`
 	Password string `json:"password" binding:"required"`
@@ -45,60 +44,41 @@ type RegisterRequest struct {
 	Phone    string `json:"phone" binding:"required"`
 }
 
-type TestDeleteRequest struct {
-	ID string `json:"id" binding:"required,uuid"`
-}
-
 type ItemRequest struct {
 	ProductID string `json:"product_id" binding:"required,uuid"`
 	Quantity  int    `json:"quantity" binding:"required"`
 }
 
-type TestCreateOrderRequest struct {
-	ID         string        `json:"id" binding:"required,uuid"`
+type CreateOrderRequest struct {
 	OrderItems []ItemRequest `json:"order_items" binding:"required"`
 }
 
-type TestDeleteOrderRequest struct {
-	UserID string `json:"user_id" binding:"required,uuid"`
-	ID     string `json:"id" binding:"required,uuid"`
+type DeleteOrderRequest struct {
+	OrderID string `json:"order_id" binding:"required,uuid"`
 }
 
-type TestGetOrdersRequest struct {
-	UserID string `json:"user_id" binding:"required,uuid"`
+type LoginRequest struct {
+	PhoneOrEmail string `json:"phone_or_email" binding:"required"`
+	Password     string `json:"password" binding:"required"`
 }
 
-type TestLoginRequest struct {
-	UsernameOrEmail string `json:"username_or_email" binding:"required"`
-	Password        string `json:"password" binding:"required"`
-}
-
-type TestLogoutRequest struct {
+type LogoutRequest struct {
 	RefreshToken string `json:"refresh_token" binding:"required"`
 }
 
-type TestUpdateUsernameRequest struct {
-	ID       string `json:"id" binding:"required,uuid"`
-	Username string `json:"username" binding:"required"`
+type UpdatePasswordRequest struct {
+	NewPassword string `json:"new_password" binding:"required"`
 }
 
-type TestUpdatePasswordRequest struct {
-	ID       string `json:"id" binding:"required,uuid"`
-	Password string `json:"password" binding:"required"`
+type UpdateEmailRequest struct {
+	NewEmail string `json:"new_email" binding:"required,email"`
 }
 
-type TestUpdateEmailRequest struct {
-	ID    string `json:"id" binding:"required,uuid"`
-	Email string `json:"email" binding:"required,email"`
+type UpdatePhoneRequest struct {
+	NewPhone string `json:"new_phone" binding:"required"`
 }
 
-type TestUpdatePhoneRequest struct {
-	ID    string `json:"id" binding:"required,uuid"`
-	Phone string `json:"phone" binding:"required"`
-}
-
-type TestUpdateProfileRequest struct {
-	ID      string `json:"id" binding:"required,uuid"`
-	Name    string `json:"name"`
-	Address string `json:"address"`
+type UpdateProfileRequest struct {
+	NewName    string `json:"new_name"`
+	NewAddress string `json:"new_address"`
 }
