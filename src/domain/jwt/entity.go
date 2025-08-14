@@ -5,9 +5,8 @@ import (
 )
 
 type JWTUser struct {
-	UserID   uuid.UUID
-	Username string
-	JTI      uuid.UUID
+	UserID uuid.UUID
+	JTI    uuid.UUID
 }
 
 type Tokens struct {
