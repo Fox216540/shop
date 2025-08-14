@@ -12,7 +12,9 @@ import (
 	"shop/src/api/user/dto"
 	"shop/src/app/user"
 	"shop/src/core/middleware"
+	"shop/src/core/settings"
 	"shop/src/domain/order"
+	"strconv"
 )
 
 func Handler(r *gin.Engine) {
@@ -62,6 +64,11 @@ func Handler(r *gin.Engine) {
 		middleware.JWTMiddleware(jwtService),
 		updateProfileHandler(us),
 	)
+	// Refresh tokens
+	r.POST(
+		"/user/refresh",
+		refreshHandler(us),
+	)
 	// Delete
 	r.DELETE(
 		"/user",
@@ -100,7 +107,7 @@ func getUserIDFromContext(c *gin.Context) (uuid.UUID, error) {
 	return id, nil
 }
 
-func getBadResponse(c *gin.Context) {
+func getBadRequestResponse(c *gin.Context) {
 	c.JSON(http.StatusBadRequest, gin.H{"error": "Bad request"})
 }
 
@@ -110,6 +117,18 @@ func getNotFoundResponse(c *gin.Context) {
 
 func getInternalServerErrorResponse(c *gin.Context) {
 	c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
+}
+
+func durationDiff(a, b string) (int, error) {
+	t1, err := strconv.Atoi(a)
+	if err != nil {
+		return 0, err
+	}
+	t2, err := strconv.Atoi(b)
+	if err != nil {
+		return 0, err
+	}
+	return t1 - t2, nil
 }
 
 func registerHandler(us user.UseCase) gin.HandlerFunc {
@@ -129,19 +148,29 @@ func registerHandler(us user.UseCase) gin.HandlerFunc {
 			return
 		}
 
-		tokensDTO := dto.TestTokensResponse{
-			AccessToken:  tokens.AccessToken,
-			RefreshToken: tokens.RefreshToken,
+		ttl := settings.Config.RefreshTokenTTL
+		bufferTime := settings.Config.BufferSeconds
+		duration, err := durationDiff(ttl, bufferTime)
+		if err != nil {
+			getInternalServerErrorResponse(c)
+			return
 		}
 
-		NewUserDTO := dto.UserWithTokensResponse{
-			ID:      NewUser.ID,
-			Name:    NewUser.Name,
-			Tokens:  tokensDTO,
-			Message: "User created successfully",
-		}
-
-		c.JSON(http.StatusOK, NewUserDTO)
+		c.SetCookie(
+			"refresh_token",     // имя
+			tokens.RefreshToken, // значение, например user.RefreshToken
+			duration,            // maxAge в секундах
+			"/user/refresh",     // path
+			"",                  // domain (можно пустое "")
+			false,               // secure (true для HTTPS)
+			true,                // HttpOnly
+		)
+		c.JSON(http.StatusOK, dto.UserWithTokenResponse{
+			ID:          NewUser.ID,
+			Name:        NewUser.Name,
+			AccessToken: tokens.AccessToken,
+			Message:     "User created successfully",
+		})
 	}
 }
 
@@ -151,7 +180,7 @@ func loginHandler(us user.UseCase) gin.HandlerFunc {
 		var r dto.LoginRequest
 
 		if err := c.ShouldBindJSON(&r); err != nil {
-			getBadResponse(c)
+			getBadRequestResponse(c)
 			return
 		}
 
@@ -162,19 +191,29 @@ func loginHandler(us user.UseCase) gin.HandlerFunc {
 			return
 		}
 
-		tokensDTO := dto.TestTokensResponse{
-			AccessToken:  tokens.AccessToken,
-			RefreshToken: tokens.RefreshToken,
+		ttl := settings.Config.RefreshTokenTTL
+		bufferTime := settings.Config.BufferSeconds
+		duration, err := durationDiff(ttl, bufferTime)
+		if err != nil {
+			getInternalServerErrorResponse(c)
+			return
 		}
 
-		userDTO := dto.UserWithTokensResponse{
-			ID:      User.ID,
-			Name:    User.Name,
-			Tokens:  tokensDTO,
-			Message: "User logged in successfully",
-		}
-
-		c.JSON(http.StatusOK, userDTO)
+		c.SetCookie(
+			"refresh_token",     // имя
+			tokens.RefreshToken, // значение, например user.RefreshToken
+			duration,            // maxAge в секундах
+			"/user/refresh",     // path
+			"",                  // domain (можно пустое "")
+			false,               // secure (true для HTTPS)
+			true,                // HttpOnly
+		)
+		c.JSON(http.StatusOK, dto.UserWithTokenResponse{
+			ID:          User.ID,
+			Name:        User.Name,
+			AccessToken: tokens.AccessToken,
+			Message:     "User created successfully",
+		})
 	}
 }
 
@@ -184,7 +223,7 @@ func logoutHandler(us user.UseCase) gin.HandlerFunc {
 		var r dto.LogoutRequest
 
 		if err := c.ShouldBindJSON(&r); err != nil {
-			getBadResponse(c)
+			getBadRequestResponse(c)
 			return
 		}
 
@@ -194,12 +233,9 @@ func logoutHandler(us user.UseCase) gin.HandlerFunc {
 			getInternalServerErrorResponse(c)
 			return
 		}
-
-		DTO := dto.MessageResponse{
+		c.JSON(http.StatusOK, dto.MessageResponse{
 			Message: "User logged out successfully",
-		}
-
-		c.JSON(http.StatusOK, DTO)
+		})
 	}
 }
 
@@ -209,7 +245,7 @@ func logoutAllHandler(us user.UseCase) gin.HandlerFunc {
 		var r dto.LogoutRequest
 
 		if err := c.ShouldBindJSON(&r); err != nil {
-			getBadResponse(c)
+			getBadRequestResponse(c)
 			return
 		}
 
@@ -220,11 +256,9 @@ func logoutAllHandler(us user.UseCase) gin.HandlerFunc {
 			return
 		}
 
-		DTO := dto.MessageResponse{
+		c.JSON(http.StatusOK, dto.MessageResponse{
 			Message: "User all logged out successfully",
-		}
-
-		c.JSON(http.StatusOK, DTO)
+		})
 	}
 }
 func updatePasswordHandler(us user.UseCase) gin.HandlerFunc {
@@ -232,13 +266,13 @@ func updatePasswordHandler(us user.UseCase) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var r dto.UpdatePasswordRequest
 		if err := c.ShouldBindJSON(&r); err != nil {
-			getBadResponse(c)
+			getBadRequestResponse(c)
 			return
 		}
 
 		ID, err := getUserIDFromContext(c)
 		if err != nil {
-			getBadResponse(c)
+			getBadRequestResponse(c)
 			return
 		}
 		updatedUser, err := us.UpdatePassword(ID, r.NewPassword)
@@ -246,12 +280,11 @@ func updatePasswordHandler(us user.UseCase) gin.HandlerFunc {
 			getInternalServerErrorResponse(c)
 			return
 		}
-		userUpdatedDTO := dto.UserResponse{
+		c.JSON(http.StatusOK, dto.UserResponse{
 			ID:      updatedUser.ID,
 			Name:    updatedUser.Name,
 			Message: "User password updated successfully",
-		}
-		c.JSON(http.StatusOK, userUpdatedDTO)
+		})
 	}
 }
 
@@ -260,12 +293,12 @@ func updateEmailHandler(us user.UseCase) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var r dto.UpdateEmailRequest
 		if err := c.ShouldBindJSON(&r); err != nil {
-			getBadResponse(c)
+			getBadRequestResponse(c)
 			return
 		}
 		ID, err := getUserIDFromContext(c)
 		if err != nil {
-			getBadResponse(c)
+			getBadRequestResponse(c)
 			return
 		}
 		updatedUser, err := us.UpdateEmail(ID, r.NewEmail)
@@ -273,12 +306,12 @@ func updateEmailHandler(us user.UseCase) gin.HandlerFunc {
 			getInternalServerErrorResponse(c)
 			return
 		}
-		userUpdatedDTO := dto.UserResponse{
+
+		c.JSON(http.StatusOK, dto.UserResponse{
 			ID:      updatedUser.ID,
 			Name:    updatedUser.Name,
 			Message: "User email updated successfully",
-		}
-		c.JSON(http.StatusOK, userUpdatedDTO)
+		})
 	}
 }
 
@@ -287,12 +320,12 @@ func updatePhoneHandler(us user.UseCase) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var r dto.UpdatePhoneRequest
 		if err := c.ShouldBindJSON(&r); err != nil {
-			getBadResponse(c)
+			getBadRequestResponse(c)
 			return
 		}
 		ID, err := getUserIDFromContext(c)
 		if err != nil {
-			getBadResponse(c)
+			getBadRequestResponse(c)
 			return
 		}
 		updatedUser, err := us.UpdatePhone(ID, r.NewPhone)
@@ -300,12 +333,12 @@ func updatePhoneHandler(us user.UseCase) gin.HandlerFunc {
 			getInternalServerErrorResponse(c)
 			return
 		}
-		userUpdatedDTO := dto.UserResponse{
+
+		c.JSON(http.StatusOK, dto.UserResponse{
 			ID:      updatedUser.ID,
 			Name:    updatedUser.Name,
 			Message: "User phone updated successfully",
-		}
-		c.JSON(http.StatusOK, userUpdatedDTO)
+		})
 	}
 }
 
@@ -314,25 +347,62 @@ func updateProfileHandler(us user.UseCase) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var r dto.UpdateProfileRequest
 		if err := c.ShouldBindJSON(&r); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+			getBadRequestResponse(c)
 			return
 		}
 		ID, err := getUserIDFromContext(c)
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body 2"})
+			getBadRequestResponse(c)
 			return
 		}
 		updatedUser, err := us.UpdateProfile(ID, r)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update user"})
+			getInternalServerErrorResponse(c)
 			return
 		}
-		userUpdatedDTO := dto.UserResponse{
+
+		c.JSON(http.StatusOK, dto.UserResponse{
 			ID:      updatedUser.ID,
 			Name:    updatedUser.Name,
 			Message: "User profile updated successfully",
+		})
+	}
+}
+
+func refreshHandler(us user.UseCase) gin.HandlerFunc {
+	//Refresh
+	return func(c *gin.Context) {
+		token, err := c.Cookie("refresh_token")
+		if err != nil {
+			getBadRequestResponse(c)
+			return
 		}
-		c.JSON(http.StatusOK, userUpdatedDTO)
+		newTokens, err := us.RefreshTokens(token)
+		if err != nil {
+			getInternalServerErrorResponse(c)
+			return
+		}
+		ttl := settings.Config.RefreshTokenTTL
+		bufferTime := settings.Config.BufferSeconds
+		duration, err := durationDiff(ttl, bufferTime)
+		if err != nil {
+			getInternalServerErrorResponse(c)
+			return
+		}
+
+		c.SetCookie(
+			"refresh_token",        // имя
+			newTokens.RefreshToken, // значение, например user.RefreshToken
+			duration,               // maxAge в секундах
+			"/user/refresh",        // path
+			"",                     // domain (можно пустое "")
+			false,                  // secure (true для HTTPS)
+			true,                   // HttpOnly
+		)
+		c.JSON(http.StatusOK, dto.TokenAccessResponse{
+			AccessToken: newTokens.AccessToken,
+			Message:     "Refresh token updated successfully",
+		})
 	}
 }
 
@@ -341,23 +411,21 @@ func deleteHandler(us user.UseCase) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ID, err := getUserIDFromContext(c)
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body 2"})
+			getBadRequestResponse(c)
 			return
 		}
 
 		deletedUser, err := us.Delete(ID)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete user"})
+			getInternalServerErrorResponse(c)
 			return
 		}
 
-		userDeletedDTO := dto.UserResponse{
+		c.JSON(http.StatusOK, dto.UserResponse{
 			ID:      deletedUser.ID,
 			Name:    deletedUser.Name,
 			Message: "User deleted successfully",
-		}
-
-		c.JSON(http.StatusOK, userDeletedDTO)
+		})
 	}
 }
 
@@ -397,13 +465,13 @@ func ordersHandler(us user.UseCase) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ID, err := getUserIDFromContext(c)
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body 2"})
+			getBadRequestResponse(c)
 			return
 		}
 
 		orders, err := us.Orders(ID)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch order data"})
+			getInternalServerErrorResponse(c)
 			return
 		}
 
@@ -419,19 +487,19 @@ func createOrderHandler(us user.UseCase) gin.HandlerFunc {
 		var r dto.CreateOrderRequest
 
 		if err := c.ShouldBindJSON(&r); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+			getBadRequestResponse(c)
 			return
 		}
 
 		ID, err := getUserIDFromContext(c)
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body 2"})
+			getBadRequestResponse(c)
 			return
 		}
 
 		o, err := us.CreateOrder(ID, r)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create order"})
+			getInternalServerErrorResponse(c)
 			return
 		}
 
@@ -451,25 +519,25 @@ func deleteOrderHandler(us user.UseCase) gin.HandlerFunc {
 		var r dto.DeleteOrderRequest
 
 		if err := c.ShouldBindJSON(&r); err != nil {
-			getBadResponse(c)
+			getBadRequestResponse(c)
 			return
 		}
 
 		ID, err := getUserIDFromContext(c)
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body 2"})
+			getBadRequestResponse(c)
 			return
 		}
 
 		orderID, err := uuid.Parse(r.OrderID)
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid order ID"})
+			getBadRequestResponse(c)
 			return
 		}
 
 		o, err := us.DeleteOrder(ID, orderID)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete order"})
+			getInternalServerErrorResponse(c)
 			return
 		}
 
