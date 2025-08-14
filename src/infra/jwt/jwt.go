@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
-	"log"
 	"os"
 	jwtdomain "shop/src/domain/jwt"
 	"strconv"
@@ -27,12 +26,8 @@ func (s *service) toDuration(ttl string) (time.Duration, error) {
 }
 
 func (s *service) GenerateRefreshToken(userID uuid.UUID) (string, uuid.UUID, error) {
-	log.Println(userID)
 	ttl := os.Getenv("REFRESH_TOKEN_TTL")
-	log.Println(ttl)
 	secret := []byte(os.Getenv("REFRESH_TOKEN_SECRET"))
-	log.Println(secret)
-
 	duration, err := s.toDuration(ttl)
 	if err != nil {
 		return "", uuid.Nil, fmt.Errorf("invalid REFRESH_TOKEN_TTL: %w", err)
@@ -44,9 +39,7 @@ func (s *service) GenerateRefreshToken(userID uuid.UUID) (string, uuid.UUID, err
 		"exp":  time.Now().Add(duration).Unix(),
 		"jti":  jti,
 	}
-	fmt.Println(claims)
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	fmt.Println(token)
 	tokenString, err := token.SignedString(secret)
 	if err != nil {
 		return "", uuid.Nil, err
@@ -54,20 +47,19 @@ func (s *service) GenerateRefreshToken(userID uuid.UUID) (string, uuid.UUID, err
 	return tokenString, jti, nil
 }
 
-func (s *service) GenerateAccessToken(userID uuid.UUID, username string) (string, error) {
+func (s *service) GenerateAccessToken(userID uuid.UUID) (string, error) {
 	ttl := os.Getenv("ACCESS_TOKEN_TTL")
 	secret := []byte(os.Getenv("ACCESS_TOKEN_SECRET"))
 	duration, err := s.toDuration(ttl)
 	if err != nil {
-		return "", fmt.Errorf("invalid REFRESH_TOKEN_TTL: %w", err)
+		return "", fmt.Errorf("invalid ACCESS_TOKEN_TTL: %w", err)
 	}
 	jti := uuid.New()
 	claims := jwt.MapClaims{
-		"sub":      userID.String(), // как str(user_id)
-		"type":     "access",        // "access"
-		"username": username,        // username
-		"exp":      time.Now().Add(duration).Unix(),
-		"jti":      jti,
+		"sub":  userID.String(), // как str(user_id)
+		"type": "access",        // "access"
+		"exp":  time.Now().Add(duration).Unix(),
+		"jti":  jti,
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	return token.SignedString(secret)
@@ -100,7 +92,7 @@ func (s *service) DecodeRefreshToken(token string) (jwtdomain.JWTUser, error) {
 
 func (s *service) DecodeAccessToken(token string) (jwtdomain.JWTUser, error) {
 	parsedToken, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
-		return []byte(os.Getenv("REFRESH_TOKEN_SECRET")), nil
+		return []byte(os.Getenv("ACCESS_TOKEN_SECRET")), nil
 	})
 	if err != nil {
 		return jwtdomain.JWTUser{}, err
@@ -113,20 +105,12 @@ func (s *service) DecodeAccessToken(token string) (jwtdomain.JWTUser, error) {
 	if err != nil {
 		return jwtdomain.JWTUser{}, err
 	}
-
-	username, ok := claims["username"].(string)
-	if !ok {
-		return jwtdomain.JWTUser{}, err
-	}
-
 	jti, err := uuid.Parse(claims["jti"].(string))
 	if err != nil {
 		return jwtdomain.JWTUser{}, err
 	}
-
 	return jwtdomain.JWTUser{
-		UserID:   userID,
-		Username: username,
-		JTI:      jti,
+		UserID: userID,
+		JTI:    jti,
 	}, nil
 }
