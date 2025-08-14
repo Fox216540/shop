@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
-	"os"
+	"shop/src/core/settings"
 	jwtdomain "shop/src/domain/jwt"
 	"strconv"
 	"time"
@@ -26,8 +26,9 @@ func (s *service) toDuration(ttl string) (time.Duration, error) {
 }
 
 func (s *service) GenerateRefreshToken(userID uuid.UUID) (string, uuid.UUID, error) {
-	ttl := os.Getenv("REFRESH_TOKEN_TTL")
-	secret := []byte(os.Getenv("REFRESH_TOKEN_SECRET"))
+	config := settings.Config
+	ttl := config.RefreshTokenTTL
+	secret := []byte(config.RefreshTokenSecret)
 	duration, err := s.toDuration(ttl)
 	if err != nil {
 		return "", uuid.Nil, fmt.Errorf("invalid REFRESH_TOKEN_TTL: %w", err)
@@ -48,8 +49,9 @@ func (s *service) GenerateRefreshToken(userID uuid.UUID) (string, uuid.UUID, err
 }
 
 func (s *service) GenerateAccessToken(userID uuid.UUID) (string, error) {
-	ttl := os.Getenv("ACCESS_TOKEN_TTL")
-	secret := []byte(os.Getenv("ACCESS_TOKEN_SECRET"))
+	config := settings.Config
+	ttl := config.AccessTokenTTL
+	secret := []byte(config.AccessTokenSecret)
 	duration, err := s.toDuration(ttl)
 	if err != nil {
 		return "", fmt.Errorf("invalid ACCESS_TOKEN_TTL: %w", err)
@@ -67,7 +69,7 @@ func (s *service) GenerateAccessToken(userID uuid.UUID) (string, error) {
 
 func (s *service) DecodeRefreshToken(token string) (jwtdomain.JWTUser, error) {
 	parsedToken, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
-		return []byte(os.Getenv("REFRESH_TOKEN_SECRET")), nil
+		return []byte(settings.Config.RefreshTokenSecret), nil
 	})
 	if err != nil {
 		return jwtdomain.JWTUser{}, err
@@ -92,7 +94,7 @@ func (s *service) DecodeRefreshToken(token string) (jwtdomain.JWTUser, error) {
 
 func (s *service) DecodeAccessToken(token string) (jwtdomain.JWTUser, error) {
 	parsedToken, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
-		return []byte(os.Getenv("ACCESS_TOKEN_SECRET")), nil
+		return []byte(settings.Config.AccessTokenSecret), nil
 	})
 	if err != nil {
 		return jwtdomain.JWTUser{}, err
