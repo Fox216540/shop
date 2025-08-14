@@ -22,16 +22,16 @@ type UserResponse struct {
 	Message string    `json:"message"`
 }
 
-type TestTokensResponse struct {
-	RefreshToken string `json:"refresh_token"`
-	AccessToken  string `json:"access_token"`
+type UserWithTokenResponse struct {
+	ID          uuid.UUID `json:"id"`
+	Name        string    `json:"name"`
+	AccessToken string    `json:"access_token"`
+	Message     string    `json:"message"`
 }
 
-type UserWithTokensResponse struct {
-	ID      uuid.UUID          `json:"id"`
-	Name    string             `json:"name"`
-	Tokens  TestTokensResponse `json:"tokens"`
-	Message string             `json:"message"`
+type TokenAccessResponse struct {
+	AccessToken string `json:"access_token"`
+	Message     string `json:"message"`
 }
 
 // Request
