@@ -6,6 +6,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
 	"shop/src/domain/tokenstorage"
+	"time"
 )
 
 type repository struct {
@@ -18,13 +19,13 @@ func NewRepository(rdb *redis.Client) tokenstorage.TokenStorage {
 	return &repository{rdb: rdb}
 }
 
-func (r *repository) Set(jti, userID uuid.UUID) error {
+func (r *repository) Set(jti, userID uuid.UUID, ttl time.Duration) error {
 	ctx := context.Background()
 	userSetKey := fmt.Sprintf("user:%s:refresh_tokens", userID.String())
 	if err := r.rdb.SAdd(ctx, userSetKey, jti.String()).Err(); err != nil {
 		return err
 	}
-	if err := r.rdb.Set(ctx, jti.String(), userID.String(), 0).Err(); err != nil {
+	if err := r.rdb.Set(ctx, jti.String(), userID.String(), ttl).Err(); err != nil {
 		return err
 	}
 	return nil
