@@ -5,12 +5,15 @@ import (
 	"github.com/google/uuid"
 	"shop/src/api/user/dto"
 	orderservice "shop/src/app/order"
+	"shop/src/core/settings"
 	"shop/src/domain/hasher"
 	"shop/src/domain/jwt"
 	"shop/src/domain/order"
 	"shop/src/domain/product"
 	"shop/src/domain/tokenstorage"
 	"shop/src/domain/user"
+	"strconv"
+	"time"
 )
 
 type service struct {
@@ -48,6 +51,14 @@ func (s *service) existsEmailAndPhone(email, phone string) (bool, error) {
 		return false, errors.New("phone already exists") // Return error if phone already exists
 	}
 	return true, nil
+}
+
+func (s *service) toDuration(ttl string) (time.Duration, error) {
+	seconds, err := strconv.ParseInt(ttl, 10, 64)
+	if err != nil {
+		return 0, err
+	}
+	return time.Duration(seconds) * time.Second, nil
 }
 
 func (s *service) Register(userDto dto.RegisterRequest) (user.User, jwt.Tokens, error) {
@@ -99,7 +110,12 @@ func (s *service) Register(userDto dto.RegisterRequest) (user.User, jwt.Tokens, 
 		RefreshToken: refreshToken,
 	}
 
-	if err = s.ts.Set(refreshJTI, u.ID); err != nil {
+	ttl := settings.Config.RefreshTokenTTL
+	ttlDuration, err := s.toDuration(ttl)
+	if err != nil {
+		return u, jwt.Tokens{}, err
+	}
+	if err = s.ts.Set(refreshJTI, u.ID, ttlDuration); err != nil {
 		return user.User{}, jwt.Tokens{}, err
 	}
 
@@ -134,7 +150,13 @@ func (s *service) Login(phoneOrEmail, password string) (user.User, jwt.Tokens, e
 		RefreshToken: refreshToken,
 	}
 
-	if err = s.ts.Set(refreshJTI, u.ID); err != nil {
+	ttl := settings.Config.RefreshTokenTTL
+	ttlDuration, err := s.toDuration(ttl)
+	if err != nil {
+		return u, jwt.Tokens{}, err
+	}
+
+	if err = s.ts.Set(refreshJTI, u.ID, ttlDuration); err != nil {
 		return user.User{}, jwt.Tokens{}, err
 	}
 
@@ -290,7 +312,13 @@ func (s *service) RefreshTokens(token string) (jwt.Tokens, error) {
 		return jwt.Tokens{}, err // Вернуть ошибку, если не удалось обновить токен
 	}
 
-	if err = s.ts.Set(refreshJTI, jwtUser.UserID); err != nil {
+	ttl := settings.Config.RefreshTokenTTL
+	ttlDuration, err := s.toDuration(ttl)
+	if err != nil {
+		return jwt.Tokens{}, err
+	}
+
+	if err = s.ts.Set(refreshJTI, jwtUser.UserID, ttlDuration); err != nil {
 		return jwt.Tokens{}, err
 	}
 
