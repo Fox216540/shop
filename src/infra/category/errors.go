@@ -1,35 +1,35 @@
 package category
 
 import (
-	"shop/src/domain/category"
+	"shop/src/infra/globalError"
 )
 
-const layer = "Infra"
+const domain = "Category"
 
-type ServerError struct {
-	*category.GlobalError
+type DomainServerError struct {
+	*globalError.InfraServerError
 }
 
-func (e *ServerError) Error() string {
-	return e.GlobalError.Error()
+func (e *DomainServerError) Error() string {
+	return e.InfraServerError.Error()
 }
 
-func NewServerError(msg string, err error) *ServerError {
-	return &ServerError{
-		GlobalError: category.NewGlobalError(msg, err, layer),
+func NewDomainServerError(msg string, err error) *DomainServerError {
+	return &DomainServerError{
+		InfraServerError: globalError.NewInfraServerError(msg, domain, err),
 	}
 }
 
 type InvalidFindAllError struct {
-	*ServerError
+	*DomainServerError
 }
 
 func (e *InvalidFindAllError) Error() string {
-	return e.ServerError.Error()
+	return e.InfraServerError.Error()
 }
 
 func NewInvalidFindAllError(err error) error {
 	return &InvalidFindAllError{
-		ServerError: NewServerError("Invalid Find All Error", err),
+		DomainServerError: NewDomainServerError("Invalid Find All Error", err),
 	}
 }
