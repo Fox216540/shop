@@ -1,35 +1,35 @@
 package idgenerator
 
 import (
-	"shop/src/domain/idgenerator"
+	"shop/src/infra/globalError"
 )
 
-const layer = "Infra"
+const domain = "IDGenerator"
 
-type ServerError struct {
-	*idgenerator.GlobalError
+type IDGeneratorServerError struct {
+	*globalError.InfraServerError
 }
 
-func (e *ServerError) Error() string {
-	return e.GlobalError.Error()
+func (e *IDGeneratorServerError) Error() string {
+	return e.InfraServerError.Error()
 }
 
-func NewServerError(msg string, err error) *ServerError {
-	return &ServerError{
-		GlobalError: idgenerator.NewGlobalError(msg, err, layer),
+func NewIDGeneratorServerError(msg string, err error) *IDGeneratorServerError {
+	return &IDGeneratorServerError{
+		InfraServerError: globalError.NewInfraServerError(msg, domain, err),
 	}
 }
 
 type InvalidGenerateError struct {
-	*ServerError
+	*IDGeneratorServerError
 }
 
 func (e *InvalidGenerateError) Error() string {
-	return e.ServerError.Error()
+	return e.IDGeneratorServerError.Error()
 }
 
 func NewInvalidGenerateError(err error) error {
 	return &InvalidGenerateError{
-		ServerError: NewServerError("Invalid Generate New ID Error", err),
+		IDGeneratorServerError: NewIDGeneratorServerError("Invalid Generate New ID Error", err),
 	}
 }
