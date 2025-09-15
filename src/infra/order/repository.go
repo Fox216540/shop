@@ -47,7 +47,7 @@ func (r *repository) Save(o order.Order) (order.Order, error) {
 			First(newOrder, "order_id = ?", newOrder.OrderID).Error
 	})
 	if err != nil {
-		return order.Order{}, err
+		return order.Order{}, NewInvalidSaveOrder(err)
 	}
 
 	return models.FromORM(*newOrder), nil
@@ -60,10 +60,9 @@ func (r *repository) Remove(ID, userID uuid.UUID) error {
 			Where("order_id = ? AND user_id = ?", ID, userID).
 			Delete(&models.OrderORM{})
 		if result.RowsAffected == 0 {
-			// TODO: Поменять на кастомную ошибку
-			return fmt.Errorf("order not found")
+			return order.NewNotFoundOrderError(nil)
 		}
-		return result.Error // Возвращаем ошибку, если не удалось удалить заказ
+		return NewInvalidRemoveOrder(result.Error) // Возвращаем ошибку, если не удалось удалить заказ
 	})
 
 	if err != nil {
@@ -82,12 +81,15 @@ func (r *repository) GetByID(ID uuid.UUID) (order.Order, error) {
 			First(&o).Error
 	})
 	if err != nil {
-		return order.Order{}, err // Возвращаем ошибку, если не удалось найти заказ
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return order.Order{}, order.NewNotFoundOrderError(err)
+		}
+		return order.Order{}, NewInvalidGetOrderByID(err)
 	}
 	return models.FromORM(o), nil
 }
 
-func (r *repository) OrdersByUserID(userID uuid.UUID) ([]order.Order, error) {
+func (r *repository) GetOrdersByUserID(userID uuid.UUID) ([]order.Order, error) {
 	var ordersORM []models.OrderORM
 	err := r.db.WithSession(func(tx *gorm.DB) error {
 		return tx.
@@ -97,7 +99,11 @@ func (r *repository) OrdersByUserID(userID uuid.UUID) ([]order.Order, error) {
 			Find(&ordersORM).Error
 	})
 	if err != nil {
-		return nil, err // Возвращаем ошибку, если не удалось найти заказы пользователя
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, order.NewNotFoundOrderError(err)
+		}
+
+		return nil, NewInvalidGetOrdersByUserID(err)
 	}
 	orders := make([]order.Order, 0, len(ordersORM))
 	for _, o := range ordersORM {
@@ -111,12 +117,11 @@ func (r *repository) CheckOrderNum(orderNum string) error {
 		err := tx.Where("order_num = ?", orderNum).First(&models.OrderORM{}).Error
 		if err == nil {
 			// Если заказ с таким номером найден, возвращаем ошибку
-			return fmt.Errorf("order number %s already exists", orderNum) // Если заказ с таким номером найден, возвращаем nil
+			return NewInvalidCheckOrderNum(fmt.Errorf("order number %s already exists", orderNum)) // Если заказ с таким номером найден, возвращаем nil
 		}
 		if !errors.Is(err, gorm.ErrRecordNotFound) {
-			return err
+			return NewInvalidCheckOrderNum(err)
 		}
-		// Если заказ с таким номером не найден, возвращаем nil
 		return nil
 	})
 	return err
