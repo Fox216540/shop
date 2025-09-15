@@ -1,91 +1,91 @@
 package order
 
 import (
-	"shop/src/domain/order"
+	"shop/src/infra/globalError"
 )
 
-const layer = "Infra"
+const domain = "Order"
 
-type ServerError struct {
-	*order.GlobalError
+type OrderServerError struct {
+	*globalError.InfraServerError
 }
 
-func (e *ServerError) Error() string {
-	return e.GlobalError.Error()
+func (e *OrderServerError) Error() string {
+	return e.InfraServerError.Error()
 }
 
-func NewServerError(msg string, err error) *ServerError {
-	return &ServerError{
-		GlobalError: order.NewGlobalError(msg, err, layer),
+func NewOrderServerError(msg string, err error) *OrderServerError {
+	return &OrderServerError{
+		InfraServerError: globalError.NewInfraServerError(msg, domain, err),
 	}
 }
 
 type InvalidSaveOrder struct {
-	*ServerError
+	*OrderServerError
 }
 
 func (e *InvalidSaveOrder) Error() string {
-	return e.ServerError.Error()
+	return e.OrderServerError.Error()
 }
 
 func NewInvalidSaveOrder(err error) error {
 	return &InvalidSaveOrder{
-		ServerError: NewServerError("Invalid Save Order Error", err),
+		OrderServerError: NewOrderServerError("Invalid Save Order Error", err),
 	}
 }
 
 type InvalidRemoveOrder struct {
-	*ServerError
+	*OrderServerError
 }
 
 func (e *InvalidRemoveOrder) Error() string {
-	return e.ServerError.Error()
+	return e.OrderServerError.Error()
 }
 
 func NewInvalidRemoveOrder(err error) error {
 	return &InvalidRemoveOrder{
-		ServerError: NewServerError("Invalid Remove Order Error", err),
+		OrderServerError: NewOrderServerError("Invalid Remove Order Error", err),
 	}
 }
 
 type InvalidGetOrderByID struct {
-	*ServerError
+	*OrderServerError
 }
 
 func (e *InvalidGetOrderByID) Error() string {
-	return e.ServerError.Error()
+	return e.OrderServerError.Error()
 }
 
 func NewInvalidGetOrderByID(err error) error {
 	return &InvalidGetOrderByID{
-		ServerError: NewServerError("Invalid Get Order By ID Error", err),
+		OrderServerError: NewOrderServerError("Invalid Get Order By ID Error", err),
 	}
 }
 
 type InvalidGetOrdersByUserID struct {
-	*ServerError
+	*OrderServerError
 }
 
 func (e *InvalidGetOrdersByUserID) Error() string {
-	return e.ServerError.Error()
+	return e.OrderServerError.Error()
 }
 
 func NewInvalidGetOrdersByUserID(err error) error {
 	return &InvalidGetOrdersByUserID{
-		ServerError: NewServerError("Invalid Get Orders By User ID Error", err),
+		OrderServerError: NewOrderServerError("Invalid Get Orders By User ID Error", err),
 	}
 }
 
 type InvalidCheckOrderNum struct {
-	*ServerError
+	*OrderServerError
 }
 
 func (e *InvalidCheckOrderNum) Error() string {
-	return e.ServerError.Error()
+	return e.OrderServerError.Error()
 }
 
 func NewInvalidCheckOrderNum(err error) error {
 	return &InvalidCheckOrderNum{
-		ServerError: NewServerError("Invalid Check Order Number Error", err),
+		OrderServerError: NewOrderServerError("Invalid Check Order Number Error", err),
 	}
 }
