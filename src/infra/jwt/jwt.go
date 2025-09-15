@@ -31,7 +31,7 @@ func (s *service) GenerateRefreshToken(userID uuid.UUID) (string, uuid.UUID, err
 	secret := []byte(config.RefreshTokenSecret)
 	duration, err := s.toDuration(ttl)
 	if err != nil {
-		return "", uuid.Nil, fmt.Errorf("invalid REFRESH_TOKEN_TTL: %w", err)
+		return "", uuid.Nil, NewInvalidGenerateRefreshToken(err)
 	}
 	jti := uuid.New()
 	claims := jwt.MapClaims{
@@ -43,7 +43,7 @@ func (s *service) GenerateRefreshToken(userID uuid.UUID) (string, uuid.UUID, err
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	tokenString, err := token.SignedString(secret)
 	if err != nil {
-		return "", uuid.Nil, err
+		return "", uuid.Nil, NewInvalidGenerateRefreshToken(err)
 	}
 	return tokenString, jti, nil
 }
@@ -54,7 +54,7 @@ func (s *service) GenerateAccessToken(userID uuid.UUID) (string, error) {
 	secret := []byte(config.AccessTokenSecret)
 	duration, err := s.toDuration(ttl)
 	if err != nil {
-		return "", fmt.Errorf("invalid ACCESS_TOKEN_TTL: %w", err)
+		return "", NewInvalidGenerateAccessToken(err)
 	}
 	jti := uuid.New()
 	claims := jwt.MapClaims{
@@ -67,52 +67,47 @@ func (s *service) GenerateAccessToken(userID uuid.UUID) (string, error) {
 	return token.SignedString(secret)
 }
 
-func (s *service) DecodeRefreshToken(token string) (jwtdomain.JWTUser, error) {
-	parsedToken, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
-		return []byte(settings.Config.RefreshTokenSecret), nil
+func (s *service) decodeToken(tokenStr string, secret string, newBadRequestError, newNoValidError func(error) error) (jwtdomain.JWTUser, error) {
+	parsedToken, err := jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) {
+		return []byte(secret), nil
 	})
 	if err != nil {
-		return jwtdomain.JWTUser{}, err
+		return jwtdomain.JWTUser{}, newBadRequestError(err)
 	}
+
 	claims, ok := parsedToken.Claims.(jwt.MapClaims)
 	if !ok || !parsedToken.Valid {
-		return jwtdomain.JWTUser{}, err
+		return jwtdomain.JWTUser{}, newNoValidError(fmt.Errorf("invalid token claims"))
 	}
-	userID, err := uuid.Parse(claims["sub"].(string))
+
+	sub, ok := claims["sub"].(string)
+	if !ok {
+		return jwtdomain.JWTUser{}, newBadRequestError(fmt.Errorf("missing sub claim"))
+	}
+	userID, err := uuid.Parse(sub)
 	if err != nil {
-		return jwtdomain.JWTUser{}, err
+		return jwtdomain.JWTUser{}, newBadRequestError(err)
 	}
-	jti, err := uuid.Parse(claims["jti"].(string))
+
+	jtiStr, ok := claims["jti"].(string)
+	if !ok {
+		return jwtdomain.JWTUser{}, newBadRequestError(fmt.Errorf("missing jti claim"))
+	}
+	jti, err := uuid.Parse(jtiStr)
 	if err != nil {
-		return jwtdomain.JWTUser{}, err
+		return jwtdomain.JWTUser{}, newBadRequestError(err)
 	}
+
 	return jwtdomain.JWTUser{
 		UserID: userID,
 		JTI:    jti,
 	}, nil
 }
 
+func (s *service) DecodeRefreshToken(token string) (jwtdomain.JWTUser, error) {
+	return s.decodeToken(token, settings.Config.RefreshTokenSecret, jwtdomain.NewBadRefreshTokenError, jwtdomain.NewNoValidRefreshTokenError)
+}
+
 func (s *service) DecodeAccessToken(token string) (jwtdomain.JWTUser, error) {
-	parsedToken, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
-		return []byte(settings.Config.AccessTokenSecret), nil
-	})
-	if err != nil {
-		return jwtdomain.JWTUser{}, err
-	}
-	claims, ok := parsedToken.Claims.(jwt.MapClaims)
-	if !ok || !parsedToken.Valid {
-		return jwtdomain.JWTUser{}, err
-	}
-	userID, err := uuid.Parse(claims["sub"].(string))
-	if err != nil {
-		return jwtdomain.JWTUser{}, err
-	}
-	jti, err := uuid.Parse(claims["jti"].(string))
-	if err != nil {
-		return jwtdomain.JWTUser{}, err
-	}
-	return jwtdomain.JWTUser{
-		UserID: userID,
-		JTI:    jti,
-	}, nil
+	return s.decodeToken(token, settings.Config.AccessTokenSecret, jwtdomain.NewBadAccessTokenError, jwtdomain.NewNoValidAccessTokenError)
 }
