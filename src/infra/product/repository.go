@@ -1,7 +1,7 @@
 package product
 
 import (
-	"fmt"
+	"errors"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 	"shop/src/domain/product"
@@ -36,7 +36,11 @@ func (r *repository) FindProductsByCategoryID(ID *uuid.UUID) ([]product.Product,
 		}
 	})
 	if err != nil {
-		return []product.Product{}, err // Возвращаем ошибку, если не удалось найти продукты
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return []product.Product{}, product.NewNotFoundProductError(err)
+		}
+
+		return []product.Product{}, NewInvalidFindProductsByCategoryID(err) // Возвращаем ошибку, если не удалось найти продукты
 	}
 	products := make([]product.Product, 0, len(productsORM))
 	for _, p := range productsORM {
@@ -54,10 +58,9 @@ func (r *repository) FindProductByID(ID uuid.UUID) (product.Product, error) {
 			Where("product_id = ?", ID).
 			First(&p)
 		if result.RowsAffected == 0 {
-			// TODO: Поменять на кастомную ошибку
-			return fmt.Errorf("product not found")
+			return product.NewNotFoundProductError(result.Error)
 		}
-		return result.Error // Возвращаем ошибку, если не удалось найти продукт
+		return NewInvalidFindProductByID(result.Error) // Возвращаем ошибку, если не удалось найти продукт
 	})
 
 	if err != nil {
@@ -74,7 +77,10 @@ func (r *repository) FindProductsByIDs(IDs []uuid.UUID) ([]product.Product, erro
 			Find(&productsORM).Error
 	})
 	if err != nil {
-		return []product.Product{}, err // Возвращаем ошибку, если не удалось найти продукты
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return []product.Product{}, product.NewNotFoundProductsError(err)
+		}
+		return []product.Product{}, NewInvalidFindProductsByIDs(err) // Возвращаем ошибку, если не удалось найти продукты
 	}
 
 	products := make([]product.Product, 0, len(productsORM))
