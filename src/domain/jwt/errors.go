@@ -1,72 +1,29 @@
 package jwt
 
 import (
-	"fmt"
 	"shop/src/core/exception"
 )
 
 const (
-	layer  = "Domain"
 	domain = "JWT"
 )
 
-type GlobalError struct {
-	*exception.Exception
-	Domain  string
-	Layer   string
-	Message string
-	Err     error
+type DomainBadRequestError struct {
+	*exception.BadRequestError
 }
 
-func (e *GlobalError) Error() string {
-	return fmt.Sprintf("Domain: %s\nLayer: %s\nMessage: %s\nCause: %v",
-		e.Domain, e.Layer, e.Message, e.Err)
+func (e *DomainBadRequestError) Error() string {
+	return e.BadRequestError.Error()
 }
 
-func (e *GlobalError) Unwrap() error {
-	return e.Err
-}
-
-func NewGlobalError(msg string, err error, layer string) *GlobalError {
-	return &GlobalError{
-		Exception: &exception.Exception{},
-		Domain:    domain,
-		Layer:     layer,
-		Message:   msg,
-		Err:       err,
-	}
-}
-
-type DomainError struct {
-	*GlobalError
-}
-
-func (e *DomainError) Error() string {
-	return e.GlobalError.Error()
-}
-
-func NewDomainError(msg string, err error) *DomainError {
-	return &DomainError{
-		GlobalError: NewGlobalError(msg, err, layer),
-	}
-}
-
-type BadRequestError struct {
-	*DomainError
-}
-
-func (e *BadRequestError) Error() string {
-	return e.DomainError.Error()
-}
-
-func NewBadRequestError(msg string, err error) *BadRequestError {
-	return &BadRequestError{
-		DomainError: NewDomainError(msg, err),
+func NewDomainBadRequestError(msg string, err error) *DomainBadRequestError {
+	return &DomainBadRequestError{
+		BadRequestError: exception.NewBadRequestError(msg, domain, err),
 	}
 }
 
 type BadRefreshTokenError struct {
-	*BadRequestError
+	*DomainBadRequestError
 }
 
 func (e *BadRefreshTokenError) Error() string {
@@ -75,12 +32,12 @@ func (e *BadRefreshTokenError) Error() string {
 
 func NewBadRefreshTokenError(err error) error {
 	return &BadRefreshTokenError{
-		BadRequestError: NewBadRequestError("Bad refresh token", err),
+		DomainBadRequestError: NewDomainBadRequestError("Bad refresh token", err),
 	}
 }
 
 type BadAccessTokenError struct {
-	*BadRequestError
+	*DomainBadRequestError
 }
 
 func (e *BadAccessTokenError) Error() string {
@@ -89,48 +46,48 @@ func (e *BadAccessTokenError) Error() string {
 
 func NewBadAccessTokenError(err error) error {
 	return &BadAccessTokenError{
-		BadRequestError: NewBadRequestError("Bad access token", err),
+		DomainBadRequestError: NewDomainBadRequestError("Bad access token", err),
 	}
 }
 
-type NoValidError struct {
-	*DomainError
+type DomainUnauthorizedError struct {
+	*exception.UnauthorizedError
 }
 
-func (e *NoValidError) Error() string {
-	return e.DomainError.Error()
+func (e *DomainUnauthorizedError) Error() string {
+	return e.UnauthorizedError.Error()
 }
 
-func NewNoValidError(msg string, err error) *NoValidError {
-	return &NoValidError{
-		DomainError: NewDomainError(msg, err),
+func NewDomainUnauthorizedError(msg string, err error) *DomainUnauthorizedError {
+	return &DomainUnauthorizedError{
+		UnauthorizedError: exception.NewUnauthorizedError(msg, domain, err),
 	}
 }
 
 type NoValidRefreshTokenError struct {
-	*NoValidError
+	*DomainUnauthorizedError
 }
 
 func (e *NoValidRefreshTokenError) Error() string {
-	return e.NoValidError.Error()
+	return e.DomainUnauthorizedError.Error()
 }
 
 func NewNoValidRefreshTokenError(err error) error {
 	return &NoValidRefreshTokenError{
-		NoValidError: NewNoValidError("No valid refresh token", err),
+		DomainUnauthorizedError: NewDomainUnauthorizedError("No valid refresh token", err),
 	}
 }
 
 type NoValidAccessTokenError struct {
-	*NoValidError
+	*DomainUnauthorizedError
 }
 
 func (e *NoValidAccessTokenError) Error() string {
-	return e.NoValidError.Error()
+	return e.DomainUnauthorizedError.Error()
 }
 
 func NewNoValidAccessTokenError(err error) error {
 	return &NoValidAccessTokenError{
-		NoValidError: NewNoValidError("No valid access token", err),
+		DomainUnauthorizedError: NewDomainUnauthorizedError("No valid access token", err),
 	}
 }

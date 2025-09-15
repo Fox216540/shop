@@ -1,49 +1,49 @@
 package jwt
 
 import (
-	"shop/src/domain/jwt"
+	"shop/src/infra/globalError"
 )
 
-const layer = "Infra"
+const domain = "JWT"
 
-type ServerError struct {
-	*jwt.GlobalError
+type JWTServerError struct {
+	*globalError.InfraServerError
 }
 
-func (e *ServerError) Error() string {
-	return e.GlobalError.Error()
+func (e *JWTServerError) Error() string {
+	return e.InfraServerError.Error()
 }
 
-func NewServerError(msg string, err error) *ServerError {
-	return &ServerError{
-		GlobalError: jwt.NewGlobalError(msg, err, layer),
+func NewJWTServerError(msg string, err error) *JWTServerError {
+	return &JWTServerError{
+		InfraServerError: globalError.NewInfraServerError(msg, domain, err),
 	}
 }
 
 type InvalidGenerateAccessToken struct {
-	*ServerError
+	*JWTServerError
 }
 
 func (e *InvalidGenerateAccessToken) Error() string {
-	return e.ServerError.Error()
+	return e.JWTServerError.Error()
 }
 
 func NewInvalidGenerateAccessToken(err error) error {
 	return &InvalidGenerateAccessToken{
-		ServerError: NewServerError("Invalid Generate Access Token Error", err),
+		JWTServerError: NewJWTServerError("Invalid Generate Access Token Error", err),
 	}
 }
 
 type InvalidGenerateRefreshToken struct {
-	*ServerError
+	*JWTServerError
 }
 
 func (e *InvalidGenerateRefreshToken) Error() string {
-	return e.ServerError.Error()
+	return e.JWTServerError.Error()
 }
 
 func NewInvalidGenerateRefreshToken(err error) error {
 	return &InvalidGenerateRefreshToken{
-		ServerError: NewServerError("Invalid Generate Refresh Token Error", err),
+		JWTServerError: NewJWTServerError("Invalid Generate Refresh Token Error", err),
 	}
 }
