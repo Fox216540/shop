@@ -18,7 +18,7 @@ func NewSonyFlakeGenerator() *SonyFlakeGenerator {
 func (g *SonyFlakeGenerator) NewID() (string, error) {
 	id, err := g.sf.NextID()
 	if err != nil {
-		return "", err
+		return "", NewInvalidGenerateError(err)
 	}
 	return fmt.Sprintf("ORD-%d", id), nil
 }
