@@ -13,8 +13,6 @@ type repository struct {
 	rdb *redis.Client
 }
 
-//TODO: добавить ttl
-
 func NewRepository(rdb *redis.Client) tokenstorage.TokenStorage {
 	return &repository{rdb: rdb}
 }
@@ -23,10 +21,10 @@ func (r *repository) Set(jti, userID uuid.UUID, ttl time.Duration) error {
 	ctx := context.Background()
 	userSetKey := fmt.Sprintf("user:%s:refresh_tokens", userID.String())
 	if err := r.rdb.SAdd(ctx, userSetKey, jti.String()).Err(); err != nil {
-		return err
+		return NewInvalidSet(err)
 	}
 	if err := r.rdb.Set(ctx, jti.String(), userID.String(), ttl).Err(); err != nil {
-		return err
+		return NewInvalidSet(err)
 	}
 	return nil
 }
@@ -35,24 +33,24 @@ func (r *repository) Exists(jti uuid.UUID) (bool, error) {
 	ctx := context.Background()
 	exists, err := r.rdb.Exists(ctx, jti.String()).Result()
 	if err != nil {
-		return false, err
+		return false, NewInvalidExists(err)
 	}
 	if exists > 0 {
 		return true, nil
 	}
 
-	return false, error(nil)
+	return false, nil
 }
 
 func (r *repository) Delete(jti, userID uuid.UUID) error {
 	ctx := context.Background()
 	userSetKey := fmt.Sprintf("user:%s:refresh_tokens", userID.String())
 	if err := r.rdb.SRem(ctx, userSetKey, jti.String()).Err(); err != nil {
-		return err
+		return NewInvalidDelete(err)
 	}
 	err := r.rdb.Del(ctx, jti.String()).Err()
 	if err != nil {
-		return err
+		return NewInvalidDelete(err)
 	}
 	return error(nil)
 }
@@ -63,11 +61,10 @@ func (r *repository) DeleteAll(userID uuid.UUID) error {
 
 	jtis, err := r.rdb.SMembers(ctx, setKey).Result()
 	if err != nil {
-		return err
+		return NewInvalidDeleteAll(err)
 	}
-	// TODO: Вывести кастомную ошибку
 	if len(jtis) == 0 {
-		return fmt.Errorf("refresh tokens set does not exist or is empty")
+		return tokenstorage.NewNotFoundTokensOfUserError(nil)
 	}
 
 	// Формируем список ключей для удаления
@@ -80,7 +77,6 @@ func (r *repository) DeleteAll(userID uuid.UUID) error {
 	if err := r.rdb.Del(ctx, keysToDelete...).Err(); err != nil {
 		return err
 	}
-
 	return nil
 
 }
