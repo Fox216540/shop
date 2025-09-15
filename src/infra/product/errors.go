@@ -1,63 +1,63 @@
 package product
 
 import (
-	"shop/src/domain/product"
+	"shop/src/infra/globalError"
 )
 
-const layer = "Infra"
+const domain = "Product"
 
-type ServerError struct {
-	*product.GlobalError
+type ProductServerError struct {
+	*globalError.InfraServerError
 }
 
-func (e *ServerError) Error() string {
-	return e.GlobalError.Error()
+func (e *ProductServerError) Error() string {
+	return e.InfraServerError.Error()
 }
 
-func NewServerError(msg string, err error) *ServerError {
-	return &ServerError{
-		GlobalError: product.NewGlobalError(msg, err, layer),
+func NewProductServerError(msg string, err error) *ProductServerError {
+	return &ProductServerError{
+		InfraServerError: globalError.NewInfraServerError(msg, domain, err),
 	}
 }
 
 type InvalidFindProductsByCategoryID struct {
-	*ServerError
+	*ProductServerError
 }
 
 func (e *InvalidFindProductsByCategoryID) Error() string {
-	return e.ServerError.Error()
+	return e.ProductServerError.Error()
 }
 
 func NewInvalidFindProductsByCategoryID(err error) error {
 	return &InvalidFindProductsByCategoryID{
-		ServerError: NewServerError("Invalid Find Products By Category ID Error", err),
+		ProductServerError: NewProductServerError("Invalid Find Products By Category ID Error", err),
 	}
 }
 
 type InvalidFindProductByID struct {
-	*ServerError
+	*ProductServerError
 }
 
 func (e *InvalidFindProductByID) Error() string {
-	return e.ServerError.Error()
+	return e.ProductServerError.Error()
 }
 
 func NewInvalidFindProductByID(err error) error {
 	return &InvalidFindProductByID{
-		ServerError: NewServerError("Invalid Find Product By ID Error", err),
+		ProductServerError: NewProductServerError("Invalid Find Product By ID Error", err),
 	}
 }
 
 type InvalidFindProductsByIDs struct {
-	*ServerError
+	*ProductServerError
 }
 
 func (e *InvalidFindProductsByIDs) Error() string {
-	return e.ServerError.Error()
+	return e.ProductServerError.Error()
 }
 
 func NewInvalidFindProductsByIDs(err error) error {
 	return &InvalidFindProductsByIDs{
-		ServerError: NewServerError("Invalid Find Products By IDs Error", err),
+		ProductServerError: NewProductServerError("Invalid Find Products By IDs Error", err),
 	}
 }
