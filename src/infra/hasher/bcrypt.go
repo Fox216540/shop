@@ -16,7 +16,7 @@ func (h *hasher) Hash(password string) (string, error) {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 
 	if err != nil {
-		return "", err
+		return "", NewInvalidHashError(err)
 	}
 
 	return string(hashedPassword), nil
@@ -25,7 +25,7 @@ func (h *hasher) Hash(password string) (string, error) {
 func (h *hasher) Verify(password string, hash string) error {
 	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
 	if err != nil {
-		return err
+		return NewInvalidVerifyError(err)
 	}
 	return nil
 }
