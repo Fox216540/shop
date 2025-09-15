@@ -1,77 +1,77 @@
 package tokenstorage
 
 import (
-	"shop/src/domain/tokenstorage"
+	"shop/src/infra/globalError"
 )
 
-const layer = "Infra"
+const domain = "Token Storage"
 
-type ServerError struct {
-	*tokenstorage.GlobalError
+type TokenStorageServerError struct {
+	*globalError.InfraServerError
 }
 
-func (e *ServerError) Error() string {
-	return e.GlobalError.Error()
+func (e *TokenStorageServerError) Error() string {
+	return e.InfraServerError.Error()
 }
 
-func NewServerError(msg string, err error) *ServerError {
-	return &ServerError{
-		GlobalError: tokenstorage.NewGlobalError(msg, err, layer),
+func NewTokenStorageServerError(msg string, err error) *TokenStorageServerError {
+	return &TokenStorageServerError{
+		InfraServerError: globalError.NewInfraServerError(msg, domain, err),
 	}
 }
 
 type InvalidSet struct {
-	*ServerError
+	*TokenStorageServerError
 }
 
 func (e *InvalidSet) Error() string {
-	return e.ServerError.Error()
+	return e.TokenStorageServerError.Error()
 }
 
 func NewInvalidSet(err error) error {
 	return &InvalidSet{
-		ServerError: NewServerError("Invalid Set Error", err),
+		TokenStorageServerError: NewTokenStorageServerError("Invalid Set Error", err),
 	}
 }
 
 type InvalidExists struct {
-	*ServerError
+	*TokenStorageServerError
 }
 
 func (e *InvalidExists) Error() string {
-	return e.ServerError.Error()
+	return e.TokenStorageServerError.Error()
 }
 
 func NewInvalidExists(err error) error {
 	return &InvalidExists{
-		ServerError: NewServerError("Invalid Exists Error", err),
+		TokenStorageServerError: NewTokenStorageServerError("Invalid Exists Error", err),
 	}
 }
 
 type InvalidDelete struct {
-	*ServerError
+	*TokenStorageServerError
 }
 
 func (e *InvalidDelete) Error() string {
-	return e.ServerError.Error()
+	return e.TokenStorageServerError.Error()
 }
 
 func NewInvalidDelete(err error) error {
 	return &InvalidDelete{
-		ServerError: NewServerError("Invalid Delete Error", err),
+		TokenStorageServerError: NewTokenStorageServerError("Invalid Delete Error", err),
 	}
 }
 
 type InvalidDeleteAll struct {
-	*ServerError
+	*TokenStorageServerError
 }
 
 func (e *InvalidDeleteAll) Error() string {
-	return e.ServerError.Error()
+	return e.TokenStorageServerError.Error()
 }
 
 func NewInvalidDeleteAll(err error) error {
 	return &InvalidDeleteAll{
-		ServerError: NewServerError("Invalid Delete All Error", err),
+		TokenStorageServerError: NewTokenStorageServerError("Invalid Delete All Error", err),
 	}
 }
