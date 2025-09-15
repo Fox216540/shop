@@ -1,119 +1,119 @@
 package user
 
 import (
-	"shop/src/domain/user"
+	"shop/src/infra/globalError"
 )
 
-const layer = "Infra"
+const domain = "User"
 
-type ServerError struct {
-	*user.GlobalError
+type UserServerError struct {
+	*globalError.InfraServerError
 }
 
-func (e *ServerError) Error() string {
-	return e.GlobalError.Error()
+func (e *UserServerError) Error() string {
+	return e.InfraServerError.Error()
 }
 
-func NewServerError(msg string, err error) *ServerError {
-	return &ServerError{
-		GlobalError: user.NewGlobalError(msg, err, layer),
+func NewUserServerError(msg string, err error) *UserServerError {
+	return &UserServerError{
+		InfraServerError: globalError.NewInfraServerError(msg, domain, err),
 	}
 }
 
 type InvalidAdd struct {
-	*ServerError
+	*UserServerError
 }
 
 func (e *InvalidAdd) Error() string {
-	return e.ServerError.Error()
+	return e.UserServerError.Error()
 }
 
 func NewInvalidAdd(err error) error {
 	return &InvalidAdd{
-		ServerError: NewServerError("Invalid Add Error", err),
+		UserServerError: NewUserServerError("Invalid Add Error", err),
 	}
 }
 
 type InvalidDelete struct {
-	*ServerError
+	*UserServerError
 }
 
 func (e *InvalidDelete) Error() string {
-	return e.ServerError.Error()
+	return e.UserServerError.Error()
 }
 
 func NewInvalidDelete(err error) error {
 	return &InvalidDelete{
-		ServerError: NewServerError("Invalid Delete Error", err),
+		UserServerError: NewUserServerError("Invalid Delete Error", err),
 	}
 }
 
 type InvalidGetByID struct {
-	*ServerError
+	*UserServerError
 }
 
 func (e *InvalidGetByID) Error() string {
-	return e.ServerError.Error()
+	return e.UserServerError.Error()
 }
 
 func NewInvalidGetByID(err error) error {
 	return &InvalidGetByID{
-		ServerError: NewServerError("Invalid Get By ID Error", err),
+		UserServerError: NewUserServerError("Invalid Get By ID Error", err),
 	}
 }
 
 type InvalidFindByPhoneOrEmail struct {
-	*ServerError
+	*UserServerError
 }
 
 func (e *InvalidFindByPhoneOrEmail) Error() string {
-	return e.ServerError.Error()
+	return e.UserServerError.Error()
 }
 
 func NewInvalidFindByPhoneOrEmail(err error) error {
 	return &InvalidFindByPhoneOrEmail{
-		ServerError: NewServerError("Invalid Find By Phone Or Email Error", err),
+		UserServerError: NewUserServerError("Invalid Find By Phone Or Email Error", err),
 	}
 }
 
 type InvalidUpdate struct {
-	*ServerError
+	*UserServerError
 }
 
 func (e *InvalidUpdate) Error() string {
-	return e.ServerError.Error()
+	return e.UserServerError.Error()
 }
 
 func NewInvalidUpdate(err error) error {
 	return &InvalidUpdate{
-		ServerError: NewServerError("Invalid Update Error", err),
+		UserServerError: NewUserServerError("Invalid Update Error", err),
 	}
 }
 
 type InvalidExistsPhone struct {
-	*ServerError
+	*UserServerError
 }
 
 func (e *InvalidExistsPhone) Error() string {
-	return e.ServerError.Error()
+	return e.UserServerError.Error()
 }
 
 func NewInvalidExistsPhone(err error) error {
 	return &InvalidExistsPhone{
-		ServerError: NewServerError("Invalid Exists Phone Error", err),
+		UserServerError: NewUserServerError("Invalid Exists Phone Error", err),
 	}
 }
 
 type InvalidExistsEmail struct {
-	*ServerError
+	*UserServerError
 }
 
 func (e *InvalidExistsEmail) Error() string {
-	return e.ServerError.Error()
+	return e.UserServerError.Error()
 }
 
 func NewInvalidExistsEmail(err error) error {
 	return &InvalidExistsEmail{
-		ServerError: NewServerError("Invalid Exists Email Error", err),
+		UserServerError: NewUserServerError("Invalid Exists Email Error", err),
 	}
 }
