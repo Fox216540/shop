@@ -1,49 +1,49 @@
 package hasher
 
 import (
-	hasherdomain "shop/src/domain/hasher"
+	"shop/src/infra/globalError"
 )
 
-const layer = "Infra"
+const domain = "Hasher"
 
-type ServerError struct {
-	*hasherdomain.GlobalError
+type HasherServerError struct {
+	*globalError.InfraServerError
 }
 
-func (e *ServerError) Error() string {
-	return e.GlobalError.Error()
+func (e *HasherServerError) Error() string {
+	return e.InfraServerError.Error()
 }
 
-func NewServerError(msg string, err error) *ServerError {
-	return &ServerError{
-		GlobalError: hasherdomain.NewGlobalError(msg, err, layer),
+func NewHasherServerError(msg string, err error) *HasherServerError {
+	return &HasherServerError{
+		InfraServerError: globalError.NewInfraServerError(msg, domain, err),
 	}
 }
 
 type InvalidHashError struct {
-	*ServerError
+	*HasherServerError
 }
 
 func (e *InvalidHashError) Error() string {
-	return e.ServerError.Error()
+	return e.HasherServerError.Error()
 }
 
 func NewInvalidHashError(err error) error {
 	return &InvalidHashError{
-		ServerError: NewServerError("Invalid Find All Error", err),
+		HasherServerError: NewHasherServerError("Invalid Find All Error", err),
 	}
 }
 
 type InvalidVerifyError struct {
-	*ServerError
+	*HasherServerError
 }
 
 func (e *InvalidVerifyError) Error() string {
-	return e.ServerError.Error()
+	return e.HasherServerError.Error()
 }
 
 func NewInvalidVerifyError(err error) error {
 	return &InvalidVerifyError{
-		ServerError: NewServerError("Invalid Verify Error", err),
+		HasherServerError: NewHasherServerError("Invalid Verify Error", err),
 	}
 }
