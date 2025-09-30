@@ -2,13 +2,13 @@ package hasher
 
 import (
 	"golang.org/x/crypto/bcrypt"
-	hash "shop/src/domain/hasher"
+	domainHasher "shop/src/domain/hasher"
 )
 
 type hasher struct {
 }
 
-func NewHasher() hash.Hasher {
+func NewHasher() domainHasher.Hasher {
 	return &hasher{}
 }
 
@@ -25,7 +25,7 @@ func (h *hasher) Hash(password string) (string, error) {
 func (h *hasher) Verify(password string, hash string) error {
 	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
 	if err != nil {
-		return NewInvalidVerifyError(err)
+		return domainHasher.NewBadPasswordError(err)
 	}
 	return nil
 }
