@@ -29,17 +29,17 @@ func (r *repository) Set(jti, userID uuid.UUID, ttl time.Duration) error {
 	return nil
 }
 
-func (r *repository) Exists(jti uuid.UUID) (bool, error) {
+func (r *repository) Exists(jti uuid.UUID) error {
 	ctx := context.Background()
 	exists, err := r.rdb.Exists(ctx, jti.String()).Result()
 	if err != nil {
-		return false, NewInvalidExists(err)
+		return NewInvalidExists(err)
 	}
 	if exists > 0 {
-		return true, nil
+		return nil
 	}
 
-	return false, nil
+	return tokenstorage.NewNotFoundTokenOfUserError(nil)
 }
 
 func (r *repository) Delete(jti, userID uuid.UUID) error {
@@ -75,7 +75,7 @@ func (r *repository) DeleteAll(userID uuid.UUID) error {
 	keysToDelete = append(keysToDelete, setKey) // Добавляем сам set
 	// Удаляем всё одной командой
 	if err := r.rdb.Del(ctx, keysToDelete...).Err(); err != nil {
-		return err
+		return NewInvalidDeleteAll(err)
 	}
 	return nil
 
