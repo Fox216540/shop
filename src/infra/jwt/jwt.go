@@ -64,7 +64,11 @@ func (s *service) GenerateAccessToken(userID uuid.UUID) (string, error) {
 		"jti":  jti,
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString(secret)
+	tokenString, err := token.SignedString(secret)
+	if err != nil {
+		return "", NewInvalidGenerateAccessToken(err)
+	}
+	return tokenString, nil
 }
 
 func (s *service) decodeToken(tokenStr string, secret string, newBadRequestError, newNoValidError func(error) error) (jwtdomain.JWTUser, error) {
