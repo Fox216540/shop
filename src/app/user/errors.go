@@ -4,198 +4,198 @@ import "shop/src/app/globalError"
 
 const domain = "User"
 
-type CategoryServerError struct {
+type UserServerError struct {
 	*globalError.AppServerError
 }
 
-func (e *CategoryServerError) Error() string {
+func (e *UserServerError) Error() string {
 	return e.AppServerError.Error()
 }
 
-func NewCategoryServerError(msg string, err error) *CategoryServerError {
-	return &CategoryServerError{
+func NewCategoryServerError(msg string, err error) *UserServerError {
+	return &UserServerError{
 		AppServerError: globalError.NewAppServerError(msg, domain, err),
 	}
 }
 
 type InvalidRegister struct {
-	*CategoryServerError
+	*UserServerError
 }
 
 func (e *InvalidRegister) Error() string {
-	return e.CategoryServerError.Error()
+	return e.UserServerError.Error()
 }
 
 func NewInvalidRegister(err error) error {
 	return &InvalidRegister{
-		CategoryServerError: NewCategoryServerError("Invalid Register", err),
+		UserServerError: NewCategoryServerError("Invalid Register", err),
 	}
 }
 
 type InvalidLogin struct {
-	*CategoryServerError
+	*UserServerError
 }
 
 func (e *InvalidLogin) Error() string {
-	return e.CategoryServerError.Error()
+	return e.UserServerError.Error()
 }
 
 func NewInvalidLogin(err error) error {
 	return &InvalidLogin{
-		CategoryServerError: NewCategoryServerError("Invalid Login", err),
+		UserServerError: NewCategoryServerError("Invalid Login", err),
 	}
 }
 
 type InvalidLogout struct {
-	*CategoryServerError
+	*UserServerError
 }
 
 func (e *InvalidLogout) Error() string {
-	return e.CategoryServerError.Error()
+	return e.UserServerError.Error()
 }
 
 func NewInvalidLogout(err error) error {
 	return &InvalidLogout{
-		CategoryServerError: NewCategoryServerError("Invalid Logout", err),
+		UserServerError: NewCategoryServerError("Invalid Logout", err),
 	}
 }
 
 type InvalidLogoutAll struct {
-	*CategoryServerError
+	*UserServerError
 }
 
 func (e *InvalidLogoutAll) Error() string {
-	return e.CategoryServerError.Error()
+	return e.UserServerError.Error()
 }
 
 func NewInvalidLogoutAll(err error) error {
 	return &InvalidLogoutAll{
-		CategoryServerError: NewCategoryServerError("Invalid Logout All", err),
+		UserServerError: NewCategoryServerError("Invalid Logout All", err),
 	}
 }
 
 type InvalidUpdateEmail struct {
-	*CategoryServerError
+	*UserServerError
 }
 
 func (e *InvalidUpdateEmail) Error() string {
-	return e.CategoryServerError.Error()
+	return e.UserServerError.Error()
 }
 
 func NewInvalidUpdateEmail(err error) error {
 	return &InvalidUpdateEmail{
-		CategoryServerError: NewCategoryServerError("Invalid Update Email", err),
+		UserServerError: NewCategoryServerError("Invalid Update Email", err),
 	}
 }
 
 type InvalidUpdatePassword struct {
-	*CategoryServerError
+	*UserServerError
 }
 
 func (e *InvalidUpdatePassword) Error() string {
-	return e.CategoryServerError.Error()
+	return e.UserServerError.Error()
 }
 
 func NewInvalidUpdatePassword(err error) error {
 	return &InvalidUpdatePassword{
-		CategoryServerError: NewCategoryServerError("Invalid Update Password", err),
+		UserServerError: NewCategoryServerError("Invalid Update Password", err),
 	}
 }
 
 type InvalidUpdatePhone struct {
-	*CategoryServerError
+	*UserServerError
 }
 
 func (e *InvalidUpdatePhone) Error() string {
-	return e.CategoryServerError.Error()
+	return e.UserServerError.Error()
 }
 
 func NewInvalidUpdatePhone(err error) error {
 	return &InvalidUpdatePhone{
-		CategoryServerError: NewCategoryServerError("Invalid Update Phone", err),
+		UserServerError: NewCategoryServerError("Invalid Update Phone", err),
 	}
 }
 
 type InvalidUpdateProfile struct {
-	*CategoryServerError
+	*UserServerError
 }
 
 func (e *InvalidUpdateProfile) Error() string {
-	return e.CategoryServerError.Error()
+	return e.UserServerError.Error()
 }
 
 func NewInvalidUpdateProfile(err error) error {
 	return &InvalidUpdateProfile{
-		CategoryServerError: NewCategoryServerError("Invalid Update Profile", err),
+		UserServerError: NewCategoryServerError("Invalid Update Profile", err),
 	}
 }
 
 type InvalidRefreshToken struct {
-	*CategoryServerError
+	*UserServerError
 }
 
 func (e *InvalidRefreshToken) Error() string {
-	return e.CategoryServerError.Error()
+	return e.UserServerError.Error()
 }
 
 func NewInvalidRefreshToken(err error) error {
 	return &InvalidRefreshToken{
-		CategoryServerError: NewCategoryServerError("Invalid Refresh Token", err),
+		UserServerError: NewCategoryServerError("Invalid Refresh Token", err),
 	}
 }
 
 type InvalidDelete struct {
-	*CategoryServerError
+	*UserServerError
 }
 
 func (e *InvalidDelete) Error() string {
-	return e.CategoryServerError.Error()
+	return e.UserServerError.Error()
 }
 
 func NewInvalidDelete(err error) error {
 	return &InvalidDelete{
-		CategoryServerError: NewCategoryServerError("Invalid Delete", err),
+		UserServerError: NewCategoryServerError("Invalid Delete", err),
 	}
 }
 
 type InvalidOrders struct {
-	*CategoryServerError
+	*UserServerError
 }
 
 func (e *InvalidOrders) Error() string {
-	return e.CategoryServerError.Error()
+	return e.UserServerError.Error()
 }
 
 func NewInvalidOrders(err error) error {
 	return &InvalidOrders{
-		CategoryServerError: NewCategoryServerError("Invalid Orders", err),
+		UserServerError: NewCategoryServerError("Invalid Orders", err),
 	}
 }
 
 type InvalidDeleteOrder struct {
-	*CategoryServerError
+	*UserServerError
 }
 
 func (e *InvalidDeleteOrder) Error() string {
-	return e.CategoryServerError.Error()
+	return e.UserServerError.Error()
 }
 
 func NewInvalidDeleteOrder(err error) error {
 	return &InvalidDeleteOrder{
-		CategoryServerError: NewCategoryServerError("Invalid Delete Order", err),
+		UserServerError: NewCategoryServerError("Invalid Delete Order", err),
 	}
 }
 
 type InvalidCreateOrder struct {
-	*CategoryServerError
+	*UserServerError
 }
 
 func (e *InvalidCreateOrder) Error() string {
-	return e.CategoryServerError.Error()
+	return e.UserServerError.Error()
 }
 
 func NewInvalidCreateOrder(err error) error {
 	return &InvalidCreateOrder{
-		CategoryServerError: NewCategoryServerError("Invalid Create Order", err),
+		UserServerError: NewCategoryServerError("Invalid Create Order", err),
 	}
 }
