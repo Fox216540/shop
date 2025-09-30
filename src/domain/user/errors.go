@@ -35,3 +35,59 @@ func NewNotFoundUserError(err error) error {
 		DomainNotFoundError: NewDomainNotFoundError("User not found", err),
 	}
 }
+
+type DomainBadRequestError struct {
+	*exception.BadRequestError
+}
+
+func (e *DomainBadRequestError) Error() string {
+	return e.BadRequestError.Error()
+}
+
+func NewDomainBadRequestError(msg string, err error) *DomainBadRequestError {
+	return &DomainBadRequestError{
+		BadRequestError: exception.NewBadRequestError(msg, domain, err),
+	}
+}
+
+type ExistingEmailError struct {
+	*DomainBadRequestError
+}
+
+func (e *ExistingEmailError) Error() string {
+	return e.DomainBadRequestError.Error()
+}
+
+func NewExistingEmailError(err error) error {
+	return &ExistingEmailError{
+		DomainBadRequestError: NewDomainBadRequestError("Existing email", err),
+	}
+}
+
+type ExistingPhoneError struct {
+	*DomainBadRequestError
+}
+
+func (e *ExistingPhoneError) Error() string {
+	return e.DomainBadRequestError.Error()
+}
+
+func NewExistingPhoneError(err error) error {
+	return &ExistingPhoneError{
+		DomainBadRequestError: NewDomainBadRequestError("Existing phone", err),
+	}
+}
+
+type ExistingPasswordError struct {
+	*DomainBadRequestError
+}
+
+func (e *ExistingPasswordError) Error() string {
+	return e.DomainBadRequestError.Error()
+}
+
+func NewExistingPasswordError(err error) error {
+	return &ExistingPasswordError{
+		DomainBadRequestError: NewDomainBadRequestError("Existing password", err),
+	}
+}
