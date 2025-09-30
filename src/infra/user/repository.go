@@ -108,30 +108,30 @@ func (r *repository) Update(u user.User) (user.User, error) {
 	return models.FromORM(*updateUser), nil
 }
 
-func (r *repository) ExistsPhone(phone string) (bool, error) {
+func (r *repository) ExistsPhone(phone string) error {
 	var u models.UserORM
 	err := r.db.WithSession(func(tx *gorm.DB) error {
 		return tx.Where("phone = ?", phone).First(&u).Error
 	})
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return false, nil
+			return user.NewExistingPhoneError(nil)
 		}
-		return false, NewInvalidExistsPhone(err) // Возвращаем ошибку, если не удалось найти пользователя
+		return NewInvalidExistsPhone(err) // Возвращаем ошибку, если не удалось найти пользователя
 	}
-	return true, nil
+	return nil
 }
 
-func (r *repository) ExistsEmail(email string) (bool, error) {
+func (r *repository) ExistsEmail(email string) error {
 	var u models.UserORM
 	err := r.db.WithSession(func(tx *gorm.DB) error {
 		return tx.Where("email = ?", email).First(&u).Error
 	})
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return false, nil
+			return user.NewExistingEmailError(nil)
 		}
-		return false, NewInvalidExistsEmail(err) // Возвращаем ошибку, если не удалось найти пользователя
+		return NewInvalidExistsEmail(err) // Возвращаем ошибку, если не удалось найти пользователя
 	}
-	return true, nil
+	return nil
 }
