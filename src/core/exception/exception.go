@@ -31,51 +31,67 @@ const (
 	domainLayer = "Domain"
 )
 
-type NotFoundError struct {
+type DomainError struct {
 	*Exception
 }
 
-func (e NotFoundError) Error() string {
+func (e DomainError) Error() string {
 	return e.Exception.Error()
 }
 
-func (e NotFoundError) Unwrap() error { return e.Exception }
+func (e DomainError) Unwrap() error { return e.Exception }
+
+func NewDomainException(msg, domain string, err error) *DomainError {
+	return &DomainError{
+		Exception: NewException(msg, domain, domainLayer, err),
+	}
+}
+
+type NotFoundError struct {
+	*DomainError
+}
+
+func (e NotFoundError) Error() string {
+	return e.DomainError.Error()
+}
+
+func (e NotFoundError) Unwrap() error { return e.DomainError }
 
 func NewNotFoundError(msg, domain string, err error) *NotFoundError {
 	return &NotFoundError{
-		Exception: NewException(msg, domain, domainLayer, err),
+		DomainError: NewDomainException(msg, domain, err),
 	}
 }
 
 type BadRequestError struct {
-	*Exception
+	*DomainError
 }
 
 func (e BadRequestError) Error() string {
-	return e.Exception.Error()
+	return e.DomainError.Error()
 }
 
-func (e BadRequestError) Unwrap() error { return e.Exception }
+func (e BadRequestError) Unwrap() error { return e.DomainError }
 
 func NewBadRequestError(msg, domain string, err error) *BadRequestError {
 	return &BadRequestError{
-		Exception: NewException(msg, domain, domainLayer, err),
+		DomainError: NewDomainException(msg, domain, err),
 	}
 }
 
 type UnauthorizedError struct {
-	*Exception
+	*DomainError
 }
 
 func (e UnauthorizedError) Error() string {
-	return e.Exception.Error()
+	return e.DomainError.Error()
 }
 
-func (e UnauthorizedError) Unwrap() error { return e.Exception }
+func (e UnauthorizedError) Unwrap() error { return e.DomainError }
 
 func NewUnauthorizedError(msg, domain string, err error) *UnauthorizedError {
 	return &UnauthorizedError{
-		Exception: NewException(msg, domain, domainLayer, err),
+		DomainError: NewDomainException(msg, domain, err),
 	}
 }
 
