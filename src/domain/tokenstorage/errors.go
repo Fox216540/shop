@@ -22,6 +22,20 @@ func NewDomainNotFoundError(msg string, err error) *DomainNotFoundError {
 	}
 }
 
+type NotFoundTokenOfUserError struct {
+	*DomainNotFoundError
+}
+
+func (e *NotFoundTokenOfUserError) Error() string {
+	return e.NotFoundError.Error()
+}
+
+func NewNotFoundTokenOfUserError(err error) *NotFoundTokenOfUserError {
+	return &NotFoundTokenOfUserError{
+		DomainNotFoundError: NewDomainNotFoundError("Token of user not found", err),
+	}
+}
+
 type NotFoundTokensOfUserError struct {
 	*DomainNotFoundError
 }
