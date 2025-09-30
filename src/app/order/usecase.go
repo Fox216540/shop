@@ -9,5 +9,5 @@ type UseCase interface {
 	Place(userID uuid.UUID, productItems []*order.Item) (order.Order, error)
 	Cancel(ID, userID uuid.UUID) (uuid.UUID, error)
 	GetByID(ID uuid.UUID) (order.Order, error)
-	OrdersByUserID(userID uuid.UUID) ([]order.Order, error)
+	GetOrdersByUserID(userID uuid.UUID) ([]order.Order, error)
 }
