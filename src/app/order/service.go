@@ -1,9 +1,11 @@
 package order
 
 import (
+	"errors"
 	"fmt"
 	"github.com/google/uuid"
 	"shop/src/app/product"
+	"shop/src/core/exception"
 	"shop/src/domain/idgenerator"
 	"shop/src/domain/order"
 	p "shop/src/domain/product"
@@ -21,6 +23,18 @@ func NewOrderService(
 	idGen idgenerator.Generator,
 ) UseCase {
 	return &service{r: r, ps: ps, idGen: idGen}
+}
+
+func (s *service) mapError(err, appServerError error) error {
+	var appError *exception.ServerError
+	var domainError *exception.DomainError
+	if errors.As(err, &domainError) {
+		return err
+	}
+	if errors.As(err, &appError) {
+		return err
+	}
+	return appServerError
 }
 
 func (s *service) createNewOrder(userID uuid.UUID, items []*order.Item) order.Order {
@@ -51,7 +65,7 @@ func (s *service) enrichProducts(items []*order.Item) error {
 		if prod, ok := productMap[item.Product.ID]; ok {
 			item.Product = prod
 		} else {
-			return fmt.Errorf("product not found: %s", item.Product.ID)
+			return p.NewNotFoundProductError(fmt.Errorf("product not found: %s", item.Product.ID))
 		}
 	}
 
@@ -63,7 +77,7 @@ func (s *service) generateOrderNum(o order.Order) (order.Order, error) {
 	if err != nil {
 		return order.Order{}, err
 	}
-
+	// TODO: Проверить не занят ли номер заказа
 	o.OrderNum = orderNum
 
 	return o, nil
@@ -83,22 +97,22 @@ func (s *service) Place(userID uuid.UUID, productItems []*order.Item) (order.Ord
 	o := s.createNewOrder(userID, productItems)
 
 	if err = s.enrichProducts(o.OrderItems); err != nil {
-		return o, err
+		return o, s.mapError(err, NewInvalidPlace(err))
 	}
 
 	o, err = s.generateOrderNum(o) // Генерируем уникальный номер заказа
 	if err != nil {
-		return o, err
+		return o, s.mapError(err, NewInvalidPlace(err))
 	}
 
 	o, err = s.calculateOrderTotal(o) // Вычисляем общую сумму заказа
 	if err != nil {
-		return o, err
+		return o, s.mapError(err, NewInvalidPlace(err))
 	}
 
 	o, err = s.r.Save(o)
 	if err != nil {
-		return o, err // Возвращаем ошибку, если не удалось сохранить заказ
+		return o, s.mapError(err, NewInvalidPlace(err)) // Возвращаем ошибку, если не удалось сохранить заказ
 	}
 
 	return o, nil
@@ -106,7 +120,7 @@ func (s *service) Place(userID uuid.UUID, productItems []*order.Item) (order.Ord
 
 func (s *service) Cancel(ID, userID uuid.UUID) (uuid.UUID, error) {
 	if err := s.r.Remove(ID, userID); err != nil {
-		return ID, err // Возвращаем ошибку, если не удалось удалить заказ
+		return ID, s.mapError(err, NewInvalidCancel(err)) // Возвращаем ошибку, если не удалось удалить заказ
 	}
 	return ID, nil
 }
@@ -114,15 +128,15 @@ func (s *service) Cancel(ID, userID uuid.UUID) (uuid.UUID, error) {
 func (s *service) GetByID(id uuid.UUID) (order.Order, error) {
 	o, err := s.r.GetByID(id)
 	if err != nil {
-		return o, err // Возвращаем ошибку, если не удалось найти заказ
+		return o, s.mapError(err, NewInvalidGetByID(err)) // Возвращаем ошибку, если не удалось найти заказ
 	}
 	return o, nil
 }
 
-func (s *service) OrdersByUserID(userID uuid.UUID) ([]order.Order, error) {
-	orders, err := s.r.OrdersByUserID(userID)
+func (s *service) GetOrdersByUserID(userID uuid.UUID) ([]order.Order, error) {
+	orders, err := s.r.GetOrdersByUserID(userID)
 	if err != nil {
-		return nil, err // Возвращаем ошибку, если не удалось найти заказы пользователя
+		return nil, s.mapError(err, NewInvalidGetOrdersByUserID(err)) // Возвращаем ошибку, если не удалось найти заказы пользователя
 	}
 	return orders, nil
 }
