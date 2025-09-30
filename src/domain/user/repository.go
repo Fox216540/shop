@@ -8,6 +8,6 @@ type Repository interface {
 	GetByID(ID uuid.UUID) (User, error)
 	FindByPhoneOrEmail(phoneOrEmail string) (User, error)
 	Update(u User) (User, error)
-	ExistsPhone(phone string) (bool, error)
-	ExistsEmail(email string) (bool, error)
+	ExistsPhone(phone string) error
+	ExistsEmail(email string) error
 }
