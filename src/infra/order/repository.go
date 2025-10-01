@@ -102,7 +102,6 @@ func (r *repository) GetOrdersByUserID(userID uuid.UUID) ([]order.Order, error) 
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, order.NewNotFoundOrderError(err)
 		}
-
 		return nil, NewInvalidGetOrdersByUserID(err)
 	}
 	orders := make([]order.Order, 0, len(ordersORM))
@@ -116,6 +115,7 @@ func (r *repository) CheckOrderNum(orderNum string) error {
 	err := r.db.WithSession(func(tx *gorm.DB) error {
 		err := tx.Where("order_num = ?", orderNum).First(&models.OrderORM{}).Error
 		if err == nil {
+			//TODO: доменная ошибка
 			// Если заказ с таким номером найден, возвращаем ошибку
 			return NewInvalidCheckOrderNum(fmt.Errorf("order number %s already exists", orderNum)) // Если заказ с таким номером найден, возвращаем nil
 		}
