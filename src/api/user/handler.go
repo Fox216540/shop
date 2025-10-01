@@ -11,6 +11,7 @@ import (
 	"shop/src/api/user/di"
 	"shop/src/api/user/dto"
 	"shop/src/app/user"
+	"shop/src/core/mapError"
 	"shop/src/core/middleware"
 	"shop/src/core/settings"
 	"shop/src/domain/order"
@@ -137,6 +138,7 @@ func registerHandler(us user.UseCase) gin.HandlerFunc {
 		var r dto.RegisterRequest
 
 		if err := c.ShouldBindJSON(&r); err != nil {
+			//TODO: разобраться с ошибками
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
 			return
 		}
@@ -144,7 +146,8 @@ func registerHandler(us user.UseCase) gin.HandlerFunc {
 		NewUser, tokens, err := us.Register(r)
 
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user"})
+			status, message := mapError.MapError(err)
+			c.JSON(status, gin.H{"error": message})
 			return
 		}
 
@@ -152,7 +155,8 @@ func registerHandler(us user.UseCase) gin.HandlerFunc {
 		bufferTime := settings.Config.BufferSeconds
 		duration, err := durationDiff(ttl, bufferTime)
 		if err != nil {
-			getInternalServerErrorResponse(c)
+			status, message := mapError.MapError(err)
+			c.JSON(status, gin.H{"error": message})
 			return
 		}
 
@@ -180,6 +184,7 @@ func loginHandler(us user.UseCase) gin.HandlerFunc {
 		var r dto.LoginRequest
 
 		if err := c.ShouldBindJSON(&r); err != nil {
+			//TODO: разобраться с ошибками
 			getBadRequestResponse(c)
 			return
 		}
@@ -187,7 +192,8 @@ func loginHandler(us user.UseCase) gin.HandlerFunc {
 		User, tokens, err := us.Login(r.PhoneOrEmail, r.Password)
 
 		if err != nil {
-			getInternalServerErrorResponse(c)
+			status, message := mapError.MapError(err)
+			c.JSON(status, gin.H{"error": message})
 			return
 		}
 
@@ -195,7 +201,8 @@ func loginHandler(us user.UseCase) gin.HandlerFunc {
 		bufferTime := settings.Config.BufferSeconds
 		duration, err := durationDiff(ttl, bufferTime)
 		if err != nil {
-			getInternalServerErrorResponse(c)
+			status, message := mapError.MapError(err)
+			c.JSON(status, gin.H{"error": message})
 			return
 		}
 
@@ -223,6 +230,7 @@ func logoutHandler(us user.UseCase) gin.HandlerFunc {
 		var r dto.LogoutRequest
 
 		if err := c.ShouldBindJSON(&r); err != nil {
+			//TODO: разобраться с ошибками
 			getBadRequestResponse(c)
 			return
 		}
@@ -230,9 +238,11 @@ func logoutHandler(us user.UseCase) gin.HandlerFunc {
 		err := us.Logout(r.RefreshToken)
 
 		if err != nil {
-			getInternalServerErrorResponse(c)
+			status, message := mapError.MapError(err)
+			c.JSON(status, gin.H{"error": message})
 			return
 		}
+
 		c.JSON(http.StatusOK, dto.MessageResponse{
 			Message: "User logged out successfully",
 		})
@@ -245,6 +255,7 @@ func logoutAllHandler(us user.UseCase) gin.HandlerFunc {
 		var r dto.LogoutRequest
 
 		if err := c.ShouldBindJSON(&r); err != nil {
+			//TODO: разобраться с ошибками
 			getBadRequestResponse(c)
 			return
 		}
@@ -252,7 +263,8 @@ func logoutAllHandler(us user.UseCase) gin.HandlerFunc {
 		err := us.LogoutAll(r.RefreshToken)
 
 		if err != nil {
-			getInternalServerErrorResponse(c)
+			status, message := mapError.MapError(err)
+			c.JSON(status, gin.H{"error": message})
 			return
 		}
 
@@ -272,12 +284,14 @@ func updatePasswordHandler(us user.UseCase) gin.HandlerFunc {
 
 		ID, err := getUserIDFromContext(c)
 		if err != nil {
-			getBadRequestResponse(c)
+			status, message := mapError.MapError(err)
+			c.JSON(status, gin.H{"error": message})
 			return
 		}
 		updatedUser, err := us.UpdatePassword(ID, r.NewPassword)
 		if err != nil {
-			getInternalServerErrorResponse(c)
+			status, message := mapError.MapError(err)
+			c.JSON(status, gin.H{"error": message})
 			return
 		}
 		c.JSON(http.StatusOK, dto.UserResponse{
@@ -298,12 +312,14 @@ func updateEmailHandler(us user.UseCase) gin.HandlerFunc {
 		}
 		ID, err := getUserIDFromContext(c)
 		if err != nil {
-			getBadRequestResponse(c)
+			status, message := mapError.MapError(err)
+			c.JSON(status, gin.H{"error": message})
 			return
 		}
 		updatedUser, err := us.UpdateEmail(ID, r.NewEmail)
 		if err != nil {
-			getInternalServerErrorResponse(c)
+			status, message := mapError.MapError(err)
+			c.JSON(status, gin.H{"error": message})
 			return
 		}
 
@@ -325,12 +341,14 @@ func updatePhoneHandler(us user.UseCase) gin.HandlerFunc {
 		}
 		ID, err := getUserIDFromContext(c)
 		if err != nil {
-			getBadRequestResponse(c)
+			status, message := mapError.MapError(err)
+			c.JSON(status, gin.H{"error": message})
 			return
 		}
 		updatedUser, err := us.UpdatePhone(ID, r.NewPhone)
 		if err != nil {
-			getInternalServerErrorResponse(c)
+			status, message := mapError.MapError(err)
+			c.JSON(status, gin.H{"error": message})
 			return
 		}
 
@@ -352,12 +370,14 @@ func updateProfileHandler(us user.UseCase) gin.HandlerFunc {
 		}
 		ID, err := getUserIDFromContext(c)
 		if err != nil {
-			getBadRequestResponse(c)
+			status, message := mapError.MapError(err)
+			c.JSON(status, gin.H{"error": message})
 			return
 		}
 		updatedUser, err := us.UpdateProfile(ID, r)
 		if err != nil {
-			getInternalServerErrorResponse(c)
+			status, message := mapError.MapError(err)
+			c.JSON(status, gin.H{"error": message})
 			return
 		}
 
@@ -379,14 +399,16 @@ func refreshHandler(us user.UseCase) gin.HandlerFunc {
 		}
 		newTokens, err := us.RefreshTokens(token)
 		if err != nil {
-			getInternalServerErrorResponse(c)
+			status, message := mapError.MapError(err)
+			c.JSON(status, gin.H{"error": message})
 			return
 		}
 		ttl := settings.Config.RefreshTokenTTL
 		bufferTime := settings.Config.BufferSeconds
 		duration, err := durationDiff(ttl, bufferTime)
 		if err != nil {
-			getInternalServerErrorResponse(c)
+			status, message := mapError.MapError(err)
+			c.JSON(status, gin.H{"error": message})
 			return
 		}
 
@@ -417,7 +439,8 @@ func deleteHandler(us user.UseCase) gin.HandlerFunc {
 
 		deletedUser, err := us.Delete(ID)
 		if err != nil {
-			getInternalServerErrorResponse(c)
+			status, message := mapError.MapError(err)
+			c.JSON(status, gin.H{"error": message})
 			return
 		}
 
@@ -471,7 +494,8 @@ func ordersHandler(us user.UseCase) gin.HandlerFunc {
 
 		orders, err := us.Orders(ID)
 		if err != nil {
-			getInternalServerErrorResponse(c)
+			status, message := mapError.MapError(err)
+			c.JSON(status, gin.H{"error": message})
 			return
 		}
 
@@ -493,13 +517,15 @@ func createOrderHandler(us user.UseCase) gin.HandlerFunc {
 
 		ID, err := getUserIDFromContext(c)
 		if err != nil {
-			getBadRequestResponse(c)
+			status, message := mapError.MapError(err)
+			c.JSON(status, gin.H{"error": message})
 			return
 		}
 
 		o, err := us.CreateOrder(ID, r)
 		if err != nil {
-			getInternalServerErrorResponse(c)
+			status, message := mapError.MapError(err)
+			c.JSON(status, gin.H{"error": message})
 			return
 		}
 
@@ -525,7 +551,8 @@ func deleteOrderHandler(us user.UseCase) gin.HandlerFunc {
 
 		ID, err := getUserIDFromContext(c)
 		if err != nil {
-			getBadRequestResponse(c)
+			status, message := mapError.MapError(err)
+			c.JSON(status, gin.H{"error": message})
 			return
 		}
 
@@ -537,7 +564,8 @@ func deleteOrderHandler(us user.UseCase) gin.HandlerFunc {
 
 		o, err := us.DeleteOrder(ID, orderID)
 		if err != nil {
-			getInternalServerErrorResponse(c)
+			status, message := mapError.MapError(err)
+			c.JSON(status, gin.H{"error": message})
 			return
 		}
 
