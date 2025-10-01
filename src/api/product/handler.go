@@ -7,6 +7,7 @@ import (
 	"shop/src/api/product/di"
 	"shop/src/api/product/dto"
 	"shop/src/app/product"
+	"shop/src/core/mapError"
 )
 
 func Handler(r *gin.Engine) {
@@ -37,14 +38,16 @@ func getProductsByCategoryHandler(ps product.UseCase) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		categoryID, err := parseCategoryID(c)
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid category ID", "details": err.Error()})
+			status, message := mapError.MapError(err)
+			c.JSON(status, gin.H{"error": message})
 			return
 		}
 
 		products, err := ps.ProductsOfCategoryID(categoryID)
 
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch product data"})
+			status, message := mapError.MapError(err)
+			c.JSON(status, gin.H{"error": message})
 			return
 		}
 		var productsDTO []dto.ProductResponse
@@ -69,6 +72,7 @@ func getProductByIDHandler(ps product.UseCase) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var uri dto.GetProductByIDRequest
 		if err := c.ShouldBindUri(&uri); err != nil {
+			//TODO: разобраться с ошибками
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid product ID", "details": err.Error()})
 			return
 		}
@@ -77,7 +81,8 @@ func getProductByIDHandler(ps product.UseCase) gin.HandlerFunc {
 
 		Product, err := ps.ProductByID(productID)
 		if err != nil {
-			c.JSON(http.StatusNotFound, gin.H{"error": "Product not found"})
+			status, message := mapError.MapError(err)
+			c.JSON(status, gin.H{"error": message})
 			return
 		}
 		c.JSON(http.StatusOK, dto.ProductResponse{
