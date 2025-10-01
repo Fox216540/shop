@@ -16,6 +16,10 @@ func (e *DomainNotFoundError) Error() string {
 	return e.NotFoundError.Error()
 }
 
+func (e *DomainNotFoundError) Unwrap() error {
+	return e.NotFoundError
+}
+
 func NewDomainNotFoundError(msg string, err error) *DomainNotFoundError {
 	return &DomainNotFoundError{
 		NotFoundError: exception.NewNotFoundError(msg, domain, err),
@@ -30,6 +34,10 @@ func (e *NotFoundTokenOfUserError) Error() string {
 	return e.NotFoundError.Error()
 }
 
+func (e *NotFoundTokenOfUserError) Unwrap() error {
+	return e.NotFoundError
+}
+
 func NewNotFoundTokenOfUserError(err error) *NotFoundTokenOfUserError {
 	return &NotFoundTokenOfUserError{
 		DomainNotFoundError: NewDomainNotFoundError("Token of user not found", err),
@@ -42,6 +50,10 @@ type NotFoundTokensOfUserError struct {
 
 func (e *NotFoundTokensOfUserError) Error() string {
 	return e.NotFoundError.Error()
+}
+
+func (e *NotFoundTokensOfUserError) Unwrap() error {
+	return e.NotFoundError
 }
 
 func NewNotFoundTokensOfUserError(err error) *NotFoundTokensOfUserError {

@@ -146,6 +146,7 @@ func registerHandler(us user.UseCase) gin.HandlerFunc {
 		NewUser, tokens, err := us.Register(r)
 
 		if err != nil {
+			fmt.Println(err)
 			status, message := mapError.MapError(err)
 			c.JSON(status, gin.H{"error": message})
 			return

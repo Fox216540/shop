@@ -14,6 +14,10 @@ func (e *HasherServerError) Error() string {
 	return e.InfraServerError.Error()
 }
 
+func (e *HasherServerError) Unwrap() error {
+	return e.InfraServerError
+}
+
 func NewHasherServerError(msg string, err error) *HasherServerError {
 	return &HasherServerError{
 		InfraServerError: globalError.NewInfraServerError(msg, domain, err),
@@ -26,6 +30,10 @@ type InvalidHashError struct {
 
 func (e *InvalidHashError) Error() string {
 	return e.HasherServerError.Error()
+}
+
+func (e *InvalidHashError) Unwrap() error {
+	return e.HasherServerError
 }
 
 func NewInvalidHashError(err error) error {

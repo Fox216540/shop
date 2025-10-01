@@ -51,11 +51,11 @@ type NotFoundError struct {
 	*DomainError
 }
 
-func (e NotFoundError) Error() string {
+func (e *NotFoundError) Error() string {
 	return e.DomainError.Error()
 }
 
-func (e NotFoundError) Unwrap() error { return e.DomainError }
+func (e *NotFoundError) Unwrap() error { return e.DomainError }
 
 func NewNotFoundError(msg, domain string, err error) *NotFoundError {
 	return &NotFoundError{
@@ -67,11 +67,11 @@ type BadRequestError struct {
 	*DomainError
 }
 
-func (e BadRequestError) Error() string {
+func (e *BadRequestError) Error() string {
 	return e.DomainError.Error()
 }
 
-func (e BadRequestError) Unwrap() error { return e.DomainError }
+func (e *BadRequestError) Unwrap() error { return e.DomainError }
 
 func NewBadRequestError(msg, domain string, err error) *BadRequestError {
 	return &BadRequestError{
@@ -83,11 +83,11 @@ type UnauthorizedError struct {
 	*DomainError
 }
 
-func (e UnauthorizedError) Error() string {
+func (e *UnauthorizedError) Error() string {
 	return e.DomainError.Error()
 }
 
-func (e UnauthorizedError) Unwrap() error { return e.DomainError }
+func (e *UnauthorizedError) Unwrap() error { return e.DomainError }
 
 func NewUnauthorizedError(msg, domain string, err error) *UnauthorizedError {
 	return &UnauthorizedError{
@@ -99,11 +99,11 @@ type ServerError struct {
 	*Exception
 }
 
-func (e ServerError) Error() string {
+func (e *ServerError) Error() string {
 	return e.Exception.Error()
 }
 
-func (e ServerError) Unwrap() error { return e.Exception }
+func (e *ServerError) Unwrap() error { return e.Exception }
 
 func NewServerError(msg, domain, layer string, err error) *ServerError {
 	return &ServerError{

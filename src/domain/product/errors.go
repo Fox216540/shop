@@ -16,6 +16,10 @@ func (e *DomainNotFoundError) Error() string {
 	return e.NotFoundError.Error()
 }
 
+func (e *DomainNotFoundError) Unwrap() error {
+	return e.NotFoundError
+}
+
 func NewDomainNotFoundError(msg string, err error) *DomainNotFoundError {
 	return &DomainNotFoundError{
 		NotFoundError: exception.NewNotFoundError(msg, domain, err),
@@ -30,6 +34,10 @@ func (e *NotFoundProductError) Error() string {
 	return e.NotFoundError.Error()
 }
 
+func (e *NotFoundProductError) Unwrap() error {
+	return e.NotFoundError
+}
+
 func NewNotFoundProductError(err error) error {
 	return &NotFoundProductError{
 		DomainNotFoundError: NewDomainNotFoundError("Product not found", err),
@@ -42,6 +50,10 @@ type NotFoundProductsError struct {
 
 func (e *NotFoundProductsError) Error() string {
 	return e.NotFoundError.Error()
+}
+
+func (e *NotFoundProductsError) Unwrap() error {
+	return e.NotFoundError
 }
 
 func NewNotFoundProductsError(err error) error {

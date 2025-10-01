@@ -14,6 +14,10 @@ func (e *OrderServerError) Error() string {
 	return e.InfraServerError.Error()
 }
 
+func (e *OrderServerError) Unwrap() error {
+	return e.InfraServerError
+}
+
 func NewOrderServerError(msg string, err error) *OrderServerError {
 	return &OrderServerError{
 		InfraServerError: globalError.NewInfraServerError(msg, domain, err),
@@ -26,6 +30,10 @@ type InvalidSaveOrder struct {
 
 func (e *InvalidSaveOrder) Error() string {
 	return e.OrderServerError.Error()
+}
+
+func (e *InvalidSaveOrder) Unwrap() error {
+	return e.OrderServerError
 }
 
 func NewInvalidSaveOrder(err error) error {
@@ -42,6 +50,10 @@ func (e *InvalidRemoveOrder) Error() string {
 	return e.OrderServerError.Error()
 }
 
+func (e *InvalidRemoveOrder) Unwrap() error {
+	return e.OrderServerError
+}
+
 func NewInvalidRemoveOrder(err error) error {
 	return &InvalidRemoveOrder{
 		OrderServerError: NewOrderServerError("Invalid Remove Order Error", err),
@@ -54,6 +66,10 @@ type InvalidGetOrderByID struct {
 
 func (e *InvalidGetOrderByID) Error() string {
 	return e.OrderServerError.Error()
+}
+
+func (e *InvalidGetOrderByID) Unwrap() error {
+	return e.OrderServerError
 }
 
 func NewInvalidGetOrderByID(err error) error {
@@ -70,6 +86,10 @@ func (e *InvalidGetOrdersByUserID) Error() string {
 	return e.OrderServerError.Error()
 }
 
+func (e *InvalidGetOrdersByUserID) Unwrap() error {
+	return e.OrderServerError
+}
+
 func NewInvalidGetOrdersByUserID(err error) error {
 	return &InvalidGetOrdersByUserID{
 		OrderServerError: NewOrderServerError("Invalid Get Orders By User ID Error", err),
@@ -82,6 +102,10 @@ type InvalidCheckOrderNum struct {
 
 func (e *InvalidCheckOrderNum) Error() string {
 	return e.OrderServerError.Error()
+}
+
+func (e *InvalidCheckOrderNum) Unwrap() error {
+	return e.OrderServerError
 }
 
 func NewInvalidCheckOrderNum(err error) error {

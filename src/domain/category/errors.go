@@ -16,6 +16,10 @@ func (e *DomainNotFoundError) Error() string {
 	return e.NotFoundError.Error()
 }
 
+func (e *DomainNotFoundError) Unwrap() error {
+	return e.NotFoundError.Unwrap()
+}
+
 func NewDomainNotFoundError(msg string, err error) *DomainNotFoundError {
 	return &DomainNotFoundError{
 		NotFoundError: exception.NewNotFoundError(msg, domain, err),
@@ -28,6 +32,10 @@ type NotFoundCategoryError struct {
 
 func (e *NotFoundCategoryError) Error() string {
 	return e.NotFoundError.Error()
+}
+
+func (e *NotFoundCategoryError) Unwrap() error {
+	return e.NotFoundError
 }
 
 func NewNotFoundCategoryError(err error) error {

@@ -14,6 +14,10 @@ func (e *InfraServerError) Error() string {
 	return e.ServerError.Error()
 }
 
+func (e *InfraServerError) Unwrap() error {
+	return e.ServerError
+}
+
 func NewInfraServerError(msg, domain string, err error) *InfraServerError {
 	return &InfraServerError{
 		ServerError: exception.NewServerError(msg, domain, layer, err),

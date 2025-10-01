@@ -14,6 +14,10 @@ func (e *ProductServerError) Error() string {
 	return e.InfraServerError.Error()
 }
 
+func (e *ProductServerError) Unwrap() error {
+	return e.InfraServerError
+}
+
 func NewProductServerError(msg string, err error) *ProductServerError {
 	return &ProductServerError{
 		InfraServerError: globalError.NewInfraServerError(msg, domain, err),
@@ -26,6 +30,10 @@ type InvalidFindProductsByCategoryID struct {
 
 func (e *InvalidFindProductsByCategoryID) Error() string {
 	return e.ProductServerError.Error()
+}
+
+func (e *InvalidFindProductsByCategoryID) Unwrap() error {
+	return e.ProductServerError
 }
 
 func NewInvalidFindProductsByCategoryID(err error) error {
@@ -42,6 +50,10 @@ func (e *InvalidFindProductByID) Error() string {
 	return e.ProductServerError.Error()
 }
 
+func (e *InvalidFindProductByID) Unwrap() error {
+	return e.ProductServerError
+}
+
 func NewInvalidFindProductByID(err error) error {
 	return &InvalidFindProductByID{
 		ProductServerError: NewProductServerError("Invalid Find Product By ID Error", err),
@@ -54,6 +66,10 @@ type InvalidFindProductsByIDs struct {
 
 func (e *InvalidFindProductsByIDs) Error() string {
 	return e.ProductServerError.Error()
+}
+
+func (e *InvalidFindProductsByIDs) Unwrap() error {
+	return e.ProductServerError
 }
 
 func NewInvalidFindProductsByIDs(err error) error {

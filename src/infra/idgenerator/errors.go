@@ -14,6 +14,10 @@ func (e *IDGeneratorServerError) Error() string {
 	return e.InfraServerError.Error()
 }
 
+func (e *IDGeneratorServerError) Unwrap() error {
+	return e.InfraServerError
+}
+
 func NewIDGeneratorServerError(msg string, err error) *IDGeneratorServerError {
 	return &IDGeneratorServerError{
 		InfraServerError: globalError.NewInfraServerError(msg, domain, err),
@@ -26,6 +30,10 @@ type InvalidGenerateError struct {
 
 func (e *InvalidGenerateError) Error() string {
 	return e.IDGeneratorServerError.Error()
+}
+
+func (e *InvalidGenerateError) Unwrap() error {
+	return e.IDGeneratorServerError
 }
 
 func NewInvalidGenerateError(err error) error {
