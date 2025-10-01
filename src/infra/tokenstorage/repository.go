@@ -58,7 +58,6 @@ func (r *repository) Delete(jti, userID uuid.UUID) error {
 func (r *repository) DeleteAll(userID uuid.UUID) error {
 	ctx := context.Background()
 	setKey := fmt.Sprintf("user:%s:refresh_tokens", userID.String())
-
 	jtis, err := r.rdb.SMembers(ctx, setKey).Result()
 	if err != nil {
 		return NewInvalidDeleteAll(err)
