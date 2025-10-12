@@ -1,8 +1,8 @@
 package hasher
 
 import (
+	domainHasher "github.com/Fox216540/shop/auth-service/domain/hasher"
 	"golang.org/x/crypto/bcrypt"
-	domainHasher "shop/src/domain/hasher"
 )
 
 type hasher struct {
