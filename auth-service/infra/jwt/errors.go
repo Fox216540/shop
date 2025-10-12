@@ -1,7 +1,7 @@
 package jwt
 
 import (
-	"shop/src/infra/globalError"
+	"github.com/Fox216540/shop/auth-service/infra/globalError"
 )
 
 const domain = "JWT"

@@ -1,6 +1,6 @@
 package hasher
 
-import "shop/src/core/exception"
+import "github.com/Fox216540/shop/auth-service/core/exception"
 
 const domain = "Hasher"
 

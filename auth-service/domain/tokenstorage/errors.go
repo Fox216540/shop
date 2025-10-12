@@ -1,7 +1,7 @@
 package tokenstorage
 
 import (
-	"shop/src/core/exception"
+	"github.com/Fox216540/shop/auth-service/core/exception"
 )
 
 const (

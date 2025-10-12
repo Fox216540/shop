@@ -1,7 +1,7 @@
 package tokenstorage
 
 import (
-	"shop/src/infra/globalError"
+	"github.com/Fox216540/shop/auth-service/infra/globalError"
 )
 
 const domain = "Token Storage"
