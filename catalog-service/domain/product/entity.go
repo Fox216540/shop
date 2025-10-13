@@ -9,5 +9,5 @@ type Product struct {
 	Price       float64   // Product price
 	CategoryID  uuid.UUID // Product category
 	Description string    // Product description
-	Stock       int       // Product stock quantity
+	Stock       uint64    // Product stock quantity
 }
