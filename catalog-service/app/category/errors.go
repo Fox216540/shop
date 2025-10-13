@@ -1,6 +1,6 @@
 package category
 
-import "shop/src/app/globalError"
+import "github.com/Fox216540/shop/catalog-service/app/globalError"
 
 const domain = "Category"
 
