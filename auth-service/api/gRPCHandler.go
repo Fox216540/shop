@@ -5,7 +5,7 @@ import (
 	"errors"
 	pb "github.com/Fox216540/shop/auth-service/api/proto"
 	"github.com/Fox216540/shop/auth-service/app/auth"
-	dtoUseCase "github.com/Fox216540/shop/auth-service/app/auth/dto"
+	authDomain "github.com/Fox216540/shop/auth-service/domain/auth"
 	"github.com/google/uuid"
 )
 
@@ -14,20 +14,16 @@ type GRPCHandler struct {
 	pb.UnimplementedAuthServiceServer
 }
 
-func (h *GRPCHandler) createAuthDTO(userID uuid.UUID, password string) dtoUseCase.Auth {
-	return dtoUseCase.Auth{
-		UserID:   userID,
-		Password: password,
-	}
-}
-
 func (h *GRPCHandler) SignUp(ctx context.Context, req *pb.SignRequest) (*pb.SignResponse, error) {
 	userID, err := uuid.Parse(req.UserId)
 	if err != nil {
 		return nil, err
 	}
-	authDTO := h.createAuthDTO(userID, req.Password)
-	hash, tokens, err := h.auth.SignUp(authDTO)
+	a := authDomain.Auth{
+		UserID:   userID,
+		Password: req.Password,
+	}
+	hash, tokens, err := h.auth.SignUp(a)
 
 	if err != nil {
 		return nil, err
@@ -45,9 +41,11 @@ func (h *GRPCHandler) Login(ctx context.Context, req *pb.LoginRequest) (*pb.Toke
 	if err != nil {
 		return nil, err
 	}
-	authDTO := h.createAuthDTO(userID, req.Password)
-
-	tokens, err := h.auth.Login(authDTO, req.Hash)
+	a := authDomain.Auth{
+		UserID:   userID,
+		Password: req.Password,
+	}
+	tokens, err := h.auth.Login(a, req.Hash)
 	if err != nil {
 		return nil, err
 	}
