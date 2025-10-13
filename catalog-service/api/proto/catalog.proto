@@ -1,0 +1,51 @@
+syntax = "proto3";
+
+package proto;
+
+import "google/protobuf/empty.proto";
+
+option go_package = "/;proto";
+
+service CatalogService {
+    rpc GetCategories (google.protobuf.Empty) returns (GetCategoriesResponse);
+    rpc GetAllProducts (google.protobuf.Empty) returns (GetProductsResponse);
+    rpc GetProductsOfCategoryId (GetProductsOfCategoryIdRequest) returns (GetProductsResponse);
+    rpc GetProductById (GetProductByIdRequest) returns (Product);
+    rpc GetProductsByIds (GetProductsByIdsRequest) returns (GetProductsResponse);
+}
+
+message Category {
+    string id = 1;
+    string name = 2;
+}
+
+message Product {
+    string id = 1;
+    string name = 2;
+    string img = 3;
+    double price = 4;
+    string category_id = 5;
+    string description = 6;
+    uint64 stock = 7;
+}
+
+
+message GetCategoriesResponse {
+    repeated Category categories = 1;
+}
+
+message GetProductsResponse {
+    repeated Product products = 1;
+}
+
+message GetProductsOfCategoryIdRequest {
+    string category_id = 1;
+}
+
+message GetProductByIdRequest {
+    string product_id = 1;
+}
+
+message GetProductsByIdsRequest {
+    repeated string product_ids = 1;
+}
