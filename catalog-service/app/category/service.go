@@ -2,8 +2,8 @@ package category
 
 import (
 	"errors"
-	"shop/src/core/exception"
-	"shop/src/domain/category"
+	"github.com/Fox216540/shop/catalog-service/core/exception"
+	"github.com/Fox216540/shop/catalog-service/domain/category"
 )
 
 type service struct {
@@ -14,16 +14,16 @@ func NewService(r category.Repository) UseCase {
 	return &service{r: r}
 }
 
-func (s *service) GetCategories() ([]category.Category, error) {
+func (s *service) GetAllCategories() ([]category.Category, error) {
 	categories, err := s.r.FindAll()
 	if err != nil {
 		var domainError *exception.DomainError
 		var serverError *exception.ServerError
 		if errors.As(err, &domainError) {
-			return nil, domainError
+			return nil, err
 		}
 		if errors.As(err, &serverError) {
-			return nil, serverError
+			return nil, err
 		}
 		return nil, NewInvalidGetCategories(err)
 	}
