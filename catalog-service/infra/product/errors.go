@@ -1,7 +1,7 @@
 package product
 
 import (
-	"shop/src/infra/globalError"
+	"github.com/Fox216540/shop/catalog-service/infra/globalError"
 )
 
 const domain = "Product"
@@ -21,6 +21,24 @@ func (e *ProductServerError) Unwrap() error {
 func NewProductServerError(msg string, err error) *ProductServerError {
 	return &ProductServerError{
 		InfraServerError: globalError.NewInfraServerError(msg, domain, err),
+	}
+}
+
+type InvalidFindAll struct {
+	*ProductServerError
+}
+
+func (e *InvalidFindAll) Error() string {
+	return e.ProductServerError.Error()
+}
+
+func (e *InvalidFindAll) Unwrap() error {
+	return e.ProductServerError
+}
+
+func NewInvalidFindAll(err error) error {
+	return &InvalidFindAll{
+		ProductServerError: NewProductServerError("Invalid Find All Error", err),
 	}
 }
 
