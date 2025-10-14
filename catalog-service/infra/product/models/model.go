@@ -1,9 +1,9 @@
 package models
 
 import (
+	"github.com/Fox216540/shop/catalog-service/domain/product"
+	categorymodels "github.com/Fox216540/shop/catalog-service/infra/category/models"
 	"github.com/google/uuid"
-	"shop/src/domain/product"
-	categorymodels "shop/src/infra/category/models"
 )
 
 type ProductORM struct {
@@ -15,7 +15,7 @@ type ProductORM struct {
 	CategoryID  uuid.UUID                  `gorm:"type:uuid;not null;index"`    // Product category
 	Category    categorymodels.CategoryORM `gorm:"references:CategoryID"`       // Product category
 	Description string                     `gorm:"not null"`                    // Product description
-	Stock       int                        `gorm:"not null"`                    // Product stock quantity
+	Stock       uint64                     `gorm:"not null"`                    // Product stock quantity
 }
 
 func (ProductORM) TableName() string {
