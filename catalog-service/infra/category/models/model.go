@@ -1,8 +1,8 @@
 package models
 
 import (
+	"github.com/Fox216540/shop/catalog-service/domain/category"
 	"github.com/google/uuid"
-	"shop/src/domain/category"
 )
 
 type CategoryORM struct {
