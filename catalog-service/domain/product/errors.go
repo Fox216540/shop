@@ -1,7 +1,7 @@
 package product
 
 import (
-	"shop/src/core/exception"
+	"github.com/Fox216540/shop/catalog-service/core/exception"
 )
 
 const (
