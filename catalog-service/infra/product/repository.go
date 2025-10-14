@@ -2,11 +2,11 @@ package product
 
 import (
 	"errors"
+	"github.com/Fox216540/shop/catalog-service/domain/product"
+	db "github.com/Fox216540/shop/catalog-service/infra/db/core"
+	"github.com/Fox216540/shop/catalog-service/infra/product/models"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
-	"shop/src/domain/product"
-	db "shop/src/infra/db/core"
-	"shop/src/infra/product/models"
 )
 
 type repository struct {
@@ -17,23 +17,35 @@ func NewRepository(db *db.Database) product.Repository {
 	return &repository{db: db}
 }
 
-func (r *repository) FindProductsByCategoryID(ID *uuid.UUID) ([]product.Product, error) {
+func (r *repository) FindAllProducts() ([]product.Product, error) {
 	var productsORM []models.ProductORM
 	err := r.db.WithSession(func(tx *gorm.DB) error {
-		if ID == nil {
-			// Если категория не указана, возвращаем все продукты
-			return tx.
-				Preload("Category").
-				Find(&productsORM).Error
-		} else {
-			// Иначе ищем продукты по указанной категории
-			// Используем Where для фильтрации по категории
-			return tx.
-				Joins("Category").
-				Where(`"Category"."category_id" = ?`, *ID).
-				Preload("Category").
-				Find(&productsORM).Error
+		return tx.
+			Preload("Category").
+			Find(&productsORM).Error
+	})
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return []product.Product{}, product.NewNotFoundProductError(err)
 		}
+		return []product.Product{}, NewInvalidFindAll(err) // Возвращаем ошибку, если не удалось найти продукты
+	}
+	products := make([]product.Product, 0, len(productsORM))
+	for _, p := range productsORM {
+		products = append(products, models.FromORM(p))
+	}
+
+	return products, nil
+}
+
+func (r *repository) FindProductsByCategoryID(ID uuid.UUID) ([]product.Product, error) {
+	var productsORM []models.ProductORM
+	err := r.db.WithSession(func(tx *gorm.DB) error {
+		return tx.
+			Joins("Category").
+			Where(`"Category"."category_id" = ?`, ID).
+			Preload("Category").
+			Find(&productsORM).Error
 	})
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {

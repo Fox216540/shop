@@ -2,10 +2,10 @@ package category
 
 import (
 	"errors"
+	"github.com/Fox216540/shop/catalog-service/domain/category"
+	"github.com/Fox216540/shop/catalog-service/infra/category/models"
+	db "github.com/Fox216540/shop/catalog-service/infra/db/core"
 	"gorm.io/gorm"
-	"shop/src/domain/category"
-	"shop/src/infra/category/models"
-	db "shop/src/infra/db/core"
 )
 
 type repository struct {
