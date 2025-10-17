@@ -1,0 +1,25 @@
+package globalError
+
+import "github.com/Fox216540/shop/order-service/core/exception"
+
+const (
+	layer = "Infra"
+)
+
+type InfraServerError struct {
+	*exception.ServerError
+}
+
+func (e *InfraServerError) Error() string {
+	return e.ServerError.Error()
+}
+
+func (e *InfraServerError) Unwrap() error {
+	return e.ServerError
+}
+
+func NewInfraServerError(msg, domain string, err error) *InfraServerError {
+	return &InfraServerError{
+		ServerError: exception.NewServerError(msg, domain, layer, err),
+	}
+}
