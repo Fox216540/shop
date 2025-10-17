@@ -1,6 +1,6 @@
 package order
 
-import "shop/src/app/globalError"
+import "github.com/Fox216540/shop/order-service/app/globalError"
 
 const domain = "Order"
 
