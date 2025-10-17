@@ -1,7 +1,7 @@
 package order
 
 import (
-	"shop/src/core/exception"
+	"github.com/Fox216540/shop/order-service/core/exception"
 )
 
 const (
