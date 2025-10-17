@@ -1,7 +1,7 @@
 package order
 
 import (
-	"shop/src/infra/globalError"
+	"github.com/Fox216540/shop/order-service/infra/globalError"
 )
 
 const domain = "Order"
