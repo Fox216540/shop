@@ -1,13 +1,13 @@
 package order
 
 import (
+	"github.com/Fox216540/shop/order-service/domain/product"
 	"github.com/google/uuid"
-	"shop/src/domain/product"
 )
 
 type Item struct {
-	Product  product.Product
-	Quantity int
+	Product  *product.Product
+	Quantity uint64
 }
 
 type Order struct {
