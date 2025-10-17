@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+package catalog;
+
+import "common/types.proto";
+import "google/protobuf/empty.proto";
+
+
+option go_package = "github.com/Fox216540/shop/proto/catalog-service/gen;catalog";
+
+service ApiCatalogService {
+    rpc GetCategories (google.protobuf.Empty) returns (GetCategoriesResponse);
+    rpc GetAllProducts (google.protobuf.Empty) returns (common.GetProductsResponse);
+    rpc GetProductsOfCategoryId (GetProductsOfCategoryIdRequest) returns (common.GetProductsResponse);
+    rpc GetProductById (GetProductByIdRequest) returns (common.Product);
+}
+
+message Category {
+    string id = 1;
+    string name = 2;
+}
+
+
+message GetCategoriesResponse {
+    repeated Category categories = 1;
+}
+
+message GetProductsOfCategoryIdRequest {
+    string category_id = 1;
+}
+
+message GetProductByIdRequest {
+    string product_id = 1;
+}
+
+message GetProductsByIdsRequest {
+    repeated string product_ids = 1;
+}
