@@ -1,21 +1,20 @@
 package models
 
 import (
+	"github.com/Fox216540/shop/order-service/domain/order"
+	"github.com/Fox216540/shop/order-service/domain/product"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
-	"shop/src/domain/order"
-	productORM "shop/src/infra/product/models"
-	user "shop/src/infra/user/models"
 )
 
 type OrderProductORM struct {
-	ID        int       `gorm:"primaryKey;autoIncrement"`
-	OrderID   uuid.UUID `gorm:"type:uuid;not null;index"`
-	ProductID uuid.UUID `gorm:"type:uuid;not null;index"`
-
-	Product productORM.ProductORM `gorm:"references:ProductID"`
-
-	Quantity int `gorm:"not null"`
+	ID           int       `gorm:"primaryKey;autoIncrement"`
+	OrderID      uuid.UUID `gorm:"type:uuid;not null;index"`
+	ProductID    uuid.UUID `gorm:"type:uuid;not null;index"`
+	ProductName  string    `gorm:"type:varchar(255);not null"`
+	ProductPrice float64   `gorm:"type:decimal(10,2);not null"`
+	ProductImg   string    `gorm:"type:varchar(255);not null"`
+	Quantity     uint64    `gorm:"not null"`
 }
 
 func (OrderProductORM) TableName() string {
@@ -31,8 +30,6 @@ type OrderORM struct {
 	Status     string             `gorm:"type:varchar(50);not null"`
 	Total      float64            `gorm:"type:decimal(10,2);not null"` // Total order amount
 	OrderItems []*OrderProductORM `gorm:"foreignKey:OrderID;references:OrderID;constraint:OnDelete:CASCADE"`
-
-	User user.UserORM `gorm:"references:UserID"`
 }
 
 func (OrderORM) TableName() string {
@@ -50,7 +47,12 @@ func FromORM(orm OrderORM) order.Order {
 	}
 	for _, item := range orm.OrderItems {
 		o.OrderItems = append(o.OrderItems, &order.Item{
-			Product:  productORM.FromORM(item.Product),
+			Product: &product.Product{
+				ID:    item.ProductID,
+				Name:  item.ProductName,
+				Img:   item.ProductImg,
+				Price: item.ProductPrice,
+			},
 			Quantity: item.Quantity,
 		})
 	}
