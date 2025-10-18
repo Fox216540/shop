@@ -2,17 +2,16 @@ package db
 
 import (
 	"fmt"
+	"github.com/Fox216540/shop/order-service/infra/config"
+	"github.com/Fox216540/shop/order-service/infra/db/core"
+	mig "github.com/Fox216540/shop/order-service/infra/db/migration"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"log"
-	"shop/src/core/settings"
-	"shop/src/infra/db/core"
-	mig "shop/src/infra/db/migration"
 )
 
 // Init инициализирует глобальный объект Database
-func InitPostgres() {
-	config := settings.Config
+func InitPostgres(config *config.Config) *gorm.DB {
 	user := config.PostgresUser
 	password := config.PostgresPassword
 	host := config.PostgresHost
@@ -27,17 +26,15 @@ func InitPostgres() {
 	if err != nil {
 		log.Fatalf("failed to connect to database: %v", err)
 	}
-	core.InitDatabase(db)
-	core.GetDatabase()
 	err = mig.Migration(db)
 	if err != nil {
 		log.Fatalf("failed to run migrations: %v", err)
 	}
+	return db
 }
 
 // Close завершает подключение к базе
-func ClosePostgres() {
-	database := core.GetDatabase()
+func ClosePostgres(database *core.Database) {
 	if database == nil || database.DB == nil {
 		return
 	}
