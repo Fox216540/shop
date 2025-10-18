@@ -2,18 +2,21 @@ package api
 
 import (
 	"context"
-	pb "github.com/Fox216540/shop/catalog-service/api/proto"
 	"github.com/Fox216540/shop/catalog-service/app/catalog"
+	productDomain "github.com/Fox216540/shop/catalog-service/domain/product"
+	pb "github.com/Fox216540/shop/proto/catalog-service/gen"
+	types "github.com/Fox216540/shop/proto/common/gen"
 	"github.com/google/uuid"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
-type gRPCHandler struct {
+type GRPCHandler struct {
 	catalogUC catalog.UseCase
-	pb.UnimplementedCatalogServiceServer
+	pb.UnimplementedInternalCatalogServiceServer
+	pb.UnimplementedApiCatalogServiceServer
 }
 
-func (h *gRPCHandler) GetCategories(ctx context.Context, req *emptypb.Empty) (*pb.GetCategoriesResponse, error) {
+func (h *GRPCHandler) GetCategories(ctx context.Context, req *emptypb.Empty) (*pb.GetCategoriesResponse, error) {
 	categories, err := h.catalogUC.GetCategories()
 	if err != nil {
 		return nil, err
@@ -32,24 +35,34 @@ func (h *gRPCHandler) GetCategories(ctx context.Context, req *emptypb.Empty) (*p
 	}, nil
 }
 
-func (h *gRPCHandler) GetAllProducts(ctx context.Context, req *emptypb.Empty) (*pb.GetProductsResponse, error) {
+func (h *GRPCHandler) returnProducts(products []productDomain.Product) *types.GetProductsResponse {
+	productsResp := make([]*types.Product, 0, len(products))
+	for _, product := range products {
+		productsResp = append(productsResp, &types.Product{
+			Id:          product.ID.String(),
+			Name:        product.Name,
+			Img:         product.Img,
+			Price:       product.Price,
+			CategoryId:  product.CategoryID.String(),
+			Description: product.Description,
+			Stock:       product.Stock,
+		})
+	}
+	return &types.GetProductsResponse{
+		Products: productsResp,
+	}
+}
+
+func (h *GRPCHandler) GetAllProducts(ctx context.Context, req *emptypb.Empty) (*types.GetProductsResponse, error) {
 	products, err := h.catalogUC.GetAllProducts()
 	if err != nil {
 		return nil, err
 	}
-	productsResp := make([]*pb.Product, 0, len(products))
-	for _, product := range products {
-		productsResp = append(productsResp, &pb.Product{
-			Id:   product.ID.String(),
-			Name: product.Name,
-		})
-	}
-	return &pb.GetProductsResponse{
-		Products: productsResp,
-	}, nil
+
+	return h.returnProducts(products), nil
 }
 
-func (h *gRPCHandler) GetProductsOfCategoryId(ctx context.Context, req *pb.GetProductsOfCategoryIdRequest) (*pb.GetProductsResponse, error) {
+func (h *GRPCHandler) GetProductsOfCategoryId(ctx context.Context, req *pb.GetProductsOfCategoryIdRequest) (*types.GetProductsResponse, error) {
 	categoryID, err := uuid.Parse(req.CategoryId)
 	if err != nil {
 		return nil, err
@@ -59,19 +72,10 @@ func (h *gRPCHandler) GetProductsOfCategoryId(ctx context.Context, req *pb.GetPr
 	if err != nil {
 		return nil, err
 	}
-	productsResp := make([]*pb.Product, 0, len(products))
-	for _, product := range products {
-		productsResp = append(productsResp, &pb.Product{
-			Id:   product.ID.String(),
-			Name: product.Name,
-		})
-	}
-	return &pb.GetProductsResponse{
-		Products: productsResp,
-	}, nil
+	return h.returnProducts(products), nil
 }
 
-func (h *gRPCHandler) GetProductById(ctx context.Context, req *pb.GetProductByIdRequest) (*pb.Product, error) {
+func (h *GRPCHandler) GetProductById(ctx context.Context, req *pb.GetProductByIdRequest) (*types.Product, error) {
 	productID, err := uuid.Parse(req.ProductId)
 	if err != nil {
 		return nil, err
@@ -81,7 +85,7 @@ func (h *gRPCHandler) GetProductById(ctx context.Context, req *pb.GetProductById
 	if err != nil {
 		return nil, err
 	}
-	return &pb.Product{
+	return &types.Product{
 		Id:          product.ID.String(),
 		Name:        product.Name,
 		Img:         product.Img,
@@ -92,7 +96,7 @@ func (h *gRPCHandler) GetProductById(ctx context.Context, req *pb.GetProductById
 	}, nil
 }
 
-func (h *gRPCHandler) GetProductsByIds(ctx context.Context, req *pb.GetProductsByIdsRequest) (*pb.GetProductsResponse, error) {
+func (h *GRPCHandler) GetProductsByIds(ctx context.Context, req *pb.GetProductsByIdsRequest) (*types.GetProductsResponse, error) {
 	productIDs := make([]uuid.UUID, 0, len(req.ProductIds))
 	for _, productID := range req.ProductIds {
 		productID, err := uuid.Parse(productID)
@@ -106,20 +110,11 @@ func (h *gRPCHandler) GetProductsByIds(ctx context.Context, req *pb.GetProductsB
 	if err != nil {
 		return nil, err
 	}
-	productsResp := make([]*pb.Product, 0, len(products))
-	for _, product := range products {
-		productsResp = append(productsResp, &pb.Product{
-			Id:   product.ID.String(),
-			Name: product.Name,
-		})
-	}
-	return &pb.GetProductsResponse{
-		Products: productsResp,
-	}, nil
+	return h.returnProducts(products), nil
 }
 
-func NewGRPCHandler(catalogUC catalog.UseCase) pb.CatalogServiceServer {
-	return &gRPCHandler{
+func NewGRPCHandler(catalogUC catalog.UseCase) *GRPCHandler {
+	return &GRPCHandler{
 		catalogUC: catalogUC,
 	}
 }
