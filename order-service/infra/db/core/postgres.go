@@ -7,19 +7,14 @@ type Database struct {
 }
 
 // Глобальный объект Database
-var database *Database
-
-func InitDatabase(db *gorm.DB) {
+func NewDatabase(db *gorm.DB) *Database {
 	if db == nil {
-		panic("InitDatabase: db is nil")
+		panic("NewDatabase: db is nil")
 	}
-	database = &Database{DB: db}
+	return &Database{DB: db}
 }
 
-func GetDatabase() *Database {
-	return database
-}
-
+// Транзакция
 func (d *Database) WithSession(fn func(tx *gorm.DB) error) error {
 	return d.DB.Transaction(fn)
 }
