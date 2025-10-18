@@ -3,26 +3,26 @@ package order
 import (
 	"errors"
 	"fmt"
+	"github.com/Fox216540/shop/order-service/app/dto"
+	"github.com/Fox216540/shop/order-service/core/exception"
+	"github.com/Fox216540/shop/order-service/domain/idgenerator"
+	"github.com/Fox216540/shop/order-service/domain/order"
+	p "github.com/Fox216540/shop/order-service/domain/product"
 	"github.com/google/uuid"
-	"shop/src/app/product"
-	"shop/src/core/exception"
-	"shop/src/domain/idgenerator"
-	"shop/src/domain/order"
-	p "shop/src/domain/product"
 )
 
 type service struct {
-	r     order.Repository
-	ps    product.UseCase
-	idGen idgenerator.Generator
+	r             order.Repository
+	idGen         idgenerator.Generator
+	productClient p.Client
 }
 
 func NewOrderService(
 	r order.Repository,
-	ps product.UseCase,
 	idGen idgenerator.Generator,
+	productClient p.Client,
 ) UseCase {
-	return &service{r: r, ps: ps, idGen: idGen}
+	return &service{r: r, idGen: idGen, productClient: productClient}
 }
 
 func (s *service) mapError(err, appServerError error) error {
@@ -46,26 +46,27 @@ func (s *service) createNewOrder(userID uuid.UUID, items []*order.Item) order.Or
 }
 
 func (s *service) enrichProducts(items []*order.Item) error {
-	productIDs := make([]uuid.UUID, len(items))
-	for i, item := range items {
-		productIDs[i] = item.Product.ID
+	productsOrder := make([]uuid.UUID, len(items))
+	for _, item := range items {
+		productsOrder = append(productsOrder, item.Product.ID)
 	}
 
-	products, err := s.ps.ProductsByIDs(productIDs)
+	productsDb, err := s.productClient.GetProductsByIDs(productsOrder)
 	if err != nil {
 		return err
 	}
 
-	productMap := make(map[uuid.UUID]p.Product, len(products))
-	for _, prod := range products {
-		productMap[prod.ID] = prod
+	productMapDb := make(map[uuid.UUID]*p.Product, len(productsDb))
+	for _, prod := range productsDb {
+		productMapDb[prod.ID] = &prod
 	}
 
 	for _, item := range items {
-		if prod, ok := productMap[item.Product.ID]; ok {
+		if prod, ok := productMapDb[item.Product.ID]; ok {
 			item.Product = prod
 		} else {
-			return p.NewNotFoundProductError(fmt.Errorf("product not found: %s", item.Product.ID))
+			// TODO: разобраться какую ошибку возвращать
+			return fmt.Errorf("product not found: %s", item.Product.ID)
 		}
 	}
 
@@ -92,9 +93,30 @@ func (s *service) calculateOrderTotal(o order.Order) (order.Order, error) {
 	return o, nil
 }
 
-func (s *service) Place(userID uuid.UUID, productItems []*order.Item) (order.Order, error) {
-	var err error
-	o := s.createNewOrder(userID, productItems)
+func (s *service) createOrderItems(orderItems []dto.OrderItems) ([]*order.Item, error) {
+	oI := make([]*order.Item, len(orderItems))
+	for _, item := range orderItems {
+		id, err := uuid.Parse(item.ProductID)
+		if err != nil {
+			return nil, s.mapError(err, NewInvalidPlace(err))
+		}
+		oI = append(oI, &order.Item{
+			Product: &p.Product{
+				ID: id,
+			},
+			Quantity: item.Quantity,
+		})
+	}
+	return oI, nil
+}
+
+func (s *service) Place(userID uuid.UUID, orderItems []dto.OrderItems) (order.Order, error) {
+	oI, err := s.createOrderItems(orderItems)
+	if err != nil {
+		return order.Order{}, s.mapError(err, NewInvalidPlace(err))
+	}
+
+	o := s.createNewOrder(userID, oI)
 
 	if err = s.enrichProducts(o.OrderItems); err != nil {
 		return o, s.mapError(err, NewInvalidPlace(err))
