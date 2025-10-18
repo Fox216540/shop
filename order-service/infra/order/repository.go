@@ -3,11 +3,11 @@ package order
 import (
 	"errors"
 	"fmt"
+	"github.com/Fox216540/shop/order-service/domain/order"
+	db "github.com/Fox216540/shop/order-service/infra/db/core"
+	"github.com/Fox216540/shop/order-service/infra/order/models"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
-	"shop/src/domain/order"
-	db "shop/src/infra/db/core"
-	"shop/src/infra/order/models"
 )
 
 type repository struct {
@@ -42,8 +42,6 @@ func (r *repository) Save(o order.Order) (order.Order, error) {
 		}
 		// Загрузим обратно с подгруженными продуктами
 		return tx.
-			Preload("OrderItems.Product").
-			Preload("OrderItems").
 			First(newOrder, "order_id = ?", newOrder.OrderID).Error
 	})
 	if err != nil {
@@ -75,8 +73,6 @@ func (r *repository) GetByID(ID uuid.UUID) (order.Order, error) {
 	var o models.OrderORM
 	err := r.db.WithSession(func(tx *gorm.DB) error {
 		return tx.
-			Preload("OrderItems.Product"). // подгружаем Product внутри OrderItems
-			Preload("OrderItems").
 			Where("order_id = ?", ID).
 			First(&o).Error
 	})
@@ -93,8 +89,6 @@ func (r *repository) GetOrdersByUserID(userID uuid.UUID) ([]order.Order, error) 
 	var ordersORM []models.OrderORM
 	err := r.db.WithSession(func(tx *gorm.DB) error {
 		return tx.
-			Preload("OrderItems"). // подгружаем OrderItems
-			Preload("OrderItems.Product"). // подгружаем Product внутри OrderItems
 			Where("user_id = ?", userID).
 			Find(&ordersORM).Error
 	})
