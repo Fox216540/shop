@@ -3,25 +3,26 @@ package api
 import (
 	"context"
 	"errors"
-	pb "github.com/Fox216540/shop/auth-service/api/proto"
 	"github.com/Fox216540/shop/auth-service/app/auth"
 	authDomain "github.com/Fox216540/shop/auth-service/domain/auth"
+	pb "github.com/Fox216540/shop/proto/auth-service/gen"
+	types "github.com/Fox216540/shop/proto/common/gen"
 	"github.com/google/uuid"
 )
 
 type GRPCHandler struct {
 	auth auth.UseCase
-	pb.UnimplementedAuthServiceServer
+	pb.UnimplementedInternalAuthServiceServer
 }
 
 func (h *GRPCHandler) SignUp(ctx context.Context, req *pb.SignRequest) (*pb.SignResponse, error) {
-	userID, err := uuid.Parse(req.UserId)
+	userID, err := uuid.Parse(req.Cred.UserId)
 	if err != nil {
 		return nil, err
 	}
 	a := authDomain.Auth{
 		UserID:   userID,
-		Password: req.Password,
+		Password: req.Cred.Password,
 	}
 	hash, tokens, err := h.auth.SignUp(a)
 
@@ -30,26 +31,28 @@ func (h *GRPCHandler) SignUp(ctx context.Context, req *pb.SignRequest) (*pb.Sign
 	}
 
 	return &pb.SignResponse{
-		Hash:         hash,
-		AccessToken:  tokens.AccessToken,
-		RefreshToken: tokens.RefreshToken,
+		Hash: hash,
+		Tokens: &types.TokensResponse{
+			AccessToken:  tokens.AccessToken,
+			RefreshToken: tokens.RefreshToken,
+		},
 	}, nil
 }
 
-func (h *GRPCHandler) Login(ctx context.Context, req *pb.LoginRequest) (*pb.TokensResponse, error) {
-	userID, err := uuid.Parse(req.UserId)
+func (h *GRPCHandler) Login(ctx context.Context, req *pb.LoginRequest) (*types.TokensResponse, error) {
+	userID, err := uuid.Parse(req.Cred.UserId)
 	if err != nil {
 		return nil, err
 	}
 	a := authDomain.Auth{
 		UserID:   userID,
-		Password: req.Password,
+		Password: req.Cred.Password,
 	}
 	tokens, err := h.auth.Login(a, req.Hash)
 	if err != nil {
 		return nil, err
 	}
-	return &pb.TokensResponse{
+	return &types.TokensResponse{
 		AccessToken:  tokens.AccessToken,
 		RefreshToken: tokens.RefreshToken,
 	}, nil
@@ -83,28 +86,28 @@ func (h *GRPCHandler) DecodeToken(ctx context.Context, req *pb.DecodeTokenReques
 	}
 }
 
-func (h *GRPCHandler) DeleteRefreshToken(ctx context.Context, req *pb.DeleteRefreshTokenRequest) (*pb.DeleteSuccessResponse, error) {
+func (h *GRPCHandler) DeleteRefreshToken(ctx context.Context, req *types.RefreshTokenRequest) (*types.MessageResponse, error) {
 	if err := h.auth.DeleteRefreshToken(req.Token); err != nil {
 		return nil, err
 	}
-	return &pb.DeleteSuccessResponse{
+	return &types.MessageResponse{
 		//TODO: Вынести в константы
 		Message: "Refresh token deleted successfully",
 	}, nil
 }
 
-func (h *GRPCHandler) DeleteAllTokens(ctx context.Context, req *pb.DeleteAllTokensRequest) (*pb.DeleteSuccessResponse, error) {
+func (h *GRPCHandler) DeleteAllTokens(ctx context.Context, req *types.RefreshTokenRequest) (*types.MessageResponse, error) {
 	if err := h.auth.DeleteAllTokens(req.Token); err != nil {
 		return nil, err
 	}
-	return &pb.DeleteSuccessResponse{
+	return &types.MessageResponse{
 		//TODO: Вынести в константы
 		Message: "All tokens deleted successfully",
 	}, nil
 }
 
 func (h *GRPCHandler) NewPassword(ctx context.Context, req *pb.NewPasswordRequest) (*pb.NewPasswordResponse, error) {
-	hash, err := h.auth.NewPassword(req.OldPassword, req.Hash, req.NewPassword)
+	hash, err := h.auth.NewPassword(req.NewPassword)
 	if err != nil {
 		return nil, err
 	}
@@ -113,12 +116,12 @@ func (h *GRPCHandler) NewPassword(ctx context.Context, req *pb.NewPasswordReques
 	}, nil
 }
 
-func (h *GRPCHandler) RefreshTokens(ctx context.Context, req *pb.NewTokensRequest) (*pb.TokensResponse, error) {
+func (h *GRPCHandler) RefreshTokens(ctx context.Context, req *types.RefreshTokenRequest) (*types.TokensResponse, error) {
 	tokens, err := h.auth.RefreshTokens(req.Token)
 	if err != nil {
 		return nil, err
 	}
-	return &pb.TokensResponse{
+	return &types.TokensResponse{
 		AccessToken:  tokens.AccessToken,
 		RefreshToken: tokens.RefreshToken,
 	}, nil
