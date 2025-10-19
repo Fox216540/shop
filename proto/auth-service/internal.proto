@@ -2,38 +2,38 @@ syntax = "proto3";
 
 package auth;
 
+import "common/types.proto";
+
 option go_package = "github.com/Fox216540/shop/proto/auth-service/gen;auth";
 
 service InternalAuthService {
     rpc SignUp (SignRequest) returns (SignResponse);
-    rpc Login (LoginRequest) returns (TokensResponse);
+    rpc Login (LoginRequest) returns (common.TokensResponse);
     rpc DecodeToken (DecodeTokenRequest) returns (DecodeTokenResponse);
-    rpc DeleteRefreshToken (DeleteRefreshTokenRequest) returns (DeleteSuccessResponse);
-    rpc DeleteAllTokens (DeleteAllTokensRequest) returns (DeleteSuccessResponse);
+    rpc DeleteRefreshToken (common.RefreshTokenRequest) returns (common.MessageResponse);
+    rpc DeleteAllTokens (common.RefreshTokenRequest) returns (common.MessageResponse);
     rpc NewPassword (NewPasswordRequest) returns (NewPasswordResponse);
-    rpc RefreshTokens (NewTokensRequest) returns (TokensResponse);
+    rpc RefreshTokens (common.RefreshTokenRequest) returns (common.TokensResponse);
 }
 
-message SignRequest {
+message Credentials {
     string user_id = 1;
     string password = 2;
+}
+
+
+message SignRequest {
+    Credentials cred = 1;
 }
 
 message SignResponse {
     string hash = 1;
-    string access_token = 2;
-    string refresh_token = 3;
+    common.TokensResponse tokens = 2;
 }
 
 message LoginRequest {
-    string user_id = 1;
-    string password = 2;
-    string hash = 3;
-}
-
-message TokensResponse {
-    string access_token = 1;
-    string refresh_token = 2;
+    Credentials cred = 1;
+    string hash = 2;
 }
 
 enum TokenType {
@@ -52,30 +52,13 @@ message DecodeTokenResponse {
     string jti = 2;
 }
 
-message DeleteRefreshTokenRequest {
-    string token = 1;
-}
-
-message DeleteSuccessResponse {
-    string message = 1;
-}
-
-message DeleteAllTokensRequest {
-    string token = 1;
-}
 
 message NewPasswordRequest {
-    string old_password = 1;
-    string hash = 2;
     string new_password = 3;
 }
 
 message NewPasswordResponse {
     string hash = 1;
-}
-
-message NewTokensRequest {
-    string token = 1;
 }
 
 
