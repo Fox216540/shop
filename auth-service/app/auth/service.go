@@ -43,7 +43,7 @@ func (s *service) generateTokens(userID uuid.UUID) (tokens jwtDomain.Tokens, err
 }
 
 func (s *service) SignUp(a auth.Auth) (hash string, tokens jwtDomain.Tokens, err error) {
-	hash, err = s.hasher.HashPass(a.Password)
+	hash, err = s.NewPassword(a.Password)
 	if err != nil {
 		return "", tokens, err
 	}
@@ -99,10 +99,7 @@ func (s *service) DeleteAllTokens(token string) error {
 	return s.tokenStorage.DeleteAll(jwtUser.UserID)
 }
 
-func (s *service) NewPassword(oldPassword, oldHash, newPassword string) (hash string, err error) {
-	if err := s.hasher.VerifyPass(oldPassword, oldHash); err != nil {
-		return "", err
-	}
+func (s *service) NewPassword(newPassword string) (hash string, err error) {
 	return s.hasher.HashPass(newPassword)
 }
 
