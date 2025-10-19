@@ -48,6 +48,7 @@ gen-catalog:
 
 
 gen-auth:
+	@make gen-common
 	@mkdir -p auth-service/gen
 	protoc -I=. \
 			--go_out=auth-service/ \
@@ -58,6 +59,7 @@ gen-auth:
 	@echo "✅ Auth proto generated"
 
 gen-order:
+	@make gen-common
 	@mkdir -p order-service/gen
 	protoc -I=. \
 			--go_out=order-service/ \
@@ -68,6 +70,7 @@ gen-order:
 	@echo "✅ Order proto generated"
 
 gen-user:
+	@make gen-common
 	@mkdir -p user-service/gen
 	protoc -I=. \
 			--go_out=user-service/ \
