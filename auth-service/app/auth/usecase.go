@@ -12,6 +12,6 @@ type UseCase interface {
 	DecodeAccessToken(token string) (userJWT jwt.JWTUser, err error)
 	DeleteRefreshToken(token string) error
 	DeleteAllTokens(token string) error
-	NewPassword(oldPassword, oldHash, newPassword string) (hash string, err error)
+	NewPassword(newPassword string) (hash string, err error)
 	RefreshTokens(token string) (tokens jwt.Tokens, err error)
 }
