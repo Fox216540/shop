@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package common;
+
+option go_package = "github.com/Fox216540/shop/proto/common/gen;common";
+
+message Product {
+    string id = 1;
+    string name = 2;
+    string img = 3;
+    double price = 4;
+    string category_id = 5;
+    string description = 6;
+    uint64 stock = 7;
+}
+
+message GetProductsResponse {
+    repeated Product products = 1;
+}
+
