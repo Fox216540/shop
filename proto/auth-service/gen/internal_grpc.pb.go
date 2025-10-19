@@ -8,6 +8,7 @@ package auth
 
 import (
 	context "context"
+	gen "github.com/Fox216540/shop/proto/common/gen"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -33,12 +34,12 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type InternalAuthServiceClient interface {
 	SignUp(ctx context.Context, in *SignRequest, opts ...grpc.CallOption) (*SignResponse, error)
-	Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*TokensResponse, error)
+	Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*gen.TokensResponse, error)
 	DecodeToken(ctx context.Context, in *DecodeTokenRequest, opts ...grpc.CallOption) (*DecodeTokenResponse, error)
-	DeleteRefreshToken(ctx context.Context, in *DeleteRefreshTokenRequest, opts ...grpc.CallOption) (*DeleteSuccessResponse, error)
-	DeleteAllTokens(ctx context.Context, in *DeleteAllTokensRequest, opts ...grpc.CallOption) (*DeleteSuccessResponse, error)
+	DeleteRefreshToken(ctx context.Context, in *gen.RefreshTokenRequest, opts ...grpc.CallOption) (*gen.MessageResponse, error)
+	DeleteAllTokens(ctx context.Context, in *gen.RefreshTokenRequest, opts ...grpc.CallOption) (*gen.MessageResponse, error)
 	NewPassword(ctx context.Context, in *NewPasswordRequest, opts ...grpc.CallOption) (*NewPasswordResponse, error)
-	RefreshTokens(ctx context.Context, in *NewTokensRequest, opts ...grpc.CallOption) (*TokensResponse, error)
+	RefreshTokens(ctx context.Context, in *gen.RefreshTokenRequest, opts ...grpc.CallOption) (*gen.TokensResponse, error)
 }
 
 type internalAuthServiceClient struct {
@@ -59,9 +60,9 @@ func (c *internalAuthServiceClient) SignUp(ctx context.Context, in *SignRequest,
 	return out, nil
 }
 
-func (c *internalAuthServiceClient) Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*TokensResponse, error) {
+func (c *internalAuthServiceClient) Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*gen.TokensResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(TokensResponse)
+	out := new(gen.TokensResponse)
 	err := c.cc.Invoke(ctx, InternalAuthService_Login_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -79,9 +80,9 @@ func (c *internalAuthServiceClient) DecodeToken(ctx context.Context, in *DecodeT
 	return out, nil
 }
 
-func (c *internalAuthServiceClient) DeleteRefreshToken(ctx context.Context, in *DeleteRefreshTokenRequest, opts ...grpc.CallOption) (*DeleteSuccessResponse, error) {
+func (c *internalAuthServiceClient) DeleteRefreshToken(ctx context.Context, in *gen.RefreshTokenRequest, opts ...grpc.CallOption) (*gen.MessageResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(DeleteSuccessResponse)
+	out := new(gen.MessageResponse)
 	err := c.cc.Invoke(ctx, InternalAuthService_DeleteRefreshToken_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -89,9 +90,9 @@ func (c *internalAuthServiceClient) DeleteRefreshToken(ctx context.Context, in *
 	return out, nil
 }
 
-func (c *internalAuthServiceClient) DeleteAllTokens(ctx context.Context, in *DeleteAllTokensRequest, opts ...grpc.CallOption) (*DeleteSuccessResponse, error) {
+func (c *internalAuthServiceClient) DeleteAllTokens(ctx context.Context, in *gen.RefreshTokenRequest, opts ...grpc.CallOption) (*gen.MessageResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(DeleteSuccessResponse)
+	out := new(gen.MessageResponse)
 	err := c.cc.Invoke(ctx, InternalAuthService_DeleteAllTokens_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -109,9 +110,9 @@ func (c *internalAuthServiceClient) NewPassword(ctx context.Context, in *NewPass
 	return out, nil
 }
 
-func (c *internalAuthServiceClient) RefreshTokens(ctx context.Context, in *NewTokensRequest, opts ...grpc.CallOption) (*TokensResponse, error) {
+func (c *internalAuthServiceClient) RefreshTokens(ctx context.Context, in *gen.RefreshTokenRequest, opts ...grpc.CallOption) (*gen.TokensResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(TokensResponse)
+	out := new(gen.TokensResponse)
 	err := c.cc.Invoke(ctx, InternalAuthService_RefreshTokens_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -124,12 +125,12 @@ func (c *internalAuthServiceClient) RefreshTokens(ctx context.Context, in *NewTo
 // for forward compatibility.
 type InternalAuthServiceServer interface {
 	SignUp(context.Context, *SignRequest) (*SignResponse, error)
-	Login(context.Context, *LoginRequest) (*TokensResponse, error)
+	Login(context.Context, *LoginRequest) (*gen.TokensResponse, error)
 	DecodeToken(context.Context, *DecodeTokenRequest) (*DecodeTokenResponse, error)
-	DeleteRefreshToken(context.Context, *DeleteRefreshTokenRequest) (*DeleteSuccessResponse, error)
-	DeleteAllTokens(context.Context, *DeleteAllTokensRequest) (*DeleteSuccessResponse, error)
+	DeleteRefreshToken(context.Context, *gen.RefreshTokenRequest) (*gen.MessageResponse, error)
+	DeleteAllTokens(context.Context, *gen.RefreshTokenRequest) (*gen.MessageResponse, error)
 	NewPassword(context.Context, *NewPasswordRequest) (*NewPasswordResponse, error)
-	RefreshTokens(context.Context, *NewTokensRequest) (*TokensResponse, error)
+	RefreshTokens(context.Context, *gen.RefreshTokenRequest) (*gen.TokensResponse, error)
 	mustEmbedUnimplementedInternalAuthServiceServer()
 }
 
@@ -143,22 +144,22 @@ type UnimplementedInternalAuthServiceServer struct{}
 func (UnimplementedInternalAuthServiceServer) SignUp(context.Context, *SignRequest) (*SignResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SignUp not implemented")
 }
-func (UnimplementedInternalAuthServiceServer) Login(context.Context, *LoginRequest) (*TokensResponse, error) {
+func (UnimplementedInternalAuthServiceServer) Login(context.Context, *LoginRequest) (*gen.TokensResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Login not implemented")
 }
 func (UnimplementedInternalAuthServiceServer) DecodeToken(context.Context, *DecodeTokenRequest) (*DecodeTokenResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DecodeToken not implemented")
 }
-func (UnimplementedInternalAuthServiceServer) DeleteRefreshToken(context.Context, *DeleteRefreshTokenRequest) (*DeleteSuccessResponse, error) {
+func (UnimplementedInternalAuthServiceServer) DeleteRefreshToken(context.Context, *gen.RefreshTokenRequest) (*gen.MessageResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteRefreshToken not implemented")
 }
-func (UnimplementedInternalAuthServiceServer) DeleteAllTokens(context.Context, *DeleteAllTokensRequest) (*DeleteSuccessResponse, error) {
+func (UnimplementedInternalAuthServiceServer) DeleteAllTokens(context.Context, *gen.RefreshTokenRequest) (*gen.MessageResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteAllTokens not implemented")
 }
 func (UnimplementedInternalAuthServiceServer) NewPassword(context.Context, *NewPasswordRequest) (*NewPasswordResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method NewPassword not implemented")
 }
-func (UnimplementedInternalAuthServiceServer) RefreshTokens(context.Context, *NewTokensRequest) (*TokensResponse, error) {
+func (UnimplementedInternalAuthServiceServer) RefreshTokens(context.Context, *gen.RefreshTokenRequest) (*gen.TokensResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RefreshTokens not implemented")
 }
 func (UnimplementedInternalAuthServiceServer) mustEmbedUnimplementedInternalAuthServiceServer() {}
@@ -237,7 +238,7 @@ func _InternalAuthService_DecodeToken_Handler(srv interface{}, ctx context.Conte
 }
 
 func _InternalAuthService_DeleteRefreshToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DeleteRefreshTokenRequest)
+	in := new(gen.RefreshTokenRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -249,13 +250,13 @@ func _InternalAuthService_DeleteRefreshToken_Handler(srv interface{}, ctx contex
 		FullMethod: InternalAuthService_DeleteRefreshToken_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(InternalAuthServiceServer).DeleteRefreshToken(ctx, req.(*DeleteRefreshTokenRequest))
+		return srv.(InternalAuthServiceServer).DeleteRefreshToken(ctx, req.(*gen.RefreshTokenRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _InternalAuthService_DeleteAllTokens_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DeleteAllTokensRequest)
+	in := new(gen.RefreshTokenRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -267,7 +268,7 @@ func _InternalAuthService_DeleteAllTokens_Handler(srv interface{}, ctx context.C
 		FullMethod: InternalAuthService_DeleteAllTokens_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(InternalAuthServiceServer).DeleteAllTokens(ctx, req.(*DeleteAllTokensRequest))
+		return srv.(InternalAuthServiceServer).DeleteAllTokens(ctx, req.(*gen.RefreshTokenRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -291,7 +292,7 @@ func _InternalAuthService_NewPassword_Handler(srv interface{}, ctx context.Conte
 }
 
 func _InternalAuthService_RefreshTokens_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(NewTokensRequest)
+	in := new(gen.RefreshTokenRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -303,7 +304,7 @@ func _InternalAuthService_RefreshTokens_Handler(srv interface{}, ctx context.Con
 		FullMethod: InternalAuthService_RefreshTokens_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(InternalAuthServiceServer).RefreshTokens(ctx, req.(*NewTokensRequest))
+		return srv.(InternalAuthServiceServer).RefreshTokens(ctx, req.(*gen.RefreshTokenRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
