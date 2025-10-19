@@ -157,6 +157,146 @@ func (x *GetProductsResponse) GetProducts() []*Product {
 	return nil
 }
 
+type TokensResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	AccessToken   string                 `protobuf:"bytes,1,opt,name=access_token,json=accessToken,proto3" json:"access_token,omitempty"`
+	RefreshToken  string                 `protobuf:"bytes,2,opt,name=refresh_token,json=refreshToken,proto3" json:"refresh_token,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *TokensResponse) Reset() {
+	*x = TokensResponse{}
+	mi := &file_common_types_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TokensResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TokensResponse) ProtoMessage() {}
+
+func (x *TokensResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_common_types_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TokensResponse.ProtoReflect.Descriptor instead.
+func (*TokensResponse) Descriptor() ([]byte, []int) {
+	return file_common_types_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *TokensResponse) GetAccessToken() string {
+	if x != nil {
+		return x.AccessToken
+	}
+	return ""
+}
+
+func (x *TokensResponse) GetRefreshToken() string {
+	if x != nil {
+		return x.RefreshToken
+	}
+	return ""
+}
+
+type RefreshTokenRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Token         string                 `protobuf:"bytes,1,opt,name=token,proto3" json:"token,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RefreshTokenRequest) Reset() {
+	*x = RefreshTokenRequest{}
+	mi := &file_common_types_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RefreshTokenRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RefreshTokenRequest) ProtoMessage() {}
+
+func (x *RefreshTokenRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_common_types_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RefreshTokenRequest.ProtoReflect.Descriptor instead.
+func (*RefreshTokenRequest) Descriptor() ([]byte, []int) {
+	return file_common_types_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *RefreshTokenRequest) GetToken() string {
+	if x != nil {
+		return x.Token
+	}
+	return ""
+}
+
+type MessageResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Message       string                 `protobuf:"bytes,1,opt,name=message,proto3" json:"message,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *MessageResponse) Reset() {
+	*x = MessageResponse{}
+	mi := &file_common_types_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MessageResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MessageResponse) ProtoMessage() {}
+
+func (x *MessageResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_common_types_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MessageResponse.ProtoReflect.Descriptor instead.
+func (*MessageResponse) Descriptor() ([]byte, []int) {
+	return file_common_types_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *MessageResponse) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
 var File_common_types_proto protoreflect.FileDescriptor
 
 const file_common_types_proto_rawDesc = "" +
@@ -172,7 +312,14 @@ const file_common_types_proto_rawDesc = "" +
 	"\vdescription\x18\x06 \x01(\tR\vdescription\x12\x14\n" +
 	"\x05stock\x18\a \x01(\x04R\x05stock\"B\n" +
 	"\x13GetProductsResponse\x12+\n" +
-	"\bproducts\x18\x01 \x03(\v2\x0f.common.ProductR\bproductsB3Z1github.com/Fox216540/shop/proto/common/gen;commonb\x06proto3"
+	"\bproducts\x18\x01 \x03(\v2\x0f.common.ProductR\bproducts\"X\n" +
+	"\x0eTokensResponse\x12!\n" +
+	"\faccess_token\x18\x01 \x01(\tR\vaccessToken\x12#\n" +
+	"\rrefresh_token\x18\x02 \x01(\tR\frefreshToken\"+\n" +
+	"\x13RefreshTokenRequest\x12\x14\n" +
+	"\x05token\x18\x01 \x01(\tR\x05token\"+\n" +
+	"\x0fMessageResponse\x12\x18\n" +
+	"\amessage\x18\x01 \x01(\tR\amessageB3Z1github.com/Fox216540/shop/proto/common/gen;commonb\x06proto3"
 
 var (
 	file_common_types_proto_rawDescOnce sync.Once
@@ -186,10 +333,13 @@ func file_common_types_proto_rawDescGZIP() []byte {
 	return file_common_types_proto_rawDescData
 }
 
-var file_common_types_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_common_types_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
 var file_common_types_proto_goTypes = []any{
 	(*Product)(nil),             // 0: common.Product
 	(*GetProductsResponse)(nil), // 1: common.GetProductsResponse
+	(*TokensResponse)(nil),      // 2: common.TokensResponse
+	(*RefreshTokenRequest)(nil), // 3: common.RefreshTokenRequest
+	(*MessageResponse)(nil),     // 4: common.MessageResponse
 }
 var file_common_types_proto_depIdxs = []int32{
 	0, // 0: common.GetProductsResponse.products:type_name -> common.Product
@@ -211,7 +361,7 @@ func file_common_types_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_common_types_proto_rawDesc), len(file_common_types_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   2,
+			NumMessages:   5,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
