@@ -30,26 +30,22 @@ func (r *Repository) Set(jti, userID uuid.UUID) error {
 	return nil
 }
 
-func (r *Repository) Exists(jti uuid.UUID) error {
-	ctx := context.Background()
-	exists, err := r.rdb.Exist(ctx, jti.String())
-	if err != nil {
-		return NewInvalidExists(err)
-	}
-	if !exists {
-		return nil
-	}
-	return tokenstorage.NewNotFoundTokenOfUserError(nil)
-}
-
 func (r *Repository) Delete(jti, userID uuid.UUID) error {
 	ctx := context.Background()
 	userSetKey := fmt.Sprintf("user:%s:refresh_tokens", userID.String())
-	if err := r.rdb.DeleteFromSet(ctx, userSetKey, jti.String()); err != nil {
+	removed, err := r.rdb.DeleteFromSet(ctx, userSetKey, jti.String())
+	if err != nil {
 		return NewInvalidDelete(err)
 	}
-	if err := r.rdb.DeleteKeys(ctx, jti.String()); err != nil {
+	if removed == 0 {
+		return tokenstorage.NewNotFoundTokenOfUserError(nil)
+	}
+	removed, err = r.rdb.DeleteKeys(ctx, jti.String())
+	if err != nil {
 		return NewInvalidDelete(err)
+	}
+	if removed == 0 {
+		return tokenstorage.NewNotFoundTokenOfUserError(nil)
 	}
 	return nil
 }
@@ -71,9 +67,12 @@ func (r *Repository) DeleteAll(userID uuid.UUID) error {
 		keysToDelete = append(keysToDelete, jti)
 	}
 	keysToDelete = append(keysToDelete, setKey)
-	if err := r.rdb.DeleteKeys(ctx, keysToDelete...); err != nil {
+	removed, err := r.rdb.DeleteKeys(ctx, keysToDelete...)
+	if err != nil {
 		return NewInvalidDeleteAll(err)
 	}
+	if removed == 0 {
+		return tokenstorage.NewNotFoundTokensOfUserError(nil)
+	}
 	return nil
-
 }
