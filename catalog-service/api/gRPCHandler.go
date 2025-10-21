@@ -36,13 +36,15 @@ func (h *GRPCHandler) GetCategories(ctx context.Context, req *emptypb.Empty) (*p
 }
 
 func (h *GRPCHandler) returnProducts(products []productDomain.Product) *types.GetProductsResponse {
-	productsResp := make([]*types.Product, 0, len(products))
+	productsResp := make([]*types.ProductWithSupplement, 0, len(products))
 	for _, product := range products {
-		productsResp = append(productsResp, &types.Product{
-			Id:          product.ID.String(),
-			Name:        product.Name,
-			Img:         product.Img,
-			Price:       product.Price,
+		productsResp = append(productsResp, &types.ProductWithSupplement{
+			Product: &types.Product{
+				Id:    product.ID.String(),
+				Name:  product.Name,
+				Img:   product.Img,
+				Price: product.Price,
+			},
 			CategoryId:  product.CategoryID.String(),
 			Description: product.Description,
 			Stock:       product.Stock,
@@ -75,7 +77,7 @@ func (h *GRPCHandler) GetProductsOfCategoryId(ctx context.Context, req *pb.GetPr
 	return h.returnProducts(products), nil
 }
 
-func (h *GRPCHandler) GetProductById(ctx context.Context, req *pb.GetProductByIdRequest) (*types.Product, error) {
+func (h *GRPCHandler) GetProductById(ctx context.Context, req *pb.GetProductByIdRequest) (*types.ProductWithSupplement, error) {
 	productID, err := uuid.Parse(req.ProductId)
 	if err != nil {
 		return nil, err
@@ -85,11 +87,13 @@ func (h *GRPCHandler) GetProductById(ctx context.Context, req *pb.GetProductById
 	if err != nil {
 		return nil, err
 	}
-	return &types.Product{
-		Id:          product.ID.String(),
-		Name:        product.Name,
-		Img:         product.Img,
-		Price:       product.Price,
+	return &types.ProductWithSupplement{
+		Product: &types.Product{
+			Id:    product.ID.String(),
+			Name:  product.Name,
+			Img:   product.Img,
+			Price: product.Price,
+		},
 		CategoryId:  product.CategoryID.String(),
 		Description: product.Description,
 		Stock:       product.Stock,
