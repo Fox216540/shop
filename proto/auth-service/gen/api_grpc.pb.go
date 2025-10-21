@@ -20,6 +20,9 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
+	ApiAuthService_LogOut_FullMethodName            = "/auth.ApiAuthService/LogOut"
+	ApiAuthService_LogOutAll_FullMethodName         = "/auth.ApiAuthService/LogOutAll"
+	ApiAuthService_RefreshTokens_FullMethodName     = "/auth.ApiAuthService/RefreshTokens"
 	ApiAuthService_DecodeAccessToken_FullMethodName = "/auth.ApiAuthService/DecodeAccessToken"
 )
 
@@ -27,6 +30,9 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ApiAuthServiceClient interface {
+	LogOut(ctx context.Context, in *gen.DecodeTokenRequest, opts ...grpc.CallOption) (*gen.MessageResponse, error)
+	LogOutAll(ctx context.Context, in *gen.DecodeTokenRequest, opts ...grpc.CallOption) (*gen.MessageResponse, error)
+	RefreshTokens(ctx context.Context, in *gen.DecodeTokenRequest, opts ...grpc.CallOption) (*gen.TokensResponse, error)
 	DecodeAccessToken(ctx context.Context, in *gen.DecodeTokenRequest, opts ...grpc.CallOption) (*gen.UserId, error)
 }
 
@@ -36,6 +42,36 @@ type apiAuthServiceClient struct {
 
 func NewApiAuthServiceClient(cc grpc.ClientConnInterface) ApiAuthServiceClient {
 	return &apiAuthServiceClient{cc}
+}
+
+func (c *apiAuthServiceClient) LogOut(ctx context.Context, in *gen.DecodeTokenRequest, opts ...grpc.CallOption) (*gen.MessageResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(gen.MessageResponse)
+	err := c.cc.Invoke(ctx, ApiAuthService_LogOut_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *apiAuthServiceClient) LogOutAll(ctx context.Context, in *gen.DecodeTokenRequest, opts ...grpc.CallOption) (*gen.MessageResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(gen.MessageResponse)
+	err := c.cc.Invoke(ctx, ApiAuthService_LogOutAll_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *apiAuthServiceClient) RefreshTokens(ctx context.Context, in *gen.DecodeTokenRequest, opts ...grpc.CallOption) (*gen.TokensResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(gen.TokensResponse)
+	err := c.cc.Invoke(ctx, ApiAuthService_RefreshTokens_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *apiAuthServiceClient) DecodeAccessToken(ctx context.Context, in *gen.DecodeTokenRequest, opts ...grpc.CallOption) (*gen.UserId, error) {
@@ -52,6 +88,9 @@ func (c *apiAuthServiceClient) DecodeAccessToken(ctx context.Context, in *gen.De
 // All implementations must embed UnimplementedApiAuthServiceServer
 // for forward compatibility.
 type ApiAuthServiceServer interface {
+	LogOut(context.Context, *gen.DecodeTokenRequest) (*gen.MessageResponse, error)
+	LogOutAll(context.Context, *gen.DecodeTokenRequest) (*gen.MessageResponse, error)
+	RefreshTokens(context.Context, *gen.DecodeTokenRequest) (*gen.TokensResponse, error)
 	DecodeAccessToken(context.Context, *gen.DecodeTokenRequest) (*gen.UserId, error)
 	mustEmbedUnimplementedApiAuthServiceServer()
 }
@@ -63,6 +102,15 @@ type ApiAuthServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedApiAuthServiceServer struct{}
 
+func (UnimplementedApiAuthServiceServer) LogOut(context.Context, *gen.DecodeTokenRequest) (*gen.MessageResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method LogOut not implemented")
+}
+func (UnimplementedApiAuthServiceServer) LogOutAll(context.Context, *gen.DecodeTokenRequest) (*gen.MessageResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method LogOutAll not implemented")
+}
+func (UnimplementedApiAuthServiceServer) RefreshTokens(context.Context, *gen.DecodeTokenRequest) (*gen.TokensResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RefreshTokens not implemented")
+}
 func (UnimplementedApiAuthServiceServer) DecodeAccessToken(context.Context, *gen.DecodeTokenRequest) (*gen.UserId, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DecodeAccessToken not implemented")
 }
@@ -85,6 +133,60 @@ func RegisterApiAuthServiceServer(s grpc.ServiceRegistrar, srv ApiAuthServiceSer
 		t.testEmbeddedByValue()
 	}
 	s.RegisterService(&ApiAuthService_ServiceDesc, srv)
+}
+
+func _ApiAuthService_LogOut_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(gen.DecodeTokenRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ApiAuthServiceServer).LogOut(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ApiAuthService_LogOut_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ApiAuthServiceServer).LogOut(ctx, req.(*gen.DecodeTokenRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ApiAuthService_LogOutAll_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(gen.DecodeTokenRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ApiAuthServiceServer).LogOutAll(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ApiAuthService_LogOutAll_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ApiAuthServiceServer).LogOutAll(ctx, req.(*gen.DecodeTokenRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ApiAuthService_RefreshTokens_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(gen.DecodeTokenRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ApiAuthServiceServer).RefreshTokens(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ApiAuthService_RefreshTokens_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ApiAuthServiceServer).RefreshTokens(ctx, req.(*gen.DecodeTokenRequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _ApiAuthService_DecodeAccessToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -112,6 +214,18 @@ var ApiAuthService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "auth.ApiAuthService",
 	HandlerType: (*ApiAuthServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "LogOut",
+			Handler:    _ApiAuthService_LogOut_Handler,
+		},
+		{
+			MethodName: "LogOutAll",
+			Handler:    _ApiAuthService_LogOutAll_Handler,
+		},
+		{
+			MethodName: "RefreshTokens",
+			Handler:    _ApiAuthService_RefreshTokens_Handler,
+		},
 		{
 			MethodName: "DecodeAccessToken",
 			Handler:    _ApiAuthService_DecodeAccessToken_Handler,

@@ -25,19 +25,30 @@ var File_auth_service_api_proto protoreflect.FileDescriptor
 
 const file_auth_service_api_proto_rawDesc = "" +
 	"\n" +
-	"\x16auth-service/api.proto\x12\x04auth\x1a\x12common/types.proto2Q\n" +
-	"\x0eApiAuthService\x12?\n" +
+	"\x16auth-service/api.proto\x12\x04auth\x1a\x12common/types.proto2\x97\x02\n" +
+	"\x0eApiAuthService\x12=\n" +
+	"\x06LogOut\x12\x1a.common.DecodeTokenRequest\x1a\x17.common.MessageResponse\x12@\n" +
+	"\tLogOutAll\x12\x1a.common.DecodeTokenRequest\x1a\x17.common.MessageResponse\x12C\n" +
+	"\rRefreshTokens\x12\x1a.common.DecodeTokenRequest\x1a\x16.common.TokensResponse\x12?\n" +
 	"\x11DecodeAccessToken\x12\x1a.common.DecodeTokenRequest\x1a\x0e.common.UserIdB7Z5github.com/Fox216540/shop/proto/auth-service/gen;authb\x06proto3"
 
 var file_auth_service_api_proto_goTypes = []any{
 	(*gen.DecodeTokenRequest)(nil), // 0: common.DecodeTokenRequest
-	(*gen.UserId)(nil),             // 1: common.UserId
+	(*gen.MessageResponse)(nil),    // 1: common.MessageResponse
+	(*gen.TokensResponse)(nil),     // 2: common.TokensResponse
+	(*gen.UserId)(nil),             // 3: common.UserId
 }
 var file_auth_service_api_proto_depIdxs = []int32{
-	0, // 0: auth.ApiAuthService.DecodeAccessToken:input_type -> common.DecodeTokenRequest
-	1, // 1: auth.ApiAuthService.DecodeAccessToken:output_type -> common.UserId
-	1, // [1:2] is the sub-list for method output_type
-	0, // [0:1] is the sub-list for method input_type
+	0, // 0: auth.ApiAuthService.LogOut:input_type -> common.DecodeTokenRequest
+	0, // 1: auth.ApiAuthService.LogOutAll:input_type -> common.DecodeTokenRequest
+	0, // 2: auth.ApiAuthService.RefreshTokens:input_type -> common.DecodeTokenRequest
+	0, // 3: auth.ApiAuthService.DecodeAccessToken:input_type -> common.DecodeTokenRequest
+	1, // 4: auth.ApiAuthService.LogOut:output_type -> common.MessageResponse
+	1, // 5: auth.ApiAuthService.LogOutAll:output_type -> common.MessageResponse
+	2, // 6: auth.ApiAuthService.RefreshTokens:output_type -> common.TokensResponse
+	3, // 7: auth.ApiAuthService.DecodeAccessToken:output_type -> common.UserId
+	4, // [4:8] is the sub-list for method output_type
+	0, // [0:4] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
 	0, // [0:0] is the sub-list for extension extendee
 	0, // [0:0] is the sub-list for field type_name
