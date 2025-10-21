@@ -61,12 +61,16 @@ func (s *service) DeleteRefreshToken(token string) error {
 	return s.tokenStorage.Delete(jwtUser.JTI, jwtUser.UserID)
 }
 
-func (s *service) DeleteAllTokens(token string) error {
+func (s *service) DeleteAllTokensByToken(token string) error {
 	jwtUser, err := s.jwtUseCase.DecodeRefresh(token)
 	if err != nil {
 		return err
 	}
-	return s.tokenStorage.DeleteAll(jwtUser.UserID)
+	return s.DeleteAllTokensByUserID(jwtUser.UserID)
+}
+
+func (s *service) DeleteAllTokensByUserID(userID uuid.UUID) error {
+	return s.tokenStorage.DeleteAll(userID)
 }
 
 func (s *service) RefreshTokens(token string) (tokens jwtDomain.Tokens, err error) {
