@@ -7,58 +7,11 @@ import "common/types.proto";
 option go_package = "github.com/Fox216540/shop/proto/auth-service/gen;auth";
 
 service InternalAuthService {
-    rpc SignUp (SignRequest) returns (SignResponse);
-    rpc Login (LoginRequest) returns (common.TokensResponse);
-    rpc DecodeToken (DecodeTokenRequest) returns (DecodeTokenResponse);
-    rpc DeleteRefreshToken (common.RefreshTokenRequest) returns (common.MessageResponse);
-    rpc DeleteAllTokens (common.RefreshTokenRequest) returns (common.MessageResponse);
-    rpc NewPassword (NewPasswordRequest) returns (NewPasswordResponse);
-    rpc RefreshTokens (common.RefreshTokenRequest) returns (common.TokensResponse);
-}
-
-message Credentials {
-    string user_id = 1;
-    string password = 2;
-}
-
-
-message SignRequest {
-    Credentials cred = 1;
-}
-
-message SignResponse {
-    string hash = 1;
-    common.TokensResponse tokens = 2;
-}
-
-message LoginRequest {
-    Credentials cred = 1;
-    string hash = 2;
-}
-
-enum TokenType {
-    UNKNOWN = 0;      // Значение по умолчанию
-    ACCESS = 1;       // Access-токен
-    REFRESH = 2;      // Refresh-токен
-}
-
-message DecodeTokenRequest {
-    string token = 1;
-    TokenType token_type = 2;
-}
-
-message DecodeTokenResponse {
-    string user_id = 1;
-    string jti = 2;
-}
-
-
-message NewPasswordRequest {
-    string new_password = 3;
-}
-
-message NewPasswordResponse {
-    string hash = 1;
+    rpc GenerateTokens (common.UserId) returns (common.TokensResponse);
+    rpc DecodeRefreshToken (common.DecodeTokenRequest) returns (common.UserId);
+    rpc DeleteRefreshToken (common.DecodeTokenRequest) returns (common.MessageResponse);
+    rpc DeleteAllTokens (common.DecodeTokenRequest) returns (common.MessageResponse);
+    rpc RefreshTokens (common.DecodeTokenRequest) returns (common.TokensResponse);
 }
 
 
