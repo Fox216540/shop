@@ -2,18 +2,20 @@ syntax = "proto3";
 
 package order;
 
+import "common/types.proto";
+import "google/protobuf/empty.proto";
+
 option go_package = "github.com/Fox216540/shop/proto/order-service/gen;proto";
 
 service InternalOrderService {
-    rpc PlaceOrder (PlaceOrderRequest) returns (Order);
-    rpc CancelOrder (CancelOrderRequest) returns (CancelOrderResponse);
-    rpc GetOrderById (GetOrderByIdRequest) returns (Order);
-    rpc GetOrdersByUserId (GetOrdersByUserIdRequest) returns (GetOrdersByUserIdResponse);
-}
-
-message PlaceOrderRequest {
-    string user_id = 1;
-    repeated ItemRequest items = 2;
+    //В metadata передавать userID ↓
+    rpc CreteOrder (CreateOrderRequest) returns (common.Order);
+    //В metadata передавать userID ↓
+    rpc GetOrderById (common.OrderId) returns (common.Order);
+    //В metadata передавать userID ↓
+    rpc GetOrdersByUserId (google.protobuf.Empty) returns (GetOrdersByUserIdResponse);
+    //В metadata передавать userID ↓
+    rpc CancelOrder (common.OrderId) returns (common.OrderId);
 }
 
 message ItemRequest {
@@ -21,53 +23,17 @@ message ItemRequest {
     uint64 quantity = 2;
 }
 
-message Order {
-    string id = 1;
-    string order_num = 2;
-    string user_id = 3;
-    repeated Item items = 4;
-    double total = 5;
-    string status = 6;
-}
-
-message Item {
-    Product product = 1;
-    uint64 quantity = 2;
-}
-
-message Product {
-    string id = 1;
-    string name = 2;
-    string img = 3;
-    double price = 4;
-}
-
-message CancelOrderRequest {
-    string user_id = 1;
-    string order_id = 2;
-}
-
-message CancelOrderResponse {
-    string order_id = 1;
-}
-
-message GetOrderByIdRequest {
-    string order_id = 1;
-}
-
-message GetOrdersByUserIdRequest {
-    string user_id = 1;
+message CreateOrderRequest {
+    repeated ItemRequest items = 2;
 }
 
 message OrderForList {
     string id = 1;
     string order_num = 2;
-    string user_id = 3;
     double total = 4;
     string status = 5;
 }
 
-//TODO: подумать что возвращать
 message GetOrdersByUserIdResponse {
     repeated OrderForList orders = 1;
 }
