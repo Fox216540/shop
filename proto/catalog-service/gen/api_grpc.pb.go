@@ -34,7 +34,7 @@ type ApiCatalogServiceClient interface {
 	GetCategories(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetCategoriesResponse, error)
 	GetAllProducts(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*gen.GetProductsResponse, error)
 	GetProductsOfCategoryId(ctx context.Context, in *GetProductsOfCategoryIdRequest, opts ...grpc.CallOption) (*gen.GetProductsResponse, error)
-	GetProductById(ctx context.Context, in *GetProductByIdRequest, opts ...grpc.CallOption) (*gen.Product, error)
+	GetProductById(ctx context.Context, in *GetProductByIdRequest, opts ...grpc.CallOption) (*gen.ProductWithSupplement, error)
 }
 
 type apiCatalogServiceClient struct {
@@ -75,9 +75,9 @@ func (c *apiCatalogServiceClient) GetProductsOfCategoryId(ctx context.Context, i
 	return out, nil
 }
 
-func (c *apiCatalogServiceClient) GetProductById(ctx context.Context, in *GetProductByIdRequest, opts ...grpc.CallOption) (*gen.Product, error) {
+func (c *apiCatalogServiceClient) GetProductById(ctx context.Context, in *GetProductByIdRequest, opts ...grpc.CallOption) (*gen.ProductWithSupplement, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(gen.Product)
+	out := new(gen.ProductWithSupplement)
 	err := c.cc.Invoke(ctx, ApiCatalogService_GetProductById_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -92,7 +92,7 @@ type ApiCatalogServiceServer interface {
 	GetCategories(context.Context, *emptypb.Empty) (*GetCategoriesResponse, error)
 	GetAllProducts(context.Context, *emptypb.Empty) (*gen.GetProductsResponse, error)
 	GetProductsOfCategoryId(context.Context, *GetProductsOfCategoryIdRequest) (*gen.GetProductsResponse, error)
-	GetProductById(context.Context, *GetProductByIdRequest) (*gen.Product, error)
+	GetProductById(context.Context, *GetProductByIdRequest) (*gen.ProductWithSupplement, error)
 	mustEmbedUnimplementedApiCatalogServiceServer()
 }
 
@@ -112,7 +112,7 @@ func (UnimplementedApiCatalogServiceServer) GetAllProducts(context.Context, *emp
 func (UnimplementedApiCatalogServiceServer) GetProductsOfCategoryId(context.Context, *GetProductsOfCategoryIdRequest) (*gen.GetProductsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetProductsOfCategoryId not implemented")
 }
-func (UnimplementedApiCatalogServiceServer) GetProductById(context.Context, *GetProductByIdRequest) (*gen.Product, error) {
+func (UnimplementedApiCatalogServiceServer) GetProductById(context.Context, *GetProductByIdRequest) (*gen.ProductWithSupplement, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetProductById not implemented")
 }
 func (UnimplementedApiCatalogServiceServer) mustEmbedUnimplementedApiCatalogServiceServer() {}
