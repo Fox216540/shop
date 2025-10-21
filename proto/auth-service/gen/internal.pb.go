@@ -25,33 +25,23 @@ var File_auth_service_internal_proto protoreflect.FileDescriptor
 
 const file_auth_service_internal_proto_rawDesc = "" +
 	"\n" +
-	"\x1bauth-service/internal.proto\x12\x04auth\x1a\x12common/types.proto2\xe9\x02\n" +
+	"\x1bauth-service/internal.proto\x12\x04auth\x1a\x12common/types.proto2\x8b\x01\n" +
 	"\x13InternalAuthService\x128\n" +
-	"\x0eGenerateTokens\x12\x0e.common.UserId\x1a\x16.common.TokensResponse\x12@\n" +
-	"\x12DecodeRefreshToken\x12\x1a.common.DecodeTokenRequest\x1a\x0e.common.UserId\x12I\n" +
-	"\x12DeleteRefreshToken\x12\x1a.common.DecodeTokenRequest\x1a\x17.common.MessageResponse\x12F\n" +
-	"\x0fDeleteAllTokens\x12\x1a.common.DecodeTokenRequest\x1a\x17.common.MessageResponse\x12C\n" +
-	"\rRefreshTokens\x12\x1a.common.DecodeTokenRequest\x1a\x16.common.TokensResponseB7Z5github.com/Fox216540/shop/proto/auth-service/gen;authb\x06proto3"
+	"\x0eGenerateTokens\x12\x0e.common.UserId\x1a\x16.common.TokensResponse\x12:\n" +
+	"\x0fDeleteAllTokens\x12\x0e.common.UserId\x1a\x17.common.MessageResponseB7Z5github.com/Fox216540/shop/proto/auth-service/gen;authb\x06proto3"
 
 var file_auth_service_internal_proto_goTypes = []any{
-	(*gen.UserId)(nil),             // 0: common.UserId
-	(*gen.DecodeTokenRequest)(nil), // 1: common.DecodeTokenRequest
-	(*gen.TokensResponse)(nil),     // 2: common.TokensResponse
-	(*gen.MessageResponse)(nil),    // 3: common.MessageResponse
+	(*gen.UserId)(nil),          // 0: common.UserId
+	(*gen.TokensResponse)(nil),  // 1: common.TokensResponse
+	(*gen.MessageResponse)(nil), // 2: common.MessageResponse
 }
 var file_auth_service_internal_proto_depIdxs = []int32{
 	0, // 0: auth.InternalAuthService.GenerateTokens:input_type -> common.UserId
-	1, // 1: auth.InternalAuthService.DecodeRefreshToken:input_type -> common.DecodeTokenRequest
-	1, // 2: auth.InternalAuthService.DeleteRefreshToken:input_type -> common.DecodeTokenRequest
-	1, // 3: auth.InternalAuthService.DeleteAllTokens:input_type -> common.DecodeTokenRequest
-	1, // 4: auth.InternalAuthService.RefreshTokens:input_type -> common.DecodeTokenRequest
-	2, // 5: auth.InternalAuthService.GenerateTokens:output_type -> common.TokensResponse
-	0, // 6: auth.InternalAuthService.DecodeRefreshToken:output_type -> common.UserId
-	3, // 7: auth.InternalAuthService.DeleteRefreshToken:output_type -> common.MessageResponse
-	3, // 8: auth.InternalAuthService.DeleteAllTokens:output_type -> common.MessageResponse
-	2, // 9: auth.InternalAuthService.RefreshTokens:output_type -> common.TokensResponse
-	5, // [5:10] is the sub-list for method output_type
-	0, // [0:5] is the sub-list for method input_type
+	0, // 1: auth.InternalAuthService.DeleteAllTokens:input_type -> common.UserId
+	1, // 2: auth.InternalAuthService.GenerateTokens:output_type -> common.TokensResponse
+	2, // 3: auth.InternalAuthService.DeleteAllTokens:output_type -> common.MessageResponse
+	2, // [2:4] is the sub-list for method output_type
+	0, // [0:2] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
 	0, // [0:0] is the sub-list for extension extendee
 	0, // [0:0] is the sub-list for field type_name
