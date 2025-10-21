@@ -11,7 +11,6 @@ import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
-	sync "sync"
 	unsafe "unsafe"
 )
 
@@ -22,540 +21,40 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type TokenType int32
-
-const (
-	TokenType_UNKNOWN TokenType = 0 // Значение по умолчанию
-	TokenType_ACCESS  TokenType = 1 // Access-токен
-	TokenType_REFRESH TokenType = 2 // Refresh-токен
-)
-
-// Enum value maps for TokenType.
-var (
-	TokenType_name = map[int32]string{
-		0: "UNKNOWN",
-		1: "ACCESS",
-		2: "REFRESH",
-	}
-	TokenType_value = map[string]int32{
-		"UNKNOWN": 0,
-		"ACCESS":  1,
-		"REFRESH": 2,
-	}
-)
-
-func (x TokenType) Enum() *TokenType {
-	p := new(TokenType)
-	*p = x
-	return p
-}
-
-func (x TokenType) String() string {
-	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
-}
-
-func (TokenType) Descriptor() protoreflect.EnumDescriptor {
-	return file_auth_service_internal_proto_enumTypes[0].Descriptor()
-}
-
-func (TokenType) Type() protoreflect.EnumType {
-	return &file_auth_service_internal_proto_enumTypes[0]
-}
-
-func (x TokenType) Number() protoreflect.EnumNumber {
-	return protoreflect.EnumNumber(x)
-}
-
-// Deprecated: Use TokenType.Descriptor instead.
-func (TokenType) EnumDescriptor() ([]byte, []int) {
-	return file_auth_service_internal_proto_rawDescGZIP(), []int{0}
-}
-
-type Credentials struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	Password      string                 `protobuf:"bytes,2,opt,name=password,proto3" json:"password,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *Credentials) Reset() {
-	*x = Credentials{}
-	mi := &file_auth_service_internal_proto_msgTypes[0]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *Credentials) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*Credentials) ProtoMessage() {}
-
-func (x *Credentials) ProtoReflect() protoreflect.Message {
-	mi := &file_auth_service_internal_proto_msgTypes[0]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use Credentials.ProtoReflect.Descriptor instead.
-func (*Credentials) Descriptor() ([]byte, []int) {
-	return file_auth_service_internal_proto_rawDescGZIP(), []int{0}
-}
-
-func (x *Credentials) GetUserId() string {
-	if x != nil {
-		return x.UserId
-	}
-	return ""
-}
-
-func (x *Credentials) GetPassword() string {
-	if x != nil {
-		return x.Password
-	}
-	return ""
-}
-
-type SignRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Cred          *Credentials           `protobuf:"bytes,1,opt,name=cred,proto3" json:"cred,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *SignRequest) Reset() {
-	*x = SignRequest{}
-	mi := &file_auth_service_internal_proto_msgTypes[1]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *SignRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*SignRequest) ProtoMessage() {}
-
-func (x *SignRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_auth_service_internal_proto_msgTypes[1]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use SignRequest.ProtoReflect.Descriptor instead.
-func (*SignRequest) Descriptor() ([]byte, []int) {
-	return file_auth_service_internal_proto_rawDescGZIP(), []int{1}
-}
-
-func (x *SignRequest) GetCred() *Credentials {
-	if x != nil {
-		return x.Cred
-	}
-	return nil
-}
-
-type SignResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Hash          string                 `protobuf:"bytes,1,opt,name=hash,proto3" json:"hash,omitempty"`
-	Tokens        *gen.TokensResponse    `protobuf:"bytes,2,opt,name=tokens,proto3" json:"tokens,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *SignResponse) Reset() {
-	*x = SignResponse{}
-	mi := &file_auth_service_internal_proto_msgTypes[2]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *SignResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*SignResponse) ProtoMessage() {}
-
-func (x *SignResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_auth_service_internal_proto_msgTypes[2]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use SignResponse.ProtoReflect.Descriptor instead.
-func (*SignResponse) Descriptor() ([]byte, []int) {
-	return file_auth_service_internal_proto_rawDescGZIP(), []int{2}
-}
-
-func (x *SignResponse) GetHash() string {
-	if x != nil {
-		return x.Hash
-	}
-	return ""
-}
-
-func (x *SignResponse) GetTokens() *gen.TokensResponse {
-	if x != nil {
-		return x.Tokens
-	}
-	return nil
-}
-
-type LoginRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Cred          *Credentials           `protobuf:"bytes,1,opt,name=cred,proto3" json:"cred,omitempty"`
-	Hash          string                 `protobuf:"bytes,2,opt,name=hash,proto3" json:"hash,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *LoginRequest) Reset() {
-	*x = LoginRequest{}
-	mi := &file_auth_service_internal_proto_msgTypes[3]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *LoginRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*LoginRequest) ProtoMessage() {}
-
-func (x *LoginRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_auth_service_internal_proto_msgTypes[3]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use LoginRequest.ProtoReflect.Descriptor instead.
-func (*LoginRequest) Descriptor() ([]byte, []int) {
-	return file_auth_service_internal_proto_rawDescGZIP(), []int{3}
-}
-
-func (x *LoginRequest) GetCred() *Credentials {
-	if x != nil {
-		return x.Cred
-	}
-	return nil
-}
-
-func (x *LoginRequest) GetHash() string {
-	if x != nil {
-		return x.Hash
-	}
-	return ""
-}
-
-type DecodeTokenRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Token         string                 `protobuf:"bytes,1,opt,name=token,proto3" json:"token,omitempty"`
-	TokenType     TokenType              `protobuf:"varint,2,opt,name=token_type,json=tokenType,proto3,enum=auth.TokenType" json:"token_type,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *DecodeTokenRequest) Reset() {
-	*x = DecodeTokenRequest{}
-	mi := &file_auth_service_internal_proto_msgTypes[4]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *DecodeTokenRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*DecodeTokenRequest) ProtoMessage() {}
-
-func (x *DecodeTokenRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_auth_service_internal_proto_msgTypes[4]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use DecodeTokenRequest.ProtoReflect.Descriptor instead.
-func (*DecodeTokenRequest) Descriptor() ([]byte, []int) {
-	return file_auth_service_internal_proto_rawDescGZIP(), []int{4}
-}
-
-func (x *DecodeTokenRequest) GetToken() string {
-	if x != nil {
-		return x.Token
-	}
-	return ""
-}
-
-func (x *DecodeTokenRequest) GetTokenType() TokenType {
-	if x != nil {
-		return x.TokenType
-	}
-	return TokenType_UNKNOWN
-}
-
-type DecodeTokenResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	Jti           string                 `protobuf:"bytes,2,opt,name=jti,proto3" json:"jti,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *DecodeTokenResponse) Reset() {
-	*x = DecodeTokenResponse{}
-	mi := &file_auth_service_internal_proto_msgTypes[5]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *DecodeTokenResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*DecodeTokenResponse) ProtoMessage() {}
-
-func (x *DecodeTokenResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_auth_service_internal_proto_msgTypes[5]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use DecodeTokenResponse.ProtoReflect.Descriptor instead.
-func (*DecodeTokenResponse) Descriptor() ([]byte, []int) {
-	return file_auth_service_internal_proto_rawDescGZIP(), []int{5}
-}
-
-func (x *DecodeTokenResponse) GetUserId() string {
-	if x != nil {
-		return x.UserId
-	}
-	return ""
-}
-
-func (x *DecodeTokenResponse) GetJti() string {
-	if x != nil {
-		return x.Jti
-	}
-	return ""
-}
-
-type NewPasswordRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	NewPassword   string                 `protobuf:"bytes,3,opt,name=new_password,json=newPassword,proto3" json:"new_password,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *NewPasswordRequest) Reset() {
-	*x = NewPasswordRequest{}
-	mi := &file_auth_service_internal_proto_msgTypes[6]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *NewPasswordRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*NewPasswordRequest) ProtoMessage() {}
-
-func (x *NewPasswordRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_auth_service_internal_proto_msgTypes[6]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use NewPasswordRequest.ProtoReflect.Descriptor instead.
-func (*NewPasswordRequest) Descriptor() ([]byte, []int) {
-	return file_auth_service_internal_proto_rawDescGZIP(), []int{6}
-}
-
-func (x *NewPasswordRequest) GetNewPassword() string {
-	if x != nil {
-		return x.NewPassword
-	}
-	return ""
-}
-
-type NewPasswordResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Hash          string                 `protobuf:"bytes,1,opt,name=hash,proto3" json:"hash,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *NewPasswordResponse) Reset() {
-	*x = NewPasswordResponse{}
-	mi := &file_auth_service_internal_proto_msgTypes[7]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *NewPasswordResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*NewPasswordResponse) ProtoMessage() {}
-
-func (x *NewPasswordResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_auth_service_internal_proto_msgTypes[7]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use NewPasswordResponse.ProtoReflect.Descriptor instead.
-func (*NewPasswordResponse) Descriptor() ([]byte, []int) {
-	return file_auth_service_internal_proto_rawDescGZIP(), []int{7}
-}
-
-func (x *NewPasswordResponse) GetHash() string {
-	if x != nil {
-		return x.Hash
-	}
-	return ""
-}
-
 var File_auth_service_internal_proto protoreflect.FileDescriptor
 
 const file_auth_service_internal_proto_rawDesc = "" +
 	"\n" +
-	"\x1bauth-service/internal.proto\x12\x04auth\x1a\x12common/types.proto\"B\n" +
-	"\vCredentials\x12\x17\n" +
-	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x1a\n" +
-	"\bpassword\x18\x02 \x01(\tR\bpassword\"4\n" +
-	"\vSignRequest\x12%\n" +
-	"\x04cred\x18\x01 \x01(\v2\x11.auth.CredentialsR\x04cred\"R\n" +
-	"\fSignResponse\x12\x12\n" +
-	"\x04hash\x18\x01 \x01(\tR\x04hash\x12.\n" +
-	"\x06tokens\x18\x02 \x01(\v2\x16.common.TokensResponseR\x06tokens\"I\n" +
-	"\fLoginRequest\x12%\n" +
-	"\x04cred\x18\x01 \x01(\v2\x11.auth.CredentialsR\x04cred\x12\x12\n" +
-	"\x04hash\x18\x02 \x01(\tR\x04hash\"Z\n" +
-	"\x12DecodeTokenRequest\x12\x14\n" +
-	"\x05token\x18\x01 \x01(\tR\x05token\x12.\n" +
-	"\n" +
-	"token_type\x18\x02 \x01(\x0e2\x0f.auth.TokenTypeR\ttokenType\"@\n" +
-	"\x13DecodeTokenResponse\x12\x17\n" +
-	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x10\n" +
-	"\x03jti\x18\x02 \x01(\tR\x03jti\"7\n" +
-	"\x12NewPasswordRequest\x12!\n" +
-	"\fnew_password\x18\x03 \x01(\tR\vnewPassword\")\n" +
-	"\x13NewPasswordResponse\x12\x12\n" +
-	"\x04hash\x18\x01 \x01(\tR\x04hash*1\n" +
-	"\tTokenType\x12\v\n" +
-	"\aUNKNOWN\x10\x00\x12\n" +
-	"\n" +
-	"\x06ACCESS\x10\x01\x12\v\n" +
-	"\aREFRESH\x10\x022\xde\x03\n" +
-	"\x13InternalAuthService\x12/\n" +
-	"\x06SignUp\x12\x11.auth.SignRequest\x1a\x12.auth.SignResponse\x123\n" +
-	"\x05Login\x12\x12.auth.LoginRequest\x1a\x16.common.TokensResponse\x12B\n" +
-	"\vDecodeToken\x12\x18.auth.DecodeTokenRequest\x1a\x19.auth.DecodeTokenResponse\x12J\n" +
-	"\x12DeleteRefreshToken\x12\x1b.common.RefreshTokenRequest\x1a\x17.common.MessageResponse\x12G\n" +
-	"\x0fDeleteAllTokens\x12\x1b.common.RefreshTokenRequest\x1a\x17.common.MessageResponse\x12B\n" +
-	"\vNewPassword\x12\x18.auth.NewPasswordRequest\x1a\x19.auth.NewPasswordResponse\x12D\n" +
-	"\rRefreshTokens\x12\x1b.common.RefreshTokenRequest\x1a\x16.common.TokensResponseB7Z5github.com/Fox216540/shop/proto/auth-service/gen;authb\x06proto3"
+	"\x1bauth-service/internal.proto\x12\x04auth\x1a\x12common/types.proto2\xe9\x02\n" +
+	"\x13InternalAuthService\x128\n" +
+	"\x0eGenerateTokens\x12\x0e.common.UserId\x1a\x16.common.TokensResponse\x12@\n" +
+	"\x12DecodeRefreshToken\x12\x1a.common.DecodeTokenRequest\x1a\x0e.common.UserId\x12I\n" +
+	"\x12DeleteRefreshToken\x12\x1a.common.DecodeTokenRequest\x1a\x17.common.MessageResponse\x12F\n" +
+	"\x0fDeleteAllTokens\x12\x1a.common.DecodeTokenRequest\x1a\x17.common.MessageResponse\x12C\n" +
+	"\rRefreshTokens\x12\x1a.common.DecodeTokenRequest\x1a\x16.common.TokensResponseB7Z5github.com/Fox216540/shop/proto/auth-service/gen;authb\x06proto3"
 
-var (
-	file_auth_service_internal_proto_rawDescOnce sync.Once
-	file_auth_service_internal_proto_rawDescData []byte
-)
-
-func file_auth_service_internal_proto_rawDescGZIP() []byte {
-	file_auth_service_internal_proto_rawDescOnce.Do(func() {
-		file_auth_service_internal_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_auth_service_internal_proto_rawDesc), len(file_auth_service_internal_proto_rawDesc)))
-	})
-	return file_auth_service_internal_proto_rawDescData
-}
-
-var file_auth_service_internal_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_auth_service_internal_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
 var file_auth_service_internal_proto_goTypes = []any{
-	(TokenType)(0),                  // 0: auth.TokenType
-	(*Credentials)(nil),             // 1: auth.Credentials
-	(*SignRequest)(nil),             // 2: auth.SignRequest
-	(*SignResponse)(nil),            // 3: auth.SignResponse
-	(*LoginRequest)(nil),            // 4: auth.LoginRequest
-	(*DecodeTokenRequest)(nil),      // 5: auth.DecodeTokenRequest
-	(*DecodeTokenResponse)(nil),     // 6: auth.DecodeTokenResponse
-	(*NewPasswordRequest)(nil),      // 7: auth.NewPasswordRequest
-	(*NewPasswordResponse)(nil),     // 8: auth.NewPasswordResponse
-	(*gen.TokensResponse)(nil),      // 9: common.TokensResponse
-	(*gen.RefreshTokenRequest)(nil), // 10: common.RefreshTokenRequest
-	(*gen.MessageResponse)(nil),     // 11: common.MessageResponse
+	(*gen.UserId)(nil),             // 0: common.UserId
+	(*gen.DecodeTokenRequest)(nil), // 1: common.DecodeTokenRequest
+	(*gen.TokensResponse)(nil),     // 2: common.TokensResponse
+	(*gen.MessageResponse)(nil),    // 3: common.MessageResponse
 }
 var file_auth_service_internal_proto_depIdxs = []int32{
-	1,  // 0: auth.SignRequest.cred:type_name -> auth.Credentials
-	9,  // 1: auth.SignResponse.tokens:type_name -> common.TokensResponse
-	1,  // 2: auth.LoginRequest.cred:type_name -> auth.Credentials
-	0,  // 3: auth.DecodeTokenRequest.token_type:type_name -> auth.TokenType
-	2,  // 4: auth.InternalAuthService.SignUp:input_type -> auth.SignRequest
-	4,  // 5: auth.InternalAuthService.Login:input_type -> auth.LoginRequest
-	5,  // 6: auth.InternalAuthService.DecodeToken:input_type -> auth.DecodeTokenRequest
-	10, // 7: auth.InternalAuthService.DeleteRefreshToken:input_type -> common.RefreshTokenRequest
-	10, // 8: auth.InternalAuthService.DeleteAllTokens:input_type -> common.RefreshTokenRequest
-	7,  // 9: auth.InternalAuthService.NewPassword:input_type -> auth.NewPasswordRequest
-	10, // 10: auth.InternalAuthService.RefreshTokens:input_type -> common.RefreshTokenRequest
-	3,  // 11: auth.InternalAuthService.SignUp:output_type -> auth.SignResponse
-	9,  // 12: auth.InternalAuthService.Login:output_type -> common.TokensResponse
-	6,  // 13: auth.InternalAuthService.DecodeToken:output_type -> auth.DecodeTokenResponse
-	11, // 14: auth.InternalAuthService.DeleteRefreshToken:output_type -> common.MessageResponse
-	11, // 15: auth.InternalAuthService.DeleteAllTokens:output_type -> common.MessageResponse
-	8,  // 16: auth.InternalAuthService.NewPassword:output_type -> auth.NewPasswordResponse
-	9,  // 17: auth.InternalAuthService.RefreshTokens:output_type -> common.TokensResponse
-	11, // [11:18] is the sub-list for method output_type
-	4,  // [4:11] is the sub-list for method input_type
-	4,  // [4:4] is the sub-list for extension type_name
-	4,  // [4:4] is the sub-list for extension extendee
-	0,  // [0:4] is the sub-list for field type_name
+	0, // 0: auth.InternalAuthService.GenerateTokens:input_type -> common.UserId
+	1, // 1: auth.InternalAuthService.DecodeRefreshToken:input_type -> common.DecodeTokenRequest
+	1, // 2: auth.InternalAuthService.DeleteRefreshToken:input_type -> common.DecodeTokenRequest
+	1, // 3: auth.InternalAuthService.DeleteAllTokens:input_type -> common.DecodeTokenRequest
+	1, // 4: auth.InternalAuthService.RefreshTokens:input_type -> common.DecodeTokenRequest
+	2, // 5: auth.InternalAuthService.GenerateTokens:output_type -> common.TokensResponse
+	0, // 6: auth.InternalAuthService.DecodeRefreshToken:output_type -> common.UserId
+	3, // 7: auth.InternalAuthService.DeleteRefreshToken:output_type -> common.MessageResponse
+	3, // 8: auth.InternalAuthService.DeleteAllTokens:output_type -> common.MessageResponse
+	2, // 9: auth.InternalAuthService.RefreshTokens:output_type -> common.TokensResponse
+	5, // [5:10] is the sub-list for method output_type
+	0, // [0:5] is the sub-list for method input_type
+	0, // [0:0] is the sub-list for extension type_name
+	0, // [0:0] is the sub-list for extension extendee
+	0, // [0:0] is the sub-list for field type_name
 }
 
 func init() { file_auth_service_internal_proto_init() }
@@ -568,15 +67,13 @@ func file_auth_service_internal_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_auth_service_internal_proto_rawDesc), len(file_auth_service_internal_proto_rawDesc)),
-			NumEnums:      1,
-			NumMessages:   8,
+			NumEnums:      0,
+			NumMessages:   0,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_auth_service_internal_proto_goTypes,
 		DependencyIndexes: file_auth_service_internal_proto_depIdxs,
-		EnumInfos:         file_auth_service_internal_proto_enumTypes,
-		MessageInfos:      file_auth_service_internal_proto_msgTypes,
 	}.Build()
 	File_auth_service_internal_proto = out.File
 	file_auth_service_internal_proto_goTypes = nil
