@@ -12,7 +12,7 @@ service ApiCatalogService {
     rpc GetCategories (google.protobuf.Empty) returns (GetCategoriesResponse);
     rpc GetAllProducts (google.protobuf.Empty) returns (common.GetProductsResponse);
     rpc GetProductsOfCategoryId (GetProductsOfCategoryIdRequest) returns (common.GetProductsResponse);
-    rpc GetProductById (GetProductByIdRequest) returns (common.Product);
+    rpc GetProductById (GetProductByIdRequest) returns (common.ProductWithSupplement);
 }
 
 message Category {
@@ -31,8 +31,4 @@ message GetProductsOfCategoryIdRequest {
 
 message GetProductByIdRequest {
     string product_id = 1;
-}
-
-message GetProductsByIdsRequest {
-    repeated string product_ids = 1;
 }
