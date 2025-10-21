@@ -1,15 +1,3 @@
-PROTO_DIR=proto
-OUT_DIR=proto
-
-# Catalog API
-CATALOG_API=catalog-service/api.proto common/types.proto
-
-# Catalog Internal (для Order)
-CATALOG_INTERNAL=catalog-service/internal.proto common/types.proto
-
-# Order
-#ORDER_PROTO=proto/order/order.proto proto/common/types.proto
-
 gen-common:
 	@mkdir -p common/gen
 	protoc -I=. \
@@ -47,7 +35,18 @@ gen-catalog:
 	@echo "✅ Catalog generated"
 
 
-gen-auth:
+gen-auth-api:
+	@make gen-common
+	@mkdir -p auth-service/gen
+	protoc -I=. \
+			--go_out=auth-service/ \
+			--go_opt=module=github.com/Fox216540/shop/proto/auth-service \
+			--go-grpc_out=auth-service/ \
+			--go-grpc_opt=module=github.com/Fox216540/shop/proto/auth-service \
+		auth-service/api.proto
+	@echo "✅ Auth Api proto generated"
+
+gen-auth-internal:
 	@make gen-common
 	@mkdir -p auth-service/gen
 	protoc -I=. \
@@ -56,7 +55,11 @@ gen-auth:
 			--go-grpc_out=auth-service/ \
 			--go-grpc_opt=module=github.com/Fox216540/shop/proto/auth-service \
 		auth-service/internal.proto
-	@echo "✅ Auth proto generated"
+	@echo "✅ Auth Internal proto generated"
+
+gen-auth:
+	@make gen-auth-api gen-auth-internal
+	@echo "✅ Auth generated"
 
 gen-order:
 	@make gen-common
@@ -69,7 +72,7 @@ gen-order:
 		order-service/internal.proto
 	@echo "✅ Order proto generated"
 
-gen-user:
+gen-user-api:
 	@make gen-common
 	@mkdir -p user-service/gen
 	protoc -I=. \
@@ -78,6 +81,22 @@ gen-user:
 			--go-grpc_out=user-service/ \
 			--go-grpc_opt=module=github.com/Fox216540/shop/proto/user-service \
 		user-service/api.proto
-	@echo "✅ User proto generated"
+	@echo "✅ User Api proto generated"
+
+gen-user-internal:
+	@make gen-common
+	@mkdir -p user-service/gen
+	protoc -I=. \
+			--go_out=user-service/ \
+			--go_opt=module=github.com/Fox216540/shop/proto/user-service \
+			--go-grpc_out=user-service/ \
+			--go-grpc_opt=module=github.com/Fox216540/shop/proto/user-service \
+		user-service/internal.proto
+	@echo "✅ User Internal proto generated"
+
+gen-user:
+	@make gen-user-api gen-user-internal
+	@echo "✅ User generated"
+
 
 gen-all: gen-catalog gen-auth gen-order gen-user
