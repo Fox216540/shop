@@ -8,9 +8,11 @@ package proto
 
 import (
 	context "context"
+	gen "github.com/Fox216540/shop/proto/common/gen"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -19,20 +21,24 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	InternalOrderService_PlaceOrder_FullMethodName        = "/order.InternalOrderService/PlaceOrder"
-	InternalOrderService_CancelOrder_FullMethodName       = "/order.InternalOrderService/CancelOrder"
+	InternalOrderService_CreteOrder_FullMethodName        = "/order.InternalOrderService/CreteOrder"
 	InternalOrderService_GetOrderById_FullMethodName      = "/order.InternalOrderService/GetOrderById"
 	InternalOrderService_GetOrdersByUserId_FullMethodName = "/order.InternalOrderService/GetOrdersByUserId"
+	InternalOrderService_CancelOrder_FullMethodName       = "/order.InternalOrderService/CancelOrder"
 )
 
 // InternalOrderServiceClient is the client API for InternalOrderService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type InternalOrderServiceClient interface {
-	PlaceOrder(ctx context.Context, in *PlaceOrderRequest, opts ...grpc.CallOption) (*Order, error)
-	CancelOrder(ctx context.Context, in *CancelOrderRequest, opts ...grpc.CallOption) (*CancelOrderResponse, error)
-	GetOrderById(ctx context.Context, in *GetOrderByIdRequest, opts ...grpc.CallOption) (*Order, error)
-	GetOrdersByUserId(ctx context.Context, in *GetOrdersByUserIdRequest, opts ...grpc.CallOption) (*GetOrdersByUserIdResponse, error)
+	//В metadata передавать userID ↓
+	CreteOrder(ctx context.Context, in *CreateOrderRequest, opts ...grpc.CallOption) (*gen.Order, error)
+	//В metadata передавать userID ↓
+	GetOrderById(ctx context.Context, in *gen.OrderId, opts ...grpc.CallOption) (*gen.Order, error)
+	//В metadata передавать userID ↓
+	GetOrdersByUserId(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetOrdersByUserIdResponse, error)
+	//В metadata передавать userID ↓
+	CancelOrder(ctx context.Context, in *gen.OrderId, opts ...grpc.CallOption) (*gen.OrderId, error)
 }
 
 type internalOrderServiceClient struct {
@@ -43,29 +49,19 @@ func NewInternalOrderServiceClient(cc grpc.ClientConnInterface) InternalOrderSer
 	return &internalOrderServiceClient{cc}
 }
 
-func (c *internalOrderServiceClient) PlaceOrder(ctx context.Context, in *PlaceOrderRequest, opts ...grpc.CallOption) (*Order, error) {
+func (c *internalOrderServiceClient) CreteOrder(ctx context.Context, in *CreateOrderRequest, opts ...grpc.CallOption) (*gen.Order, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Order)
-	err := c.cc.Invoke(ctx, InternalOrderService_PlaceOrder_FullMethodName, in, out, cOpts...)
+	out := new(gen.Order)
+	err := c.cc.Invoke(ctx, InternalOrderService_CreteOrder_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *internalOrderServiceClient) CancelOrder(ctx context.Context, in *CancelOrderRequest, opts ...grpc.CallOption) (*CancelOrderResponse, error) {
+func (c *internalOrderServiceClient) GetOrderById(ctx context.Context, in *gen.OrderId, opts ...grpc.CallOption) (*gen.Order, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(CancelOrderResponse)
-	err := c.cc.Invoke(ctx, InternalOrderService_CancelOrder_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *internalOrderServiceClient) GetOrderById(ctx context.Context, in *GetOrderByIdRequest, opts ...grpc.CallOption) (*Order, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Order)
+	out := new(gen.Order)
 	err := c.cc.Invoke(ctx, InternalOrderService_GetOrderById_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -73,10 +69,20 @@ func (c *internalOrderServiceClient) GetOrderById(ctx context.Context, in *GetOr
 	return out, nil
 }
 
-func (c *internalOrderServiceClient) GetOrdersByUserId(ctx context.Context, in *GetOrdersByUserIdRequest, opts ...grpc.CallOption) (*GetOrdersByUserIdResponse, error) {
+func (c *internalOrderServiceClient) GetOrdersByUserId(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetOrdersByUserIdResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetOrdersByUserIdResponse)
 	err := c.cc.Invoke(ctx, InternalOrderService_GetOrdersByUserId_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *internalOrderServiceClient) CancelOrder(ctx context.Context, in *gen.OrderId, opts ...grpc.CallOption) (*gen.OrderId, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(gen.OrderId)
+	err := c.cc.Invoke(ctx, InternalOrderService_CancelOrder_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -87,10 +93,14 @@ func (c *internalOrderServiceClient) GetOrdersByUserId(ctx context.Context, in *
 // All implementations must embed UnimplementedInternalOrderServiceServer
 // for forward compatibility.
 type InternalOrderServiceServer interface {
-	PlaceOrder(context.Context, *PlaceOrderRequest) (*Order, error)
-	CancelOrder(context.Context, *CancelOrderRequest) (*CancelOrderResponse, error)
-	GetOrderById(context.Context, *GetOrderByIdRequest) (*Order, error)
-	GetOrdersByUserId(context.Context, *GetOrdersByUserIdRequest) (*GetOrdersByUserIdResponse, error)
+	//В metadata передавать userID ↓
+	CreteOrder(context.Context, *CreateOrderRequest) (*gen.Order, error)
+	//В metadata передавать userID ↓
+	GetOrderById(context.Context, *gen.OrderId) (*gen.Order, error)
+	//В metadata передавать userID ↓
+	GetOrdersByUserId(context.Context, *emptypb.Empty) (*GetOrdersByUserIdResponse, error)
+	//В metadata передавать userID ↓
+	CancelOrder(context.Context, *gen.OrderId) (*gen.OrderId, error)
 	mustEmbedUnimplementedInternalOrderServiceServer()
 }
 
@@ -101,17 +111,17 @@ type InternalOrderServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedInternalOrderServiceServer struct{}
 
-func (UnimplementedInternalOrderServiceServer) PlaceOrder(context.Context, *PlaceOrderRequest) (*Order, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method PlaceOrder not implemented")
+func (UnimplementedInternalOrderServiceServer) CreteOrder(context.Context, *CreateOrderRequest) (*gen.Order, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreteOrder not implemented")
 }
-func (UnimplementedInternalOrderServiceServer) CancelOrder(context.Context, *CancelOrderRequest) (*CancelOrderResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method CancelOrder not implemented")
-}
-func (UnimplementedInternalOrderServiceServer) GetOrderById(context.Context, *GetOrderByIdRequest) (*Order, error) {
+func (UnimplementedInternalOrderServiceServer) GetOrderById(context.Context, *gen.OrderId) (*gen.Order, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetOrderById not implemented")
 }
-func (UnimplementedInternalOrderServiceServer) GetOrdersByUserId(context.Context, *GetOrdersByUserIdRequest) (*GetOrdersByUserIdResponse, error) {
+func (UnimplementedInternalOrderServiceServer) GetOrdersByUserId(context.Context, *emptypb.Empty) (*GetOrdersByUserIdResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetOrdersByUserId not implemented")
+}
+func (UnimplementedInternalOrderServiceServer) CancelOrder(context.Context, *gen.OrderId) (*gen.OrderId, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CancelOrder not implemented")
 }
 func (UnimplementedInternalOrderServiceServer) mustEmbedUnimplementedInternalOrderServiceServer() {}
 func (UnimplementedInternalOrderServiceServer) testEmbeddedByValue()                              {}
@@ -134,44 +144,26 @@ func RegisterInternalOrderServiceServer(s grpc.ServiceRegistrar, srv InternalOrd
 	s.RegisterService(&InternalOrderService_ServiceDesc, srv)
 }
 
-func _InternalOrderService_PlaceOrder_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(PlaceOrderRequest)
+func _InternalOrderService_CreteOrder_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateOrderRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(InternalOrderServiceServer).PlaceOrder(ctx, in)
+		return srv.(InternalOrderServiceServer).CreteOrder(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: InternalOrderService_PlaceOrder_FullMethodName,
+		FullMethod: InternalOrderService_CreteOrder_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(InternalOrderServiceServer).PlaceOrder(ctx, req.(*PlaceOrderRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _InternalOrderService_CancelOrder_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CancelOrderRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(InternalOrderServiceServer).CancelOrder(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: InternalOrderService_CancelOrder_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(InternalOrderServiceServer).CancelOrder(ctx, req.(*CancelOrderRequest))
+		return srv.(InternalOrderServiceServer).CreteOrder(ctx, req.(*CreateOrderRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _InternalOrderService_GetOrderById_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetOrderByIdRequest)
+	in := new(gen.OrderId)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -183,13 +175,13 @@ func _InternalOrderService_GetOrderById_Handler(srv interface{}, ctx context.Con
 		FullMethod: InternalOrderService_GetOrderById_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(InternalOrderServiceServer).GetOrderById(ctx, req.(*GetOrderByIdRequest))
+		return srv.(InternalOrderServiceServer).GetOrderById(ctx, req.(*gen.OrderId))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _InternalOrderService_GetOrdersByUserId_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetOrdersByUserIdRequest)
+	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -201,7 +193,25 @@ func _InternalOrderService_GetOrdersByUserId_Handler(srv interface{}, ctx contex
 		FullMethod: InternalOrderService_GetOrdersByUserId_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(InternalOrderServiceServer).GetOrdersByUserId(ctx, req.(*GetOrdersByUserIdRequest))
+		return srv.(InternalOrderServiceServer).GetOrdersByUserId(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _InternalOrderService_CancelOrder_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(gen.OrderId)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(InternalOrderServiceServer).CancelOrder(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: InternalOrderService_CancelOrder_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(InternalOrderServiceServer).CancelOrder(ctx, req.(*gen.OrderId))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -214,12 +224,8 @@ var InternalOrderService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*InternalOrderServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "PlaceOrder",
-			Handler:    _InternalOrderService_PlaceOrder_Handler,
-		},
-		{
-			MethodName: "CancelOrder",
-			Handler:    _InternalOrderService_CancelOrder_Handler,
+			MethodName: "CreteOrder",
+			Handler:    _InternalOrderService_CreteOrder_Handler,
 		},
 		{
 			MethodName: "GetOrderById",
@@ -228,6 +234,10 @@ var InternalOrderService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetOrdersByUserId",
 			Handler:    _InternalOrderService_GetOrdersByUserId_Handler,
+		},
+		{
+			MethodName: "CancelOrder",
+			Handler:    _InternalOrderService_CancelOrder_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
