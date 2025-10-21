@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package auth;
+
+import "common/types.proto";
+
+option go_package = "github.com/Fox216540/shop/proto/auth-service/gen;auth";
+
+service ApiAuthService {
+    rpc DecodeAccessToken (common.DecodeTokenRequest) returns (common.UserId);
+}
