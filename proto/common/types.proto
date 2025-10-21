@@ -4,29 +4,63 @@ package common;
 
 option go_package = "github.com/Fox216540/shop/proto/common/gen;common";
 
+//General:
+message MessageResponse {
+    string message = 1;
+}
+
 message Product {
     string id = 1;
     string name = 2;
     string img = 3;
     double price = 4;
-    string category_id = 5;
-    string description = 6;
-    uint64 stock = 7;
+}
+
+//Catalog-service:
+message ProductWithSupplement {
+    Product product = 1;
+    string category_id = 2;
+    string description = 3;
+    uint64 stock = 4;
 }
 
 message GetProductsResponse {
-    repeated Product products = 1;
+    repeated ProductWithSupplement products = 1;
 }
 
+//Order-service:
+message Item {
+    Product product = 1;
+    uint64 quantity = 2;
+}
+
+message OrderId {
+    string id = 1;
+}
+
+message Order {
+    string id = 1;
+    string order_num = 2;
+    repeated Item items = 4;
+    double total = 5;
+    string status = 6;
+}
+
+//Auth-service:
 message TokensResponse {
     string access_token = 1;
     string refresh_token = 2;
 }
 
-message RefreshTokenRequest {
+message DecodeTokenRequest {
     string token = 1;
 }
 
-message MessageResponse {
-    string message = 1;
+message UserId {
+    string id = 1;
+}
+
+//User-service:
+message UserNameResponse {
+    string name = 1;
 }
