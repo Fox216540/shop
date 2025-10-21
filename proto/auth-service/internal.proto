@@ -8,10 +8,7 @@ option go_package = "github.com/Fox216540/shop/proto/auth-service/gen;auth";
 
 service InternalAuthService {
     rpc GenerateTokens (common.UserId) returns (common.TokensResponse);
-    rpc DecodeRefreshToken (common.DecodeTokenRequest) returns (common.UserId);
-    rpc DeleteRefreshToken (common.DecodeTokenRequest) returns (common.MessageResponse);
-    rpc DeleteAllTokens (common.DecodeTokenRequest) returns (common.MessageResponse);
-    rpc RefreshTokens (common.DecodeTokenRequest) returns (common.TokensResponse);
+    rpc DeleteAllTokens (common.UserId) returns (common.MessageResponse);
 }
 
 
