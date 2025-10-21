@@ -20,13 +20,6 @@ func (s *service) Add(jti, userID uuid.UUID) error {
 	return nil
 }
 
-func (s *service) Exists(jti uuid.UUID) error {
-	if err := s.ts.Exists(jti); err != nil {
-		return err
-	}
-	return nil
-}
-
 func (s *service) Delete(jti, userID uuid.UUID) error {
 	if err := s.ts.Delete(jti, userID); err != nil {
 		return err
