@@ -69,11 +69,12 @@ func (r *repository) Remove(ID, userID uuid.UUID) error {
 	return nil
 }
 
-func (r *repository) GetByID(ID uuid.UUID) (order.Order, error) {
+func (r *repository) GetByIDAndUserID(ID, userID uuid.UUID) (order.Order, error) {
 	var o models.OrderORM
 	err := r.db.WithSession(func(tx *gorm.DB) error {
 		return tx.
 			Where("order_id = ?", ID).
+			Where("user_id = ?", userID).
 			First(&o).Error
 	})
 	if err != nil {
