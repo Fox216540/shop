@@ -110,7 +110,7 @@ func (s *service) createOrderItems(orderItems []dto.OrderItems) ([]*order.Item, 
 	return oI, nil
 }
 
-func (s *service) Place(userID uuid.UUID, orderItems []dto.OrderItems) (order.Order, error) {
+func (s *service) PlaceOrder(userID uuid.UUID, orderItems []dto.OrderItems) (order.Order, error) {
 	oI, err := s.createOrderItems(orderItems)
 	if err != nil {
 		return order.Order{}, s.mapError(err, NewInvalidPlace(err))
@@ -140,15 +140,15 @@ func (s *service) Place(userID uuid.UUID, orderItems []dto.OrderItems) (order.Or
 	return o, nil
 }
 
-func (s *service) Cancel(ID, userID uuid.UUID) (uuid.UUID, error) {
+func (s *service) CancelOrder(ID, userID uuid.UUID) (uuid.UUID, error) {
 	if err := s.r.Remove(ID, userID); err != nil {
 		return ID, s.mapError(err, NewInvalidCancel(err)) // Возвращаем ошибку, если не удалось удалить заказ
 	}
 	return ID, nil
 }
 
-func (s *service) GetByID(id uuid.UUID) (order.Order, error) {
-	o, err := s.r.GetByID(id)
+func (s *service) GetOrderByIDAndUserID(id, userID uuid.UUID) (order.Order, error) {
+	o, err := s.r.GetByIDAndUserID(id, userID)
 	if err != nil {
 		return o, s.mapError(err, NewInvalidGetByID(err)) // Возвращаем ошибку, если не удалось найти заказ
 	}
