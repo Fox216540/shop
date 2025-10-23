@@ -1,12 +1,12 @@
 syntax = "proto3";
 
-package auth;
+package auth.api;
 
 import "common/types.proto";
 
-option go_package = "github.com/Fox216540/shop/proto/auth-service/gen;auth";
+option go_package = "github.com/Fox216540/shop/proto/auth-service/gen/api;auth";
 
-service ApiAuthService {
+service ApiService {
     rpc LogOut (common.DecodeTokenRequest) returns (common.MessageResponse);
     rpc LogOutAll (common.DecodeTokenRequest) returns (common.MessageResponse);
     rpc RefreshTokens (common.DecodeTokenRequest) returns (common.TokensResponse);
