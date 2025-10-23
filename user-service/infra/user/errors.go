@@ -1,7 +1,7 @@
 package user
 
 import (
-	"shop/src/infra/globalError"
+	"github.com/Fox216540/shop/user-service/infra/globalError"
 )
 
 const domain = "User"
@@ -38,7 +38,7 @@ func (e *InvalidAdd) Unwrap() error {
 
 func NewInvalidAdd(err error) error {
 	return &InvalidAdd{
-		UserServerError: NewUserServerError("Invalid Add Error", err),
+		UserServerError: NewUserServerError("Invalid Create Error", err),
 	}
 }
 
