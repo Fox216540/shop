@@ -3,23 +3,16 @@ package product
 import (
 	"github.com/Fox216540/shop/order-service/domain/product"
 	"github.com/Fox216540/shop/order-service/infra/client"
-	pb "github.com/Fox216540/shop/proto/catalog-service/gen"
+	pb "github.com/Fox216540/shop/proto/catalog-service/gen/interservice"
 	"github.com/google/uuid"
 )
 
 type GRPCClient struct {
 	client *client.GRPCClient
-	pb     pb.InternalCatalogServiceClient
+	pb     pb.InterserviceServiceClient
 }
 
-func NewGRPCClient(client *client.GRPCClient) *GRPCClient {
-	return &GRPCClient{
-		client: client,
-		pb:     pb.NewInternalCatalogServiceClient(client.Conn()), // Инициализация клиента
-	}
-}
-
-func (r *GRPCClient) GetProductsByIDs(ids []uuid.UUID) ([]product.Product, error) {
+func (c *GRPCClient) GetProductsByIDs(ids []uuid.UUID) ([]product.Product, error) {
 	idsStrings := make([]string, 0, len(ids))
 	for _, id := range ids {
 		idsStrings = append(idsStrings, id.String())
@@ -29,10 +22,9 @@ func (r *GRPCClient) GetProductsByIDs(ids []uuid.UUID) ([]product.Product, error
 		ProductIds: idsStrings,
 	}
 
-	// Используем контекст из клиента или создаем новый
-	ctx := r.client.Context() // если есть такой метод
+	ctx := c.client.Context()
 
-	resp, err := r.pb.GetProductsByIds(ctx, req)
+	resp, err := c.pb.GetProductsByIds(ctx, req)
 	if err != nil {
 		return nil, err
 	}
@@ -55,4 +47,11 @@ func (r *GRPCClient) GetProductsByIDs(ids []uuid.UUID) ([]product.Product, error
 	}
 
 	return products, nil
+}
+
+func NewGRPCClient(client *client.GRPCClient) *GRPCClient {
+	return &GRPCClient{
+		client: client,
+		pb:     pb.NewInterserviceServiceClient(client.Conn()), // Инициализация клиента
+	}
 }
