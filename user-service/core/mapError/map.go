@@ -2,9 +2,9 @@ package mapError
 
 import (
 	"errors"
+	"github.com/Fox216540/shop/user-service/core/exception"
+	"github.com/Fox216540/shop/user-service/core/logger"
 	"net/http"
-	"shop/src/core/exception"
-	"shop/src/core/logger"
 )
 
 func MapError(e error) (int, string) {
