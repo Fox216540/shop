@@ -231,6 +231,66 @@ func (x *GetOrdersByUserIdResponse) GetOrders() []*OrderForList {
 	return nil
 }
 
+type DeleteOrderResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	OrderId       *gen.OrderId           `protobuf:"bytes,1,opt,name=order_id,json=orderId,proto3" json:"order_id,omitempty"`
+	Status        string                 `protobuf:"bytes,2,opt,name=status,proto3" json:"status,omitempty"`
+	Message       *gen.MessageResponse   `protobuf:"bytes,3,opt,name=message,proto3" json:"message,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteOrderResponse) Reset() {
+	*x = DeleteOrderResponse{}
+	mi := &file_order_service_interservice_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteOrderResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteOrderResponse) ProtoMessage() {}
+
+func (x *DeleteOrderResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_order_service_interservice_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteOrderResponse.ProtoReflect.Descriptor instead.
+func (*DeleteOrderResponse) Descriptor() ([]byte, []int) {
+	return file_order_service_interservice_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *DeleteOrderResponse) GetOrderId() *gen.OrderId {
+	if x != nil {
+		return x.OrderId
+	}
+	return nil
+}
+
+func (x *DeleteOrderResponse) GetStatus() string {
+	if x != nil {
+		return x.Status
+	}
+	return ""
+}
+
+func (x *DeleteOrderResponse) GetMessage() *gen.MessageResponse {
+	if x != nil {
+		return x.Message
+	}
+	return nil
+}
+
 var File_order_service_interservice_proto protoreflect.FileDescriptor
 
 const file_order_service_interservice_proto_rawDesc = "" +
@@ -248,13 +308,17 @@ const file_order_service_interservice_proto_rawDesc = "" +
 	"\x05total\x18\x04 \x01(\x01R\x05total\x12\x16\n" +
 	"\x06status\x18\x05 \x01(\tR\x06status\"U\n" +
 	"\x19GetOrdersByUserIdResponse\x128\n" +
-	"\x06orders\x18\x01 \x03(\v2 .order.interservice.OrderForListR\x06orders2\x97\x02\n" +
+	"\x06orders\x18\x01 \x03(\v2 .order.interservice.OrderForListR\x06orders\"\x8c\x01\n" +
+	"\x13DeleteOrderResponse\x12*\n" +
+	"\border_id\x18\x01 \x01(\v2\x0f.common.OrderIdR\aorderId\x12\x16\n" +
+	"\x06status\x18\x02 \x01(\tR\x06status\x121\n" +
+	"\amessage\x18\x03 \x01(\v2\x17.common.MessageResponseR\amessage2\xaf\x02\n" +
 	"\x13InterserviceService\x12C\n" +
 	"\n" +
 	"CreteOrder\x12&.order.interservice.CreateOrderRequest\x1a\r.common.Order\x12.\n" +
 	"\fGetOrderById\x12\x0f.common.OrderId\x1a\r.common.Order\x12Z\n" +
-	"\x11GetOrdersByUserId\x12\x16.google.protobuf.Empty\x1a-.order.interservice.GetOrdersByUserIdResponse\x12/\n" +
-	"\vCancelOrder\x12\x0f.common.OrderId\x1a\x0f.common.OrderIdBFZDgithub.com/Fox216540/shop/proto/order-service/gen/interservice;protob\x06proto3"
+	"\x11GetOrdersByUserId\x12\x16.google.protobuf.Empty\x1a-.order.interservice.GetOrdersByUserIdResponse\x12G\n" +
+	"\vDeleteOrder\x12\x0f.common.OrderId\x1a'.order.interservice.DeleteOrderResponseBFZDgithub.com/Fox216540/shop/proto/order-service/gen/interservice;protob\x06proto3"
 
 var (
 	file_order_service_interservice_proto_rawDescOnce sync.Once
@@ -268,32 +332,36 @@ func file_order_service_interservice_proto_rawDescGZIP() []byte {
 	return file_order_service_interservice_proto_rawDescData
 }
 
-var file_order_service_interservice_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_order_service_interservice_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
 var file_order_service_interservice_proto_goTypes = []any{
 	(*ItemRequest)(nil),               // 0: order.interservice.ItemRequest
 	(*CreateOrderRequest)(nil),        // 1: order.interservice.CreateOrderRequest
 	(*OrderForList)(nil),              // 2: order.interservice.OrderForList
 	(*GetOrdersByUserIdResponse)(nil), // 3: order.interservice.GetOrdersByUserIdResponse
-	(*gen.OrderId)(nil),               // 4: common.OrderId
-	(*emptypb.Empty)(nil),             // 5: google.protobuf.Empty
-	(*gen.Order)(nil),                 // 6: common.Order
+	(*DeleteOrderResponse)(nil),       // 4: order.interservice.DeleteOrderResponse
+	(*gen.OrderId)(nil),               // 5: common.OrderId
+	(*gen.MessageResponse)(nil),       // 6: common.MessageResponse
+	(*emptypb.Empty)(nil),             // 7: google.protobuf.Empty
+	(*gen.Order)(nil),                 // 8: common.Order
 }
 var file_order_service_interservice_proto_depIdxs = []int32{
 	0, // 0: order.interservice.CreateOrderRequest.items:type_name -> order.interservice.ItemRequest
 	2, // 1: order.interservice.GetOrdersByUserIdResponse.orders:type_name -> order.interservice.OrderForList
-	1, // 2: order.interservice.InterserviceService.CreteOrder:input_type -> order.interservice.CreateOrderRequest
-	4, // 3: order.interservice.InterserviceService.GetOrderById:input_type -> common.OrderId
-	5, // 4: order.interservice.InterserviceService.GetOrdersByUserId:input_type -> google.protobuf.Empty
-	4, // 5: order.interservice.InterserviceService.CancelOrder:input_type -> common.OrderId
-	6, // 6: order.interservice.InterserviceService.CreteOrder:output_type -> common.Order
-	6, // 7: order.interservice.InterserviceService.GetOrderById:output_type -> common.Order
-	3, // 8: order.interservice.InterserviceService.GetOrdersByUserId:output_type -> order.interservice.GetOrdersByUserIdResponse
-	4, // 9: order.interservice.InterserviceService.CancelOrder:output_type -> common.OrderId
-	6, // [6:10] is the sub-list for method output_type
-	2, // [2:6] is the sub-list for method input_type
-	2, // [2:2] is the sub-list for extension type_name
-	2, // [2:2] is the sub-list for extension extendee
-	0, // [0:2] is the sub-list for field type_name
+	5, // 2: order.interservice.DeleteOrderResponse.order_id:type_name -> common.OrderId
+	6, // 3: order.interservice.DeleteOrderResponse.message:type_name -> common.MessageResponse
+	1, // 4: order.interservice.InterserviceService.CreteOrder:input_type -> order.interservice.CreateOrderRequest
+	5, // 5: order.interservice.InterserviceService.GetOrderById:input_type -> common.OrderId
+	7, // 6: order.interservice.InterserviceService.GetOrdersByUserId:input_type -> google.protobuf.Empty
+	5, // 7: order.interservice.InterserviceService.DeleteOrder:input_type -> common.OrderId
+	8, // 8: order.interservice.InterserviceService.CreteOrder:output_type -> common.Order
+	8, // 9: order.interservice.InterserviceService.GetOrderById:output_type -> common.Order
+	3, // 10: order.interservice.InterserviceService.GetOrdersByUserId:output_type -> order.interservice.GetOrdersByUserIdResponse
+	4, // 11: order.interservice.InterserviceService.DeleteOrder:output_type -> order.interservice.DeleteOrderResponse
+	8, // [8:12] is the sub-list for method output_type
+	4, // [4:8] is the sub-list for method input_type
+	4, // [4:4] is the sub-list for extension type_name
+	4, // [4:4] is the sub-list for extension extendee
+	0, // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_order_service_interservice_proto_init() }
@@ -307,7 +375,7 @@ func file_order_service_interservice_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_order_service_interservice_proto_rawDesc), len(file_order_service_interservice_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   4,
+			NumMessages:   5,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

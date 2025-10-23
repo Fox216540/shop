@@ -24,7 +24,7 @@ const (
 	InterserviceService_CreteOrder_FullMethodName        = "/order.interservice.InterserviceService/CreteOrder"
 	InterserviceService_GetOrderById_FullMethodName      = "/order.interservice.InterserviceService/GetOrderById"
 	InterserviceService_GetOrdersByUserId_FullMethodName = "/order.interservice.InterserviceService/GetOrdersByUserId"
-	InterserviceService_CancelOrder_FullMethodName       = "/order.interservice.InterserviceService/CancelOrder"
+	InterserviceService_DeleteOrder_FullMethodName       = "/order.interservice.InterserviceService/DeleteOrder"
 )
 
 // InterserviceServiceClient is the client API for InterserviceService service.
@@ -38,7 +38,7 @@ type InterserviceServiceClient interface {
 	//В metadata передавать userID ↓
 	GetOrdersByUserId(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetOrdersByUserIdResponse, error)
 	//В metadata передавать userID ↓
-	CancelOrder(ctx context.Context, in *gen.OrderId, opts ...grpc.CallOption) (*gen.OrderId, error)
+	DeleteOrder(ctx context.Context, in *gen.OrderId, opts ...grpc.CallOption) (*DeleteOrderResponse, error)
 }
 
 type interserviceServiceClient struct {
@@ -79,10 +79,10 @@ func (c *interserviceServiceClient) GetOrdersByUserId(ctx context.Context, in *e
 	return out, nil
 }
 
-func (c *interserviceServiceClient) CancelOrder(ctx context.Context, in *gen.OrderId, opts ...grpc.CallOption) (*gen.OrderId, error) {
+func (c *interserviceServiceClient) DeleteOrder(ctx context.Context, in *gen.OrderId, opts ...grpc.CallOption) (*DeleteOrderResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(gen.OrderId)
-	err := c.cc.Invoke(ctx, InterserviceService_CancelOrder_FullMethodName, in, out, cOpts...)
+	out := new(DeleteOrderResponse)
+	err := c.cc.Invoke(ctx, InterserviceService_DeleteOrder_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -100,7 +100,7 @@ type InterserviceServiceServer interface {
 	//В metadata передавать userID ↓
 	GetOrdersByUserId(context.Context, *emptypb.Empty) (*GetOrdersByUserIdResponse, error)
 	//В metadata передавать userID ↓
-	CancelOrder(context.Context, *gen.OrderId) (*gen.OrderId, error)
+	DeleteOrder(context.Context, *gen.OrderId) (*DeleteOrderResponse, error)
 	mustEmbedUnimplementedInterserviceServiceServer()
 }
 
@@ -120,8 +120,8 @@ func (UnimplementedInterserviceServiceServer) GetOrderById(context.Context, *gen
 func (UnimplementedInterserviceServiceServer) GetOrdersByUserId(context.Context, *emptypb.Empty) (*GetOrdersByUserIdResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetOrdersByUserId not implemented")
 }
-func (UnimplementedInterserviceServiceServer) CancelOrder(context.Context, *gen.OrderId) (*gen.OrderId, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method CancelOrder not implemented")
+func (UnimplementedInterserviceServiceServer) DeleteOrder(context.Context, *gen.OrderId) (*DeleteOrderResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteOrder not implemented")
 }
 func (UnimplementedInterserviceServiceServer) mustEmbedUnimplementedInterserviceServiceServer() {}
 func (UnimplementedInterserviceServiceServer) testEmbeddedByValue()                             {}
@@ -198,20 +198,20 @@ func _InterserviceService_GetOrdersByUserId_Handler(srv interface{}, ctx context
 	return interceptor(ctx, in, info, handler)
 }
 
-func _InterserviceService_CancelOrder_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _InterserviceService_DeleteOrder_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(gen.OrderId)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(InterserviceServiceServer).CancelOrder(ctx, in)
+		return srv.(InterserviceServiceServer).DeleteOrder(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: InterserviceService_CancelOrder_FullMethodName,
+		FullMethod: InterserviceService_DeleteOrder_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(InterserviceServiceServer).CancelOrder(ctx, req.(*gen.OrderId))
+		return srv.(InterserviceServiceServer).DeleteOrder(ctx, req.(*gen.OrderId))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -236,8 +236,8 @@ var InterserviceService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _InterserviceService_GetOrdersByUserId_Handler,
 		},
 		{
-			MethodName: "CancelOrder",
-			Handler:    _InterserviceService_CancelOrder_Handler,
+			MethodName: "DeleteOrder",
+			Handler:    _InterserviceService_DeleteOrder_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
