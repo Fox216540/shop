@@ -1,6 +1,6 @@
 package globalError
 
-import "shop/src/core/exception"
+import "github.com/Fox216540/shop/user-service/core/exception"
 
 const (
 	layer = "Infra"
