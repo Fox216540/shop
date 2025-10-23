@@ -133,10 +133,10 @@ func (h *GRPCHandler) GetOrdersByUserId(
 	}, nil
 }
 
-func (h *GRPCHandler) CancelOrder(
+func (h *GRPCHandler) DeleteOrder(
 	ctx context.Context,
 	req *types.OrderId,
-) (*types.OrderId, error) {
+) (*pbInterservice.DeleteOrderResponse, error) {
 	userID, err := h.getUserIDFromMetadata(ctx)
 	if err != nil {
 		return nil, err
@@ -145,12 +145,18 @@ func (h *GRPCHandler) CancelOrder(
 	if err != nil {
 		return nil, err
 	}
-	if err = h.orderUC.CancelOrder(orderID, userID); err != nil {
+	if err = h.orderUC.DeleteOrder(orderID, userID); err != nil {
 		return nil, err
 	}
 
-	return &types.OrderId{
-		Id: orderID.String(),
+	return &pbInterservice.DeleteOrderResponse{
+		OrderId: &types.OrderId{
+			Id: orderID.String(),
+		},
+		Status: "deleted",
+		Message: &types.MessageResponse{
+			Message: "Order deleted successfully",
+		},
 	}, nil
 }
 
