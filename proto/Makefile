@@ -19,7 +19,7 @@ gen-catalog-api:
 		catalog-service/api.proto
 	@echo "✅ Catalog API generated"
 
-gen-catalog-internal:
+gen-catalog-interservice:
 	@make gen-common
 	@mkdir -p catalog-service/gen
 	protoc -I=. \
@@ -27,11 +27,11 @@ gen-catalog-internal:
 			--go_opt=module=github.com/Fox216540/shop/proto/catalog-service \
 			--go-grpc_out=catalog-service/ \
 			--go-grpc_opt=module=github.com/Fox216540/shop/proto/catalog-service \
-		catalog-service/internal.proto
-	@echo "✅ Catalog Internal generated"
+		catalog-service/interservice.proto
+	@echo "✅ Catalog Interservice generated"
 
 gen-catalog:
-	@make gen-catalog-api gen-catalog-internal
+	@make gen-catalog-api gen-catalog-interservice
 	@echo "✅ Catalog generated"
 
 
@@ -46,7 +46,7 @@ gen-auth-api:
 		auth-service/api.proto
 	@echo "✅ Auth Api proto generated"
 
-gen-auth-internal:
+gen-auth-interservice:
 	@make gen-common
 	@mkdir -p auth-service/gen
 	protoc -I=. \
@@ -54,11 +54,11 @@ gen-auth-internal:
 			--go_opt=module=github.com/Fox216540/shop/proto/auth-service \
 			--go-grpc_out=auth-service/ \
 			--go-grpc_opt=module=github.com/Fox216540/shop/proto/auth-service \
-		auth-service/internal.proto
-	@echo "✅ Auth Internal proto generated"
+		auth-service/interservice.proto
+	@echo "✅ Auth Interservice proto generated"
 
 gen-auth:
-	@make gen-auth-api gen-auth-internal
+	@make gen-auth-api gen-auth-interservice
 	@echo "✅ Auth generated"
 
 gen-order:
@@ -69,7 +69,7 @@ gen-order:
 			--go_opt=module=github.com/Fox216540/shop/proto/order-service \
 			--go-grpc_out=order-service/ \
 			--go-grpc_opt=module=github.com/Fox216540/shop/proto/order-service \
-		order-service/internal.proto
+		order-service/interservice.proto
 	@echo "✅ Order proto generated"
 
 gen-user-api:
@@ -83,7 +83,7 @@ gen-user-api:
 		user-service/api.proto
 	@echo "✅ User Api proto generated"
 
-gen-user-internal:
+gen-user-interservice:
 	@make gen-common
 	@mkdir -p user-service/gen
 	protoc -I=. \
@@ -91,11 +91,11 @@ gen-user-internal:
 			--go_opt=module=github.com/Fox216540/shop/proto/user-service \
 			--go-grpc_out=user-service/ \
 			--go-grpc_opt=module=github.com/Fox216540/shop/proto/user-service \
-		user-service/internal.proto
-	@echo "✅ User Internal proto generated"
+		user-service/interservice.proto
+	@echo "✅ User Interservice proto generated"
 
 gen-user:
-	@make gen-user-api gen-user-internal
+	@make gen-user-api gen-user-interservice
 	@echo "✅ User generated"
 
 
