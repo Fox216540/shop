@@ -140,11 +140,11 @@ func (s *service) PlaceOrder(userID uuid.UUID, orderItems []dto.OrderItems) (ord
 	return o, nil
 }
 
-func (s *service) CancelOrder(ID, userID uuid.UUID) (uuid.UUID, error) {
+func (s *service) DeleteOrder(ID, userID uuid.UUID) error {
 	if err := s.r.Remove(ID, userID); err != nil {
-		return ID, s.mapError(err, NewInvalidCancel(err)) // Возвращаем ошибку, если не удалось удалить заказ
+		return s.mapError(err, NewInvalidCancel(err)) // Возвращаем ошибку, если не удалось удалить заказ
 	}
-	return ID, nil
+	return nil
 }
 
 func (s *service) GetOrderByIDAndUserID(id, userID uuid.UUID) (order.Order, error) {
