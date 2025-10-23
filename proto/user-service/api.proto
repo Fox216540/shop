@@ -1,12 +1,12 @@
 syntax = "proto3";
 
-package user;
+package user.api;
 
 import "common/types.proto";
 
-option go_package = "github.com/Fox216540/shop/proto/user-service/gen;proto";
+option go_package = "github.com/Fox216540/shop/proto/user-service/gen/api;proto";
 
-service ApiUserService {
+service ApiService {
     rpc RegisterUser (RegisterUserRequest) returns (UserWithTokensResponse);
     rpc LogIn (LogInRequest) returns (UserWithTokensResponse);
 }
