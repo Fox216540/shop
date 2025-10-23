@@ -1,13 +1,13 @@
 syntax = "proto3";
 
-package user;
+package user.interservice;
 
 import "common/types.proto";
 import "google/protobuf/empty.proto";
 
-option go_package = "github.com/Fox216540/shop/proto/user-service/gen;proto";
+option go_package = "github.com/Fox216540/shop/proto/user-service/gen/interservice;proto";
 
-service InternalUserService {
+service InterserviceService {
     //В metadata передавать userID ↓
     rpc UpdateEmail (UpdateEmailRequest) returns (UserWithMessageResponse);
     //В metadata передавать userID ↓
@@ -17,7 +17,7 @@ service InternalUserService {
     //В metadata передавать userID ↓
     rpc UpdateProfile (UpdateProfileRequest) returns (UserWithMessageResponse);
     //В metadata передавать userID ↓
-    rpc DeleteUser (google.protobuf.Empty) returns (UserWithMessageResponse);
+    rpc DeleteUser (google.protobuf.Empty) returns (common.MessageResponse);
 }
 
 message UserWithMessageResponse {
@@ -38,6 +38,6 @@ message UpdatePhoneRequest {
 }
 
 message UpdateProfileRequest {
-    string name = 2;
-    string address = 3;
+    optional string name = 2;
+    optional string address = 3;
 }
