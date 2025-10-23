@@ -214,7 +214,7 @@ var File_user_service_api_proto protoreflect.FileDescriptor
 
 const file_user_service_api_proto_rawDesc = "" +
 	"\n" +
-	"\x16user-service/api.proto\x12\x04user\x1a\x12common/types.proto\"\x8b\x01\n" +
+	"\x16user-service/api.proto\x12\buser.api\x1a\x12common/types.proto\"\x8b\x01\n" +
 	"\x13RegisterUserRequest\x12\x14\n" +
 	"\x05email\x18\x01 \x01(\tR\x05email\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x1a\n" +
@@ -227,10 +227,11 @@ const file_user_service_api_proto_rawDesc = "" +
 	"\x16UserWithTokensResponse\x12,\n" +
 	"\x04name\x18\x01 \x01(\v2\x18.common.UserNameResponseR\x04name\x12.\n" +
 	"\x06tokens\x18\x02 \x01(\v2\x16.common.TokensResponseR\x06tokens\x121\n" +
-	"\amessage\x18\x03 \x01(\v2\x17.common.MessageResponseR\amessage2\x94\x01\n" +
-	"\x0eApiUserService\x12G\n" +
-	"\fRegisterUser\x12\x19.user.RegisterUserRequest\x1a\x1c.user.UserWithTokensResponse\x129\n" +
-	"\x05LogIn\x12\x12.user.LogInRequest\x1a\x1c.user.UserWithTokensResponseB8Z6github.com/Fox216540/shop/proto/user-service/gen;protob\x06proto3"
+	"\amessage\x18\x03 \x01(\v2\x17.common.MessageResponseR\amessage2\xa0\x01\n" +
+	"\n" +
+	"ApiService\x12O\n" +
+	"\fRegisterUser\x12\x1d.user.api.RegisterUserRequest\x1a .user.api.UserWithTokensResponse\x12A\n" +
+	"\x05LogIn\x12\x16.user.api.LogInRequest\x1a .user.api.UserWithTokensResponseB<Z:github.com/Fox216540/shop/proto/user-service/gen/api;protob\x06proto3"
 
 var (
 	file_user_service_api_proto_rawDescOnce sync.Once
@@ -246,21 +247,21 @@ func file_user_service_api_proto_rawDescGZIP() []byte {
 
 var file_user_service_api_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
 var file_user_service_api_proto_goTypes = []any{
-	(*RegisterUserRequest)(nil),    // 0: user.RegisterUserRequest
-	(*LogInRequest)(nil),           // 1: user.LogInRequest
-	(*UserWithTokensResponse)(nil), // 2: user.UserWithTokensResponse
+	(*RegisterUserRequest)(nil),    // 0: user.api.RegisterUserRequest
+	(*LogInRequest)(nil),           // 1: user.api.LogInRequest
+	(*UserWithTokensResponse)(nil), // 2: user.api.UserWithTokensResponse
 	(*gen.UserNameResponse)(nil),   // 3: common.UserNameResponse
 	(*gen.TokensResponse)(nil),     // 4: common.TokensResponse
 	(*gen.MessageResponse)(nil),    // 5: common.MessageResponse
 }
 var file_user_service_api_proto_depIdxs = []int32{
-	3, // 0: user.UserWithTokensResponse.name:type_name -> common.UserNameResponse
-	4, // 1: user.UserWithTokensResponse.tokens:type_name -> common.TokensResponse
-	5, // 2: user.UserWithTokensResponse.message:type_name -> common.MessageResponse
-	0, // 3: user.ApiUserService.RegisterUser:input_type -> user.RegisterUserRequest
-	1, // 4: user.ApiUserService.LogIn:input_type -> user.LogInRequest
-	2, // 5: user.ApiUserService.RegisterUser:output_type -> user.UserWithTokensResponse
-	2, // 6: user.ApiUserService.LogIn:output_type -> user.UserWithTokensResponse
+	3, // 0: user.api.UserWithTokensResponse.name:type_name -> common.UserNameResponse
+	4, // 1: user.api.UserWithTokensResponse.tokens:type_name -> common.TokensResponse
+	5, // 2: user.api.UserWithTokensResponse.message:type_name -> common.MessageResponse
+	0, // 3: user.api.ApiService.RegisterUser:input_type -> user.api.RegisterUserRequest
+	1, // 4: user.api.ApiService.LogIn:input_type -> user.api.LogInRequest
+	2, // 5: user.api.ApiService.RegisterUser:output_type -> user.api.UserWithTokensResponse
+	2, // 6: user.api.ApiService.LogIn:output_type -> user.api.UserWithTokensResponse
 	5, // [5:7] is the sub-list for method output_type
 	3, // [3:5] is the sub-list for method input_type
 	3, // [3:3] is the sub-list for extension type_name
