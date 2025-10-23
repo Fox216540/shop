@@ -16,17 +16,6 @@ message Product {
     double price = 4;
 }
 
-//Catalog-service:
-message ProductWithSupplement {
-    Product product = 1;
-    string category_id = 2;
-    string description = 3;
-    uint64 stock = 4;
-}
-
-message GetProductsResponse {
-    repeated ProductWithSupplement products = 1;
-}
 
 //Order-service:
 message Item {
