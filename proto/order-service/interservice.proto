@@ -1,13 +1,13 @@
 syntax = "proto3";
 
-package order;
+package order.interservice;
 
 import "common/types.proto";
 import "google/protobuf/empty.proto";
 
-option go_package = "github.com/Fox216540/shop/proto/order-service/gen;proto";
+option go_package = "github.com/Fox216540/shop/proto/order-service/gen/interservice;proto";
 
-service InternalOrderService {
+service InterserviceService {
     //В metadata передавать userID ↓
     rpc CreteOrder (CreateOrderRequest) returns (common.Order);
     //В metadata передавать userID ↓
