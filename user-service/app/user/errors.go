@@ -1,6 +1,6 @@
 package user
 
-import "shop/src/app/globalError"
+import "github.com/Fox216540/shop/user-service/app/globalError"
 
 const domain = "User"
 
