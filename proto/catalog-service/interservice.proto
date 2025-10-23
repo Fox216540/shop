@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package catalog.interservice;
+
+import "common/types.proto";
+
+option go_package = "github.com/Fox216540/shop/proto/catalog-service/gen/interservice;catalog";
+
+service InterserviceService {
+    rpc GetProductsByIds (GetProductsByIdsRequest) returns (GetProductsByIdsResponse);
+}
+
+message GetProductsByIdsRequest {
+    repeated string product_ids = 1;
+}
+
+message GetProductsByIdsResponse {
+    repeated common.Product products = 1;
+}
