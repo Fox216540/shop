@@ -1,18 +1,18 @@
 syntax = "proto3";
 
-package catalog;
+package catalog.api;
 
 import "common/types.proto";
 import "google/protobuf/empty.proto";
 
 
-option go_package = "github.com/Fox216540/shop/proto/catalog-service/gen;catalog";
+option go_package = "github.com/Fox216540/shop/proto/catalog-service/gen/api;catalog";
 
-service ApiCatalogService {
+service ApiService {
     rpc GetCategories (google.protobuf.Empty) returns (GetCategoriesResponse);
-    rpc GetAllProducts (google.protobuf.Empty) returns (common.GetProductsResponse);
-    rpc GetProductsOfCategoryId (GetProductsOfCategoryIdRequest) returns (common.GetProductsResponse);
-    rpc GetProductById (GetProductByIdRequest) returns (common.ProductWithSupplement);
+    rpc GetAllProducts (google.protobuf.Empty) returns (GetProductsResponse);
+    rpc GetProductsOfCategoryId (GetProductsOfCategoryIdRequest) returns (GetProductsResponse);
+    rpc GetProductById (GetProductByIdRequest) returns (ProductWithSupplement);
 }
 
 message Category {
@@ -31,4 +31,15 @@ message GetProductsOfCategoryIdRequest {
 
 message GetProductByIdRequest {
     string product_id = 1;
+}
+
+message ProductWithSupplement {
+    common.Product product = 1;
+    string category_id = 2;
+    string description = 3;
+    uint64 stock = 4;
+}
+
+message GetProductsResponse {
+    repeated ProductWithSupplement products = 1;
 }
