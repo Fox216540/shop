@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package auth.interservice;
+
+import "common/types.proto";
+
+option go_package = "github.com/Fox216540/shop/proto/auth-service/gen/interservice;auth";
+
+service InterserviceService {
+    rpc GenerateTokens (common.UserId) returns (common.TokensResponse);
+    rpc DeleteAllRefreshTokens (common.UserId) returns (common.MessageResponse);
+}
+
+
+
+
+
