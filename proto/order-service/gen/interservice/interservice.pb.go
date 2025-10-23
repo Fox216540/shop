@@ -2,7 +2,7 @@
 // versions:
 // 	protoc-gen-go v1.36.9
 // 	protoc        v3.21.12
-// source: order-service/internal.proto
+// source: order-service/interservice.proto
 
 package proto
 
@@ -33,7 +33,7 @@ type ItemRequest struct {
 
 func (x *ItemRequest) Reset() {
 	*x = ItemRequest{}
-	mi := &file_order_service_internal_proto_msgTypes[0]
+	mi := &file_order_service_interservice_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -45,7 +45,7 @@ func (x *ItemRequest) String() string {
 func (*ItemRequest) ProtoMessage() {}
 
 func (x *ItemRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_order_service_internal_proto_msgTypes[0]
+	mi := &file_order_service_interservice_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -58,7 +58,7 @@ func (x *ItemRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ItemRequest.ProtoReflect.Descriptor instead.
 func (*ItemRequest) Descriptor() ([]byte, []int) {
-	return file_order_service_internal_proto_rawDescGZIP(), []int{0}
+	return file_order_service_interservice_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *ItemRequest) GetProductId() string {
@@ -84,7 +84,7 @@ type CreateOrderRequest struct {
 
 func (x *CreateOrderRequest) Reset() {
 	*x = CreateOrderRequest{}
-	mi := &file_order_service_internal_proto_msgTypes[1]
+	mi := &file_order_service_interservice_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -96,7 +96,7 @@ func (x *CreateOrderRequest) String() string {
 func (*CreateOrderRequest) ProtoMessage() {}
 
 func (x *CreateOrderRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_order_service_internal_proto_msgTypes[1]
+	mi := &file_order_service_interservice_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -109,7 +109,7 @@ func (x *CreateOrderRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateOrderRequest.ProtoReflect.Descriptor instead.
 func (*CreateOrderRequest) Descriptor() ([]byte, []int) {
-	return file_order_service_internal_proto_rawDescGZIP(), []int{1}
+	return file_order_service_interservice_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *CreateOrderRequest) GetItems() []*ItemRequest {
@@ -131,7 +131,7 @@ type OrderForList struct {
 
 func (x *OrderForList) Reset() {
 	*x = OrderForList{}
-	mi := &file_order_service_internal_proto_msgTypes[2]
+	mi := &file_order_service_interservice_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -143,7 +143,7 @@ func (x *OrderForList) String() string {
 func (*OrderForList) ProtoMessage() {}
 
 func (x *OrderForList) ProtoReflect() protoreflect.Message {
-	mi := &file_order_service_internal_proto_msgTypes[2]
+	mi := &file_order_service_interservice_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -156,7 +156,7 @@ func (x *OrderForList) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use OrderForList.ProtoReflect.Descriptor instead.
 func (*OrderForList) Descriptor() ([]byte, []int) {
-	return file_order_service_internal_proto_rawDescGZIP(), []int{2}
+	return file_order_service_interservice_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *OrderForList) GetId() string {
@@ -196,7 +196,7 @@ type GetOrdersByUserIdResponse struct {
 
 func (x *GetOrdersByUserIdResponse) Reset() {
 	*x = GetOrdersByUserIdResponse{}
-	mi := &file_order_service_internal_proto_msgTypes[3]
+	mi := &file_order_service_interservice_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -208,7 +208,7 @@ func (x *GetOrdersByUserIdResponse) String() string {
 func (*GetOrdersByUserIdResponse) ProtoMessage() {}
 
 func (x *GetOrdersByUserIdResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_order_service_internal_proto_msgTypes[3]
+	mi := &file_order_service_interservice_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -221,7 +221,7 @@ func (x *GetOrdersByUserIdResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetOrdersByUserIdResponse.ProtoReflect.Descriptor instead.
 func (*GetOrdersByUserIdResponse) Descriptor() ([]byte, []int) {
-	return file_order_service_internal_proto_rawDescGZIP(), []int{3}
+	return file_order_service_interservice_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *GetOrdersByUserIdResponse) GetOrders() []*OrderForList {
@@ -231,64 +231,64 @@ func (x *GetOrdersByUserIdResponse) GetOrders() []*OrderForList {
 	return nil
 }
 
-var File_order_service_internal_proto protoreflect.FileDescriptor
+var File_order_service_interservice_proto protoreflect.FileDescriptor
 
-const file_order_service_internal_proto_rawDesc = "" +
+const file_order_service_interservice_proto_rawDesc = "" +
 	"\n" +
-	"\x1corder-service/internal.proto\x12\x05order\x1a\x12common/types.proto\x1a\x1bgoogle/protobuf/empty.proto\"H\n" +
+	" order-service/interservice.proto\x12\x12order.interservice\x1a\x12common/types.proto\x1a\x1bgoogle/protobuf/empty.proto\"H\n" +
 	"\vItemRequest\x12\x1d\n" +
 	"\n" +
 	"product_id\x18\x01 \x01(\tR\tproductId\x12\x1a\n" +
-	"\bquantity\x18\x02 \x01(\x04R\bquantity\">\n" +
-	"\x12CreateOrderRequest\x12(\n" +
-	"\x05items\x18\x02 \x03(\v2\x12.order.ItemRequestR\x05items\"i\n" +
+	"\bquantity\x18\x02 \x01(\x04R\bquantity\"K\n" +
+	"\x12CreateOrderRequest\x125\n" +
+	"\x05items\x18\x02 \x03(\v2\x1f.order.interservice.ItemRequestR\x05items\"i\n" +
 	"\fOrderForList\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1b\n" +
 	"\torder_num\x18\x02 \x01(\tR\borderNum\x12\x14\n" +
 	"\x05total\x18\x04 \x01(\x01R\x05total\x12\x16\n" +
-	"\x06status\x18\x05 \x01(\tR\x06status\"H\n" +
-	"\x19GetOrdersByUserIdResponse\x12+\n" +
-	"\x06orders\x18\x01 \x03(\v2\x13.order.OrderForListR\x06orders2\xfe\x01\n" +
-	"\x14InternalOrderService\x126\n" +
+	"\x06status\x18\x05 \x01(\tR\x06status\"U\n" +
+	"\x19GetOrdersByUserIdResponse\x128\n" +
+	"\x06orders\x18\x01 \x03(\v2 .order.interservice.OrderForListR\x06orders2\x97\x02\n" +
+	"\x13InterserviceService\x12C\n" +
 	"\n" +
-	"CreteOrder\x12\x19.order.CreateOrderRequest\x1a\r.common.Order\x12.\n" +
-	"\fGetOrderById\x12\x0f.common.OrderId\x1a\r.common.Order\x12M\n" +
-	"\x11GetOrdersByUserId\x12\x16.google.protobuf.Empty\x1a .order.GetOrdersByUserIdResponse\x12/\n" +
-	"\vCancelOrder\x12\x0f.common.OrderId\x1a\x0f.common.OrderIdB9Z7github.com/Fox216540/shop/proto/order-service/gen;protob\x06proto3"
+	"CreteOrder\x12&.order.interservice.CreateOrderRequest\x1a\r.common.Order\x12.\n" +
+	"\fGetOrderById\x12\x0f.common.OrderId\x1a\r.common.Order\x12Z\n" +
+	"\x11GetOrdersByUserId\x12\x16.google.protobuf.Empty\x1a-.order.interservice.GetOrdersByUserIdResponse\x12/\n" +
+	"\vCancelOrder\x12\x0f.common.OrderId\x1a\x0f.common.OrderIdBFZDgithub.com/Fox216540/shop/proto/order-service/gen/interservice;protob\x06proto3"
 
 var (
-	file_order_service_internal_proto_rawDescOnce sync.Once
-	file_order_service_internal_proto_rawDescData []byte
+	file_order_service_interservice_proto_rawDescOnce sync.Once
+	file_order_service_interservice_proto_rawDescData []byte
 )
 
-func file_order_service_internal_proto_rawDescGZIP() []byte {
-	file_order_service_internal_proto_rawDescOnce.Do(func() {
-		file_order_service_internal_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_order_service_internal_proto_rawDesc), len(file_order_service_internal_proto_rawDesc)))
+func file_order_service_interservice_proto_rawDescGZIP() []byte {
+	file_order_service_interservice_proto_rawDescOnce.Do(func() {
+		file_order_service_interservice_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_order_service_interservice_proto_rawDesc), len(file_order_service_interservice_proto_rawDesc)))
 	})
-	return file_order_service_internal_proto_rawDescData
+	return file_order_service_interservice_proto_rawDescData
 }
 
-var file_order_service_internal_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
-var file_order_service_internal_proto_goTypes = []any{
-	(*ItemRequest)(nil),               // 0: order.ItemRequest
-	(*CreateOrderRequest)(nil),        // 1: order.CreateOrderRequest
-	(*OrderForList)(nil),              // 2: order.OrderForList
-	(*GetOrdersByUserIdResponse)(nil), // 3: order.GetOrdersByUserIdResponse
+var file_order_service_interservice_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_order_service_interservice_proto_goTypes = []any{
+	(*ItemRequest)(nil),               // 0: order.interservice.ItemRequest
+	(*CreateOrderRequest)(nil),        // 1: order.interservice.CreateOrderRequest
+	(*OrderForList)(nil),              // 2: order.interservice.OrderForList
+	(*GetOrdersByUserIdResponse)(nil), // 3: order.interservice.GetOrdersByUserIdResponse
 	(*gen.OrderId)(nil),               // 4: common.OrderId
 	(*emptypb.Empty)(nil),             // 5: google.protobuf.Empty
 	(*gen.Order)(nil),                 // 6: common.Order
 }
-var file_order_service_internal_proto_depIdxs = []int32{
-	0, // 0: order.CreateOrderRequest.items:type_name -> order.ItemRequest
-	2, // 1: order.GetOrdersByUserIdResponse.orders:type_name -> order.OrderForList
-	1, // 2: order.InternalOrderService.CreteOrder:input_type -> order.CreateOrderRequest
-	4, // 3: order.InternalOrderService.GetOrderById:input_type -> common.OrderId
-	5, // 4: order.InternalOrderService.GetOrdersByUserId:input_type -> google.protobuf.Empty
-	4, // 5: order.InternalOrderService.CancelOrder:input_type -> common.OrderId
-	6, // 6: order.InternalOrderService.CreteOrder:output_type -> common.Order
-	6, // 7: order.InternalOrderService.GetOrderById:output_type -> common.Order
-	3, // 8: order.InternalOrderService.GetOrdersByUserId:output_type -> order.GetOrdersByUserIdResponse
-	4, // 9: order.InternalOrderService.CancelOrder:output_type -> common.OrderId
+var file_order_service_interservice_proto_depIdxs = []int32{
+	0, // 0: order.interservice.CreateOrderRequest.items:type_name -> order.interservice.ItemRequest
+	2, // 1: order.interservice.GetOrdersByUserIdResponse.orders:type_name -> order.interservice.OrderForList
+	1, // 2: order.interservice.InterserviceService.CreteOrder:input_type -> order.interservice.CreateOrderRequest
+	4, // 3: order.interservice.InterserviceService.GetOrderById:input_type -> common.OrderId
+	5, // 4: order.interservice.InterserviceService.GetOrdersByUserId:input_type -> google.protobuf.Empty
+	4, // 5: order.interservice.InterserviceService.CancelOrder:input_type -> common.OrderId
+	6, // 6: order.interservice.InterserviceService.CreteOrder:output_type -> common.Order
+	6, // 7: order.interservice.InterserviceService.GetOrderById:output_type -> common.Order
+	3, // 8: order.interservice.InterserviceService.GetOrdersByUserId:output_type -> order.interservice.GetOrdersByUserIdResponse
+	4, // 9: order.interservice.InterserviceService.CancelOrder:output_type -> common.OrderId
 	6, // [6:10] is the sub-list for method output_type
 	2, // [2:6] is the sub-list for method input_type
 	2, // [2:2] is the sub-list for extension type_name
@@ -296,26 +296,26 @@ var file_order_service_internal_proto_depIdxs = []int32{
 	0, // [0:2] is the sub-list for field type_name
 }
 
-func init() { file_order_service_internal_proto_init() }
-func file_order_service_internal_proto_init() {
-	if File_order_service_internal_proto != nil {
+func init() { file_order_service_interservice_proto_init() }
+func file_order_service_interservice_proto_init() {
+	if File_order_service_interservice_proto != nil {
 		return
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_order_service_internal_proto_rawDesc), len(file_order_service_internal_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_order_service_interservice_proto_rawDesc), len(file_order_service_interservice_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   4,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
-		GoTypes:           file_order_service_internal_proto_goTypes,
-		DependencyIndexes: file_order_service_internal_proto_depIdxs,
-		MessageInfos:      file_order_service_internal_proto_msgTypes,
+		GoTypes:           file_order_service_interservice_proto_goTypes,
+		DependencyIndexes: file_order_service_interservice_proto_depIdxs,
+		MessageInfos:      file_order_service_interservice_proto_msgTypes,
 	}.Build()
-	File_order_service_internal_proto = out.File
-	file_order_service_internal_proto_goTypes = nil
-	file_order_service_internal_proto_depIdxs = nil
+	File_order_service_interservice_proto = out.File
+	file_order_service_interservice_proto_goTypes = nil
+	file_order_service_interservice_proto_depIdxs = nil
 }
