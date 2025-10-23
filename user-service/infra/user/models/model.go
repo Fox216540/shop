@@ -1,9 +1,9 @@
 package models
 
 import (
+	"github.com/Fox216540/shop/user-service/domain/user"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
-	"shop/src/domain/user"
 )
 
 type UserORM struct {
