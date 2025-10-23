@@ -1,25 +1,18 @@
 package user
 
 import (
+	"github.com/Fox216540/shop/user-service/app/dto"
+	"github.com/Fox216540/shop/user-service/domain/auth"
+	"github.com/Fox216540/shop/user-service/domain/user"
 	"github.com/google/uuid"
-	"shop/user-service/api/user/dto"
-	"shop/user-service/domain/auth"
-	"shop/user-service/domain/order"
-	"shop/user-service/domain/user"
 )
 
 type UseCase interface {
-	Register(userDto dto.RegisterRequest) (user.User, auth.Tokens, error)
+	Register(user user.User) (user.User, auth.Tokens, error)
 	Login(usernameOrEmail, password string) (user.User, auth.Tokens, error)
-	Logout(token string) error
-	LogoutAll(token string) error
 	UpdateEmail(userID uuid.UUID, newEmail string) (user.User, error)
 	UpdatePassword(userID uuid.UUID, newPassword string) (user.User, error)
 	UpdatePhone(userID uuid.UUID, newPhone string) (user.User, error)
-	UpdateProfile(userID uuid.UUID, userDTO dto.UpdateProfileRequest) (user.User, error)
-	RefreshTokens(token string) (auth.Tokens, error)
-	Delete(userID uuid.UUID) (user.User, error)
-	Orders(userID uuid.UUID) ([]order.Order, error)
-	DeleteOrder(userID, orderID uuid.UUID) (order.Order, error)
-	CreateOrder(userID uuid.UUID, userDTO dto.CreateOrderRequest) (order.Order, error)
+	UpdateProfile(userID uuid.UUID, userDTO dto.ProfileUpdate) (user.User, error)
+	DeleteUser(userID uuid.UUID) error
 }
