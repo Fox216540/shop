@@ -2,11 +2,11 @@ package user
 
 import (
 	"errors"
+	"github.com/Fox216540/shop/user-service/domain/user"
+	db "github.com/Fox216540/shop/user-service/infra/db/core"
+	"github.com/Fox216540/shop/user-service/infra/user/models"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
-	"shop/src/domain/user"
-	db "shop/src/infra/db/core"
-	"shop/src/infra/user/models"
 )
 
 type repository struct {
@@ -17,7 +17,7 @@ func NewRepository(db *db.Database) user.Repository {
 	return &repository{db: db}
 }
 
-func (r *repository) Add(u user.User) (user.User, error) {
+func (r *repository) Create(u user.User) (user.User, error) {
 	newUser := &models.UserORM{
 		UserID:   u.ID,
 		Email:    u.Email,
@@ -35,7 +35,7 @@ func (r *repository) Add(u user.User) (user.User, error) {
 	return models.FromORM(*newUser), nil
 }
 
-func (r *repository) Delete(ID uuid.UUID) (uuid.UUID, error) {
+func (r *repository) Delete(ID uuid.UUID) error {
 	err := r.db.WithSession(func(tx *gorm.DB) error {
 		result := tx.Unscoped().Where("user_id = ?", ID).Delete(&models.UserORM{})
 		if result.RowsAffected == 0 {
@@ -45,9 +45,9 @@ func (r *repository) Delete(ID uuid.UUID) (uuid.UUID, error) {
 	})
 
 	if err != nil {
-		return uuid.Nil, err // Возвращаем ошибку, если не удалось удалить пользователя
+		return err // Возвращаем ошибку, если не удалось удалить пользователя
 	}
-	return ID, nil
+	return nil
 }
 
 func (r *repository) GetByID(ID uuid.UUID) (user.User, error) {
@@ -64,10 +64,10 @@ func (r *repository) GetByID(ID uuid.UUID) (user.User, error) {
 	return models.FromORM(u), nil
 }
 
-func (r *repository) FindByPhoneOrEmail(phoneOrEmail string) (user.User, error) {
+func (r *repository) FindByPhoneOrEmail(phone, email string) (user.User, error) {
 	var u models.UserORM
 	err := r.db.WithSession(func(tx *gorm.DB) error {
-		return tx.Where("phone = ? OR email = ?", phoneOrEmail, phoneOrEmail).First(&u).Error
+		return tx.Where("phone = ? OR email = ?", phone, email).First(&u).Error
 	})
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -108,7 +108,7 @@ func (r *repository) Update(u user.User) (user.User, error) {
 	return models.FromORM(*updateUser), nil
 }
 
-func (r *repository) ExistsPhone(phone string) error {
+func (r *repository) ExistsByPhone(phone string) error {
 	var u models.UserORM
 	err := r.db.WithSession(func(tx *gorm.DB) error {
 		return tx.Where("phone = ?", phone).First(&u).Error
@@ -122,7 +122,7 @@ func (r *repository) ExistsPhone(phone string) error {
 	return nil
 }
 
-func (r *repository) ExistsEmail(email string) error {
+func (r *repository) ExistsByEmail(email string) error {
 	var u models.UserORM
 	err := r.db.WithSession(func(tx *gorm.DB) error {
 		return tx.Where("email = ?", email).First(&u).Error
