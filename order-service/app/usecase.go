@@ -8,7 +8,7 @@ import (
 
 type UseCase interface {
 	PlaceOrder(userID uuid.UUID, orderItems []dto.OrderItems) (order.Order, error)
-	CancelOrder(ID, userID uuid.UUID) error
+	DeleteOrder(ID, userID uuid.UUID) error
 	GetOrderByIDAndUserID(ID, userID uuid.UUID) (order.Order, error)
 	GetOrdersByUserID(userID uuid.UUID) (orders []order.Order, err error)
 }
