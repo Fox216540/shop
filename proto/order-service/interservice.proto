@@ -15,7 +15,7 @@ service InterserviceService {
     //В metadata передавать userID ↓
     rpc GetOrdersByUserId (google.protobuf.Empty) returns (GetOrdersByUserIdResponse);
     //В metadata передавать userID ↓
-    rpc CancelOrder (common.OrderId) returns (common.OrderId);
+    rpc DeleteOrder (common.OrderId) returns (DeleteOrderResponse);
 }
 
 message ItemRequest {
@@ -36,4 +36,10 @@ message OrderForList {
 
 message GetOrdersByUserIdResponse {
     repeated OrderForList orders = 1;
+}
+
+message DeleteOrderResponse {
+    common.OrderId order_id = 1;
+    string status = 2;
+    common.MessageResponse message = 3;
 }
