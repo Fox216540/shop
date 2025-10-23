@@ -3,18 +3,22 @@ package api
 import (
 	"context"
 	"github.com/Fox216540/shop/auth-service/app/auth"
-	pb "github.com/Fox216540/shop/proto/auth-service/gen"
+	pbApi "github.com/Fox216540/shop/proto/auth-service/gen/api"
+	pbInterservice "github.com/Fox216540/shop/proto/auth-service/gen/interservice"
 	types "github.com/Fox216540/shop/proto/common/gen"
 	"github.com/google/uuid"
 )
 
 type GRPCHandler struct {
 	auth auth.UseCase
-	pb.UnimplementedApiAuthServiceServer
-	pb.UnimplementedInternalAuthServiceServer
+	pbApi.UnimplementedApiServiceServer
+	pbInterservice.UnimplementedInterserviceServiceServer
 }
 
-func (h *GRPCHandler) LogOut(ctx context.Context, req *types.DecodeTokenRequest) (*types.MessageResponse, error) {
+func (h *GRPCHandler) LogOut(
+	ctx context.Context,
+	req *types.DecodeTokenRequest,
+) (*types.MessageResponse, error) {
 	if err := h.auth.DeleteRefreshToken(req.Token); err != nil {
 		return nil, err
 	}
@@ -24,7 +28,10 @@ func (h *GRPCHandler) LogOut(ctx context.Context, req *types.DecodeTokenRequest)
 	}, nil
 }
 
-func (h *GRPCHandler) LogOutAll(ctx context.Context, req *types.DecodeTokenRequest) (*types.MessageResponse, error) {
+func (h *GRPCHandler) LogOutAll(
+	ctx context.Context,
+	req *types.DecodeTokenRequest,
+) (*types.MessageResponse, error) {
 	if err := h.auth.DeleteAllTokensByToken(req.Token); err != nil {
 		return nil, err
 	}
@@ -34,7 +41,10 @@ func (h *GRPCHandler) LogOutAll(ctx context.Context, req *types.DecodeTokenReque
 	}, nil
 }
 
-func (h *GRPCHandler) RefreshTokens(ctx context.Context, req *types.DecodeTokenRequest) (*types.TokensResponse, error) {
+func (h *GRPCHandler) RefreshTokens(
+	ctx context.Context,
+	req *types.DecodeTokenRequest,
+) (*types.TokensResponse, error) {
 	tokens, err := h.auth.RefreshTokens(req.Token)
 	if err != nil {
 		return nil, err
@@ -45,7 +55,10 @@ func (h *GRPCHandler) RefreshTokens(ctx context.Context, req *types.DecodeTokenR
 	}, nil
 }
 
-func (h *GRPCHandler) DecodeAccessToken(ctx context.Context, req *types.DecodeTokenRequest) (*types.UserId, error) {
+func (h *GRPCHandler) DecodeAccessToken(
+	ctx context.Context,
+	req *types.DecodeTokenRequest,
+) (*types.UserId, error) {
 	userJWT, err := h.auth.DecodeAccessToken(req.Token)
 	if err != nil {
 		return nil, err
@@ -55,7 +68,10 @@ func (h *GRPCHandler) DecodeAccessToken(ctx context.Context, req *types.DecodeTo
 	}, nil
 }
 
-func (h *GRPCHandler) GenerateTokens(ctx context.Context, req *types.UserId) (*types.TokensResponse, error) {
+func (h *GRPCHandler) GenerateTokens(
+	ctx context.Context,
+	req *types.UserId,
+) (*types.TokensResponse, error) {
 	userID, err := uuid.Parse(req.Id)
 	if err != nil {
 		return nil, err
@@ -70,7 +86,10 @@ func (h *GRPCHandler) GenerateTokens(ctx context.Context, req *types.UserId) (*t
 	}, nil
 }
 
-func (h *GRPCHandler) DeleteAllTokens(ctx context.Context, req *types.UserId) (*types.MessageResponse, error) {
+func (h *GRPCHandler) DeleteAllRefreshTokens(
+	ctx context.Context,
+	req *types.UserId,
+) (*types.MessageResponse, error) {
 	userID, err := uuid.Parse(req.Id)
 	if err != nil {
 		return nil, err
