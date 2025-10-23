@@ -207,29 +207,150 @@ func (x *GetProductByIdRequest) GetProductId() string {
 	return ""
 }
 
+type ProductWithSupplement struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Product       *gen.Product           `protobuf:"bytes,1,opt,name=product,proto3" json:"product,omitempty"`
+	CategoryId    string                 `protobuf:"bytes,2,opt,name=category_id,json=categoryId,proto3" json:"category_id,omitempty"`
+	Description   string                 `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
+	Stock         uint64                 `protobuf:"varint,4,opt,name=stock,proto3" json:"stock,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ProductWithSupplement) Reset() {
+	*x = ProductWithSupplement{}
+	mi := &file_catalog_service_api_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ProductWithSupplement) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ProductWithSupplement) ProtoMessage() {}
+
+func (x *ProductWithSupplement) ProtoReflect() protoreflect.Message {
+	mi := &file_catalog_service_api_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ProductWithSupplement.ProtoReflect.Descriptor instead.
+func (*ProductWithSupplement) Descriptor() ([]byte, []int) {
+	return file_catalog_service_api_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *ProductWithSupplement) GetProduct() *gen.Product {
+	if x != nil {
+		return x.Product
+	}
+	return nil
+}
+
+func (x *ProductWithSupplement) GetCategoryId() string {
+	if x != nil {
+		return x.CategoryId
+	}
+	return ""
+}
+
+func (x *ProductWithSupplement) GetDescription() string {
+	if x != nil {
+		return x.Description
+	}
+	return ""
+}
+
+func (x *ProductWithSupplement) GetStock() uint64 {
+	if x != nil {
+		return x.Stock
+	}
+	return 0
+}
+
+type GetProductsResponse struct {
+	state         protoimpl.MessageState   `protogen:"open.v1"`
+	Products      []*ProductWithSupplement `protobuf:"bytes,1,rep,name=products,proto3" json:"products,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetProductsResponse) Reset() {
+	*x = GetProductsResponse{}
+	mi := &file_catalog_service_api_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetProductsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetProductsResponse) ProtoMessage() {}
+
+func (x *GetProductsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_catalog_service_api_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetProductsResponse.ProtoReflect.Descriptor instead.
+func (*GetProductsResponse) Descriptor() ([]byte, []int) {
+	return file_catalog_service_api_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *GetProductsResponse) GetProducts() []*ProductWithSupplement {
+	if x != nil {
+		return x.Products
+	}
+	return nil
+}
+
 var File_catalog_service_api_proto protoreflect.FileDescriptor
 
 const file_catalog_service_api_proto_rawDesc = "" +
 	"\n" +
-	"\x19catalog-service/api.proto\x12\acatalog\x1a\x12common/types.proto\x1a\x1bgoogle/protobuf/empty.proto\".\n" +
+	"\x19catalog-service/api.proto\x12\vcatalog.api\x1a\x12common/types.proto\x1a\x1bgoogle/protobuf/empty.proto\".\n" +
 	"\bCategory\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
-	"\x04name\x18\x02 \x01(\tR\x04name\"J\n" +
-	"\x15GetCategoriesResponse\x121\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\"N\n" +
+	"\x15GetCategoriesResponse\x125\n" +
 	"\n" +
-	"categories\x18\x01 \x03(\v2\x11.catalog.CategoryR\n" +
+	"categories\x18\x01 \x03(\v2\x15.catalog.api.CategoryR\n" +
 	"categories\"A\n" +
 	"\x1eGetProductsOfCategoryIdRequest\x12\x1f\n" +
 	"\vcategory_id\x18\x01 \x01(\tR\n" +
 	"categoryId\"6\n" +
 	"\x15GetProductByIdRequest\x12\x1d\n" +
 	"\n" +
-	"product_id\x18\x01 \x01(\tR\tproductId2\xd5\x02\n" +
-	"\x11ApiCatalogService\x12G\n" +
-	"\rGetCategories\x12\x16.google.protobuf.Empty\x1a\x1e.catalog.GetCategoriesResponse\x12E\n" +
-	"\x0eGetAllProducts\x12\x16.google.protobuf.Empty\x1a\x1b.common.GetProductsResponse\x12_\n" +
-	"\x17GetProductsOfCategoryId\x12'.catalog.GetProductsOfCategoryIdRequest\x1a\x1b.common.GetProductsResponse\x12O\n" +
-	"\x0eGetProductById\x12\x1e.catalog.GetProductByIdRequest\x1a\x1d.common.ProductWithSupplementB=Z;github.com/Fox216540/shop/proto/catalog-service/gen;catalogb\x06proto3"
+	"product_id\x18\x01 \x01(\tR\tproductId\"\x9b\x01\n" +
+	"\x15ProductWithSupplement\x12)\n" +
+	"\aproduct\x18\x01 \x01(\v2\x0f.common.ProductR\aproduct\x12\x1f\n" +
+	"\vcategory_id\x18\x02 \x01(\tR\n" +
+	"categoryId\x12 \n" +
+	"\vdescription\x18\x03 \x01(\tR\vdescription\x12\x14\n" +
+	"\x05stock\x18\x04 \x01(\x04R\x05stock\"U\n" +
+	"\x13GetProductsResponse\x12>\n" +
+	"\bproducts\x18\x01 \x03(\v2\".catalog.api.ProductWithSupplementR\bproducts2\xe9\x02\n" +
+	"\n" +
+	"ApiService\x12K\n" +
+	"\rGetCategories\x12\x16.google.protobuf.Empty\x1a\".catalog.api.GetCategoriesResponse\x12J\n" +
+	"\x0eGetAllProducts\x12\x16.google.protobuf.Empty\x1a .catalog.api.GetProductsResponse\x12h\n" +
+	"\x17GetProductsOfCategoryId\x12+.catalog.api.GetProductsOfCategoryIdRequest\x1a .catalog.api.GetProductsResponse\x12X\n" +
+	"\x0eGetProductById\x12\".catalog.api.GetProductByIdRequest\x1a\".catalog.api.ProductWithSupplementBAZ?github.com/Fox216540/shop/proto/catalog-service/gen/api;catalogb\x06proto3"
 
 var (
 	file_catalog_service_api_proto_rawDescOnce sync.Once
@@ -243,31 +364,34 @@ func file_catalog_service_api_proto_rawDescGZIP() []byte {
 	return file_catalog_service_api_proto_rawDescData
 }
 
-var file_catalog_service_api_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_catalog_service_api_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
 var file_catalog_service_api_proto_goTypes = []any{
-	(*Category)(nil),                       // 0: catalog.Category
-	(*GetCategoriesResponse)(nil),          // 1: catalog.GetCategoriesResponse
-	(*GetProductsOfCategoryIdRequest)(nil), // 2: catalog.GetProductsOfCategoryIdRequest
-	(*GetProductByIdRequest)(nil),          // 3: catalog.GetProductByIdRequest
-	(*emptypb.Empty)(nil),                  // 4: google.protobuf.Empty
-	(*gen.GetProductsResponse)(nil),        // 5: common.GetProductsResponse
-	(*gen.ProductWithSupplement)(nil),      // 6: common.ProductWithSupplement
+	(*Category)(nil),                       // 0: catalog.api.Category
+	(*GetCategoriesResponse)(nil),          // 1: catalog.api.GetCategoriesResponse
+	(*GetProductsOfCategoryIdRequest)(nil), // 2: catalog.api.GetProductsOfCategoryIdRequest
+	(*GetProductByIdRequest)(nil),          // 3: catalog.api.GetProductByIdRequest
+	(*ProductWithSupplement)(nil),          // 4: catalog.api.ProductWithSupplement
+	(*GetProductsResponse)(nil),            // 5: catalog.api.GetProductsResponse
+	(*gen.Product)(nil),                    // 6: common.Product
+	(*emptypb.Empty)(nil),                  // 7: google.protobuf.Empty
 }
 var file_catalog_service_api_proto_depIdxs = []int32{
-	0, // 0: catalog.GetCategoriesResponse.categories:type_name -> catalog.Category
-	4, // 1: catalog.ApiCatalogService.GetCategories:input_type -> google.protobuf.Empty
-	4, // 2: catalog.ApiCatalogService.GetAllProducts:input_type -> google.protobuf.Empty
-	2, // 3: catalog.ApiCatalogService.GetProductsOfCategoryId:input_type -> catalog.GetProductsOfCategoryIdRequest
-	3, // 4: catalog.ApiCatalogService.GetProductById:input_type -> catalog.GetProductByIdRequest
-	1, // 5: catalog.ApiCatalogService.GetCategories:output_type -> catalog.GetCategoriesResponse
-	5, // 6: catalog.ApiCatalogService.GetAllProducts:output_type -> common.GetProductsResponse
-	5, // 7: catalog.ApiCatalogService.GetProductsOfCategoryId:output_type -> common.GetProductsResponse
-	6, // 8: catalog.ApiCatalogService.GetProductById:output_type -> common.ProductWithSupplement
-	5, // [5:9] is the sub-list for method output_type
-	1, // [1:5] is the sub-list for method input_type
-	1, // [1:1] is the sub-list for extension type_name
-	1, // [1:1] is the sub-list for extension extendee
-	0, // [0:1] is the sub-list for field type_name
+	0, // 0: catalog.api.GetCategoriesResponse.categories:type_name -> catalog.api.Category
+	6, // 1: catalog.api.ProductWithSupplement.product:type_name -> common.Product
+	4, // 2: catalog.api.GetProductsResponse.products:type_name -> catalog.api.ProductWithSupplement
+	7, // 3: catalog.api.ApiService.GetCategories:input_type -> google.protobuf.Empty
+	7, // 4: catalog.api.ApiService.GetAllProducts:input_type -> google.protobuf.Empty
+	2, // 5: catalog.api.ApiService.GetProductsOfCategoryId:input_type -> catalog.api.GetProductsOfCategoryIdRequest
+	3, // 6: catalog.api.ApiService.GetProductById:input_type -> catalog.api.GetProductByIdRequest
+	1, // 7: catalog.api.ApiService.GetCategories:output_type -> catalog.api.GetCategoriesResponse
+	5, // 8: catalog.api.ApiService.GetAllProducts:output_type -> catalog.api.GetProductsResponse
+	5, // 9: catalog.api.ApiService.GetProductsOfCategoryId:output_type -> catalog.api.GetProductsResponse
+	4, // 10: catalog.api.ApiService.GetProductById:output_type -> catalog.api.ProductWithSupplement
+	7, // [7:11] is the sub-list for method output_type
+	3, // [3:7] is the sub-list for method input_type
+	3, // [3:3] is the sub-list for extension type_name
+	3, // [3:3] is the sub-list for extension extendee
+	0, // [0:3] is the sub-list for field type_name
 }
 
 func init() { file_catalog_service_api_proto_init() }
@@ -281,7 +405,7 @@ func file_catalog_service_api_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_catalog_service_api_proto_rawDesc), len(file_catalog_service_api_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   4,
+			NumMessages:   6,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
