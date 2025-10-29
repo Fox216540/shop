@@ -20,7 +20,7 @@ func NewGRPCClient(client *client.GRPCClient) *GRPCClient {
 	}
 }
 
-func (c *GRPCClient) GetCategories() ([]catalog.Category, error) {
+func (c *GRPCClient) GetAllCategories() ([]catalog.Category, error) {
 	ctx := c.conn.Context()
 
 	resp, err := c.pb.GetCategories(ctx, &emptypb.Empty{})
