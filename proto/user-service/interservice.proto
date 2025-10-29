@@ -8,6 +8,7 @@ import "google/protobuf/empty.proto";
 option go_package = "github.com/Fox216540/shop/proto/user-service/gen/interservice;proto";
 
 service InterserviceService {
+    rpc VerifyCredentials (common.CredentialsRequest) returns (VerifyCredentialsResponse);
     //В metadata передавать userID ↓
     rpc UpdateEmail (UpdateEmailRequest) returns (UserWithMessageResponse);
     //В metadata передавать userID ↓
@@ -40,4 +41,10 @@ message UpdatePhoneRequest {
 message UpdateProfileRequest {
     optional string name = 2;
     optional string address = 3;
+}
+
+
+message VerifyCredentialsResponse {
+    string id = 1;
+    string name = 2;
 }
