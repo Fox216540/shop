@@ -1,4 +1,4 @@
-package user
+package app
 
 import "github.com/Fox216540/shop/user-service/app/globalError"
 
