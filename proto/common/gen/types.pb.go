@@ -493,6 +493,118 @@ func (x *UserNameResponse) GetName() string {
 	return ""
 }
 
+type CredentialsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	PhoneOrEmail  string                 `protobuf:"bytes,1,opt,name=phone_or_email,json=phoneOrEmail,proto3" json:"phone_or_email,omitempty"`
+	Password      string                 `protobuf:"bytes,2,opt,name=password,proto3" json:"password,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CredentialsRequest) Reset() {
+	*x = CredentialsRequest{}
+	mi := &file_common_types_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CredentialsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CredentialsRequest) ProtoMessage() {}
+
+func (x *CredentialsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_common_types_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CredentialsRequest.ProtoReflect.Descriptor instead.
+func (*CredentialsRequest) Descriptor() ([]byte, []int) {
+	return file_common_types_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *CredentialsRequest) GetPhoneOrEmail() string {
+	if x != nil {
+		return x.PhoneOrEmail
+	}
+	return ""
+}
+
+func (x *CredentialsRequest) GetPassword() string {
+	if x != nil {
+		return x.Password
+	}
+	return ""
+}
+
+type UserWithTokensResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Name          *UserNameResponse      `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	Tokens        *TokensResponse        `protobuf:"bytes,2,opt,name=tokens,proto3" json:"tokens,omitempty"`
+	Message       *MessageResponse       `protobuf:"bytes,3,opt,name=message,proto3" json:"message,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UserWithTokensResponse) Reset() {
+	*x = UserWithTokensResponse{}
+	mi := &file_common_types_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UserWithTokensResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UserWithTokensResponse) ProtoMessage() {}
+
+func (x *UserWithTokensResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_common_types_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UserWithTokensResponse.ProtoReflect.Descriptor instead.
+func (*UserWithTokensResponse) Descriptor() ([]byte, []int) {
+	return file_common_types_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *UserWithTokensResponse) GetName() *UserNameResponse {
+	if x != nil {
+		return x.Name
+	}
+	return nil
+}
+
+func (x *UserWithTokensResponse) GetTokens() *TokensResponse {
+	if x != nil {
+		return x.Tokens
+	}
+	return nil
+}
+
+func (x *UserWithTokensResponse) GetMessage() *MessageResponse {
+	if x != nil {
+		return x.Message
+	}
+	return nil
+}
+
 var File_common_types_proto protoreflect.FileDescriptor
 
 const file_common_types_proto_rawDesc = "" +
@@ -524,7 +636,14 @@ const file_common_types_proto_rawDesc = "" +
 	"\x06UserId\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\"&\n" +
 	"\x10UserNameResponse\x12\x12\n" +
-	"\x04name\x18\x01 \x01(\tR\x04nameB3Z1github.com/Fox216540/shop/proto/common/gen;commonb\x06proto3"
+	"\x04name\x18\x01 \x01(\tR\x04name\"V\n" +
+	"\x12CredentialsRequest\x12$\n" +
+	"\x0ephone_or_email\x18\x01 \x01(\tR\fphoneOrEmail\x12\x1a\n" +
+	"\bpassword\x18\x02 \x01(\tR\bpassword\"\xa9\x01\n" +
+	"\x16UserWithTokensResponse\x12,\n" +
+	"\x04name\x18\x01 \x01(\v2\x18.common.UserNameResponseR\x04name\x12.\n" +
+	"\x06tokens\x18\x02 \x01(\v2\x16.common.TokensResponseR\x06tokens\x121\n" +
+	"\amessage\x18\x03 \x01(\v2\x17.common.MessageResponseR\amessageB3Z1github.com/Fox216540/shop/proto/common/gen;commonb\x06proto3"
 
 var (
 	file_common_types_proto_rawDescOnce sync.Once
@@ -538,26 +657,31 @@ func file_common_types_proto_rawDescGZIP() []byte {
 	return file_common_types_proto_rawDescData
 }
 
-var file_common_types_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
+var file_common_types_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
 var file_common_types_proto_goTypes = []any{
-	(*MessageResponse)(nil),    // 0: common.MessageResponse
-	(*Product)(nil),            // 1: common.Product
-	(*Item)(nil),               // 2: common.Item
-	(*OrderId)(nil),            // 3: common.OrderId
-	(*Order)(nil),              // 4: common.Order
-	(*TokensResponse)(nil),     // 5: common.TokensResponse
-	(*DecodeTokenRequest)(nil), // 6: common.DecodeTokenRequest
-	(*UserId)(nil),             // 7: common.UserId
-	(*UserNameResponse)(nil),   // 8: common.UserNameResponse
+	(*MessageResponse)(nil),        // 0: common.MessageResponse
+	(*Product)(nil),                // 1: common.Product
+	(*Item)(nil),                   // 2: common.Item
+	(*OrderId)(nil),                // 3: common.OrderId
+	(*Order)(nil),                  // 4: common.Order
+	(*TokensResponse)(nil),         // 5: common.TokensResponse
+	(*DecodeTokenRequest)(nil),     // 6: common.DecodeTokenRequest
+	(*UserId)(nil),                 // 7: common.UserId
+	(*UserNameResponse)(nil),       // 8: common.UserNameResponse
+	(*CredentialsRequest)(nil),     // 9: common.CredentialsRequest
+	(*UserWithTokensResponse)(nil), // 10: common.UserWithTokensResponse
 }
 var file_common_types_proto_depIdxs = []int32{
 	1, // 0: common.Item.product:type_name -> common.Product
 	2, // 1: common.Order.items:type_name -> common.Item
-	2, // [2:2] is the sub-list for method output_type
-	2, // [2:2] is the sub-list for method input_type
-	2, // [2:2] is the sub-list for extension type_name
-	2, // [2:2] is the sub-list for extension extendee
-	0, // [0:2] is the sub-list for field type_name
+	8, // 2: common.UserWithTokensResponse.name:type_name -> common.UserNameResponse
+	5, // 3: common.UserWithTokensResponse.tokens:type_name -> common.TokensResponse
+	0, // 4: common.UserWithTokensResponse.message:type_name -> common.MessageResponse
+	5, // [5:5] is the sub-list for method output_type
+	5, // [5:5] is the sub-list for method input_type
+	5, // [5:5] is the sub-list for extension type_name
+	5, // [5:5] is the sub-list for extension extendee
+	0, // [0:5] is the sub-list for field type_name
 }
 
 func init() { file_common_types_proto_init() }
@@ -571,7 +695,7 @@ func file_common_types_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_common_types_proto_rawDesc), len(file_common_types_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   9,
+			NumMessages:   11,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
