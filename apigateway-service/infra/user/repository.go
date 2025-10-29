@@ -40,7 +40,7 @@ func (c *GRPCClient) RegisterUser(u user.User) (name string, tokens auth.Tokens,
 	}, resp.Message.Message, nil
 }
 
-func (c *GRPCClient) LogIn(phoneOrEmail, password string) (name string, tokens auth.Tokens, message string, err error) {
+func (c *GRPCClient) LogInUser(phoneOrEmail, password string) (name string, tokens auth.Tokens, message string, err error) {
 	ctx := c.conn.Context()
 
 	req := &pb.LogInRequest{
