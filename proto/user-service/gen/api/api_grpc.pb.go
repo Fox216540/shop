@@ -8,6 +8,7 @@ package proto
 
 import (
 	context "context"
+	gen "github.com/Fox216540/shop/proto/common/gen"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -20,15 +21,13 @@ const _ = grpc.SupportPackageIsVersion9
 
 const (
 	ApiService_RegisterUser_FullMethodName = "/user.api.ApiService/RegisterUser"
-	ApiService_LogIn_FullMethodName        = "/user.api.ApiService/LogIn"
 )
 
 // ApiServiceClient is the client API for ApiService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ApiServiceClient interface {
-	RegisterUser(ctx context.Context, in *RegisterUserRequest, opts ...grpc.CallOption) (*UserWithTokensResponse, error)
-	LogIn(ctx context.Context, in *LogInRequest, opts ...grpc.CallOption) (*UserWithTokensResponse, error)
+	RegisterUser(ctx context.Context, in *RegisterUserRequest, opts ...grpc.CallOption) (*gen.UserWithTokensResponse, error)
 }
 
 type apiServiceClient struct {
@@ -39,20 +38,10 @@ func NewApiServiceClient(cc grpc.ClientConnInterface) ApiServiceClient {
 	return &apiServiceClient{cc}
 }
 
-func (c *apiServiceClient) RegisterUser(ctx context.Context, in *RegisterUserRequest, opts ...grpc.CallOption) (*UserWithTokensResponse, error) {
+func (c *apiServiceClient) RegisterUser(ctx context.Context, in *RegisterUserRequest, opts ...grpc.CallOption) (*gen.UserWithTokensResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(UserWithTokensResponse)
+	out := new(gen.UserWithTokensResponse)
 	err := c.cc.Invoke(ctx, ApiService_RegisterUser_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *apiServiceClient) LogIn(ctx context.Context, in *LogInRequest, opts ...grpc.CallOption) (*UserWithTokensResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(UserWithTokensResponse)
-	err := c.cc.Invoke(ctx, ApiService_LogIn_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -63,8 +52,7 @@ func (c *apiServiceClient) LogIn(ctx context.Context, in *LogInRequest, opts ...
 // All implementations must embed UnimplementedApiServiceServer
 // for forward compatibility.
 type ApiServiceServer interface {
-	RegisterUser(context.Context, *RegisterUserRequest) (*UserWithTokensResponse, error)
-	LogIn(context.Context, *LogInRequest) (*UserWithTokensResponse, error)
+	RegisterUser(context.Context, *RegisterUserRequest) (*gen.UserWithTokensResponse, error)
 	mustEmbedUnimplementedApiServiceServer()
 }
 
@@ -75,11 +63,8 @@ type ApiServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedApiServiceServer struct{}
 
-func (UnimplementedApiServiceServer) RegisterUser(context.Context, *RegisterUserRequest) (*UserWithTokensResponse, error) {
+func (UnimplementedApiServiceServer) RegisterUser(context.Context, *RegisterUserRequest) (*gen.UserWithTokensResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RegisterUser not implemented")
-}
-func (UnimplementedApiServiceServer) LogIn(context.Context, *LogInRequest) (*UserWithTokensResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method LogIn not implemented")
 }
 func (UnimplementedApiServiceServer) mustEmbedUnimplementedApiServiceServer() {}
 func (UnimplementedApiServiceServer) testEmbeddedByValue()                    {}
@@ -120,24 +105,6 @@ func _ApiService_RegisterUser_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ApiService_LogIn_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(LogInRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ApiServiceServer).LogIn(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: ApiService_LogIn_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ApiServiceServer).LogIn(ctx, req.(*LogInRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 // ApiService_ServiceDesc is the grpc.ServiceDesc for ApiService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -148,10 +115,6 @@ var ApiService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "RegisterUser",
 			Handler:    _ApiService_RegisterUser_Handler,
-		},
-		{
-			MethodName: "LogIn",
-			Handler:    _ApiService_LogIn_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
