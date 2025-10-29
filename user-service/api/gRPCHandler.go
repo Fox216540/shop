@@ -6,8 +6,8 @@ import (
 	types "github.com/Fox216540/shop/proto/common/gen"
 	pbApi "github.com/Fox216540/shop/proto/user-service/gen/api"
 	pbInterservice "github.com/Fox216540/shop/proto/user-service/gen/interservice"
+	user "github.com/Fox216540/shop/user-service/app"
 	"github.com/Fox216540/shop/user-service/app/dto"
-	"github.com/Fox216540/shop/user-service/app/user"
 	"github.com/Fox216540/shop/user-service/domain/auth"
 	userDomain "github.com/Fox216540/shop/user-service/domain/user"
 	"github.com/google/uuid"
@@ -23,8 +23,8 @@ type GRPCHandler struct {
 
 func (h *GRPCHandler) returnUserWithTokensResponse(
 	u userDomain.User, tokens auth.Tokens,
-	msg string) *pbApi.UserWithTokensResponse {
-	return &pbApi.UserWithTokensResponse{
+	msg string) *types.UserWithTokensResponse {
+	return &types.UserWithTokensResponse{
 		Name: &types.UserNameResponse{
 			Name: u.Name,
 		},
@@ -68,7 +68,7 @@ func (h *GRPCHandler) getUserIDFromMetadata(
 func (h *GRPCHandler) RegisterUser(
 	ctx context.Context,
 	req *pbApi.RegisterUserRequest,
-) (*pbApi.UserWithTokensResponse, error) {
+) (*types.UserWithTokensResponse, error) {
 	uDomain := userDomain.User{
 		Email:    req.Email,
 		Name:     req.Name,
@@ -87,19 +87,18 @@ func (h *GRPCHandler) RegisterUser(
 	), nil
 }
 
-func (h *GRPCHandler) LogIn(
+func (h *GRPCHandler) VerifyCredentials(
 	ctx context.Context,
-	req *pbApi.LogInRequest,
-) (*pbApi.UserWithTokensResponse, error) {
-	u, tokens, err := h.userUS.Login(req.PhoneOrEmail, req.Password)
+	req *types.CredentialsRequest,
+) (*pbInterservice.VerifyCredentialsResponse, error) {
+	name, id, err := h.userUS.VerifyCredentials(req.PhoneOrEmail, req.Password)
 	if err != nil {
 		return nil, err
 	}
-	return h.returnUserWithTokensResponse(
-		u,
-		tokens,
-		"User logged in successfully",
-	), nil
+	return &pbInterservice.VerifyCredentialsResponse{
+		Id:   id.String(),
+		Name: name,
+	}, nil
 }
 
 func (h *GRPCHandler) UpdateEmail(
