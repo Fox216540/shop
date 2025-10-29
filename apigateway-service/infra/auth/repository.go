@@ -20,7 +20,25 @@ func NewGRPCClient(client *client.GRPCClient) *GRPCClient {
 	}
 }
 
-func (c *GRPCClient) LogOut(token string) (msg string, error error) {
+func (c *GRPCClient) LogInUser(phoneOrEmail, password string) (name string, tokens auth.Tokens, message string, err error) {
+	ctx := c.conn.Context()
+
+	req := &types.CredentialsRequest{
+		PhoneOrEmail: phoneOrEmail,
+		Password:     password,
+	}
+
+	resp, err := c.pb.LogIn(ctx, req)
+	if err != nil {
+		return "", auth.Tokens{}, "", err
+	}
+	return resp.Name.Name, auth.Tokens{
+		AccessToken:  resp.Tokens.AccessToken,
+		RefreshToken: resp.Tokens.RefreshToken,
+	}, resp.Message.Message, nil
+}
+
+func (c *GRPCClient) LogOutUser(token string) (msg string, error error) {
 	ctx := c.conn.Context()
 
 	req := &types.DecodeTokenRequest{
@@ -34,7 +52,7 @@ func (c *GRPCClient) LogOut(token string) (msg string, error error) {
 	return resp.Message, nil
 }
 
-func (c *GRPCClient) LogOutAll(token string) (msg string, error error) {
+func (c *GRPCClient) LogOutAllUser(token string) (msg string, error error) {
 	ctx := c.conn.Context()
 
 	req := &types.DecodeTokenRequest{
@@ -48,7 +66,7 @@ func (c *GRPCClient) LogOutAll(token string) (msg string, error error) {
 	return resp.Message, nil
 }
 
-func (c *GRPCClient) RefreshTokens(token string) (tokens auth.Tokens, error error) {
+func (c *GRPCClient) RefreshTokensOfUser(token string) (tokens auth.Tokens, error error) {
 	ctx := c.conn.Context()
 
 	req := &types.DecodeTokenRequest{
@@ -65,7 +83,7 @@ func (c *GRPCClient) RefreshTokens(token string) (tokens auth.Tokens, error erro
 	}, nil
 }
 
-func (c *GRPCClient) DecodeAccessToken(token string) (userID uuid.UUID, error error) {
+func (c *GRPCClient) DecodeAccessTokenOfUser(token string) (userID uuid.UUID, error error) {
 	ctx := c.conn.Context()
 
 	req := &types.DecodeTokenRequest{
