@@ -50,7 +50,6 @@ func (r *Repository) Delete(jti, userID uuid.UUID) error {
 	return nil
 }
 
-// TODO: Использовать в микросервисе user-service при удалении юзера
 func (r *Repository) DeleteAll(userID uuid.UUID) error {
 	ctx := context.Background()
 	setKey := fmt.Sprintf("user:%s:refresh_tokens", userID.String())
