@@ -25,31 +25,36 @@ var File_auth_service_api_proto protoreflect.FileDescriptor
 
 const file_auth_service_api_proto_rawDesc = "" +
 	"\n" +
-	"\x16auth-service/api.proto\x12\bauth.api\x1a\x12common/types.proto2\x93\x02\n" +
+	"\x16auth-service/api.proto\x12\bauth.api\x1a\x12common/types.proto2\xd8\x02\n" +
 	"\n" +
-	"ApiService\x12=\n" +
+	"ApiService\x12C\n" +
+	"\x05LogIn\x12\x1a.common.CredentialsRequest\x1a\x1e.common.UserWithTokensResponse\x12=\n" +
 	"\x06LogOut\x12\x1a.common.DecodeTokenRequest\x1a\x17.common.MessageResponse\x12@\n" +
 	"\tLogOutAll\x12\x1a.common.DecodeTokenRequest\x1a\x17.common.MessageResponse\x12C\n" +
 	"\rRefreshTokens\x12\x1a.common.DecodeTokenRequest\x1a\x16.common.TokensResponse\x12?\n" +
 	"\x11DecodeAccessToken\x12\x1a.common.DecodeTokenRequest\x1a\x0e.common.UserIdB;Z9github.com/Fox216540/shop/proto/auth-service/gen/api;authb\x06proto3"
 
 var file_auth_service_api_proto_goTypes = []any{
-	(*gen.DecodeTokenRequest)(nil), // 0: common.DecodeTokenRequest
-	(*gen.MessageResponse)(nil),    // 1: common.MessageResponse
-	(*gen.TokensResponse)(nil),     // 2: common.TokensResponse
-	(*gen.UserId)(nil),             // 3: common.UserId
+	(*gen.CredentialsRequest)(nil),     // 0: common.CredentialsRequest
+	(*gen.DecodeTokenRequest)(nil),     // 1: common.DecodeTokenRequest
+	(*gen.UserWithTokensResponse)(nil), // 2: common.UserWithTokensResponse
+	(*gen.MessageResponse)(nil),        // 3: common.MessageResponse
+	(*gen.TokensResponse)(nil),         // 4: common.TokensResponse
+	(*gen.UserId)(nil),                 // 5: common.UserId
 }
 var file_auth_service_api_proto_depIdxs = []int32{
-	0, // 0: auth.api.ApiService.LogOut:input_type -> common.DecodeTokenRequest
-	0, // 1: auth.api.ApiService.LogOutAll:input_type -> common.DecodeTokenRequest
-	0, // 2: auth.api.ApiService.RefreshTokens:input_type -> common.DecodeTokenRequest
-	0, // 3: auth.api.ApiService.DecodeAccessToken:input_type -> common.DecodeTokenRequest
-	1, // 4: auth.api.ApiService.LogOut:output_type -> common.MessageResponse
-	1, // 5: auth.api.ApiService.LogOutAll:output_type -> common.MessageResponse
-	2, // 6: auth.api.ApiService.RefreshTokens:output_type -> common.TokensResponse
-	3, // 7: auth.api.ApiService.DecodeAccessToken:output_type -> common.UserId
-	4, // [4:8] is the sub-list for method output_type
-	0, // [0:4] is the sub-list for method input_type
+	0, // 0: auth.api.ApiService.LogIn:input_type -> common.CredentialsRequest
+	1, // 1: auth.api.ApiService.LogOut:input_type -> common.DecodeTokenRequest
+	1, // 2: auth.api.ApiService.LogOutAll:input_type -> common.DecodeTokenRequest
+	1, // 3: auth.api.ApiService.RefreshTokens:input_type -> common.DecodeTokenRequest
+	1, // 4: auth.api.ApiService.DecodeAccessToken:input_type -> common.DecodeTokenRequest
+	2, // 5: auth.api.ApiService.LogIn:output_type -> common.UserWithTokensResponse
+	3, // 6: auth.api.ApiService.LogOut:output_type -> common.MessageResponse
+	3, // 7: auth.api.ApiService.LogOutAll:output_type -> common.MessageResponse
+	4, // 8: auth.api.ApiService.RefreshTokens:output_type -> common.TokensResponse
+	5, // 9: auth.api.ApiService.DecodeAccessToken:output_type -> common.UserId
+	5, // [5:10] is the sub-list for method output_type
+	0, // [0:5] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
 	0, // [0:0] is the sub-list for extension extendee
 	0, // [0:0] is the sub-list for field type_name

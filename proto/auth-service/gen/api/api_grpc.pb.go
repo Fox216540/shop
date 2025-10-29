@@ -20,6 +20,7 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
+	ApiService_LogIn_FullMethodName             = "/auth.api.ApiService/LogIn"
 	ApiService_LogOut_FullMethodName            = "/auth.api.ApiService/LogOut"
 	ApiService_LogOutAll_FullMethodName         = "/auth.api.ApiService/LogOutAll"
 	ApiService_RefreshTokens_FullMethodName     = "/auth.api.ApiService/RefreshTokens"
@@ -30,6 +31,7 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ApiServiceClient interface {
+	LogIn(ctx context.Context, in *gen.CredentialsRequest, opts ...grpc.CallOption) (*gen.UserWithTokensResponse, error)
 	LogOut(ctx context.Context, in *gen.DecodeTokenRequest, opts ...grpc.CallOption) (*gen.MessageResponse, error)
 	LogOutAll(ctx context.Context, in *gen.DecodeTokenRequest, opts ...grpc.CallOption) (*gen.MessageResponse, error)
 	RefreshTokens(ctx context.Context, in *gen.DecodeTokenRequest, opts ...grpc.CallOption) (*gen.TokensResponse, error)
@@ -42,6 +44,16 @@ type apiServiceClient struct {
 
 func NewApiServiceClient(cc grpc.ClientConnInterface) ApiServiceClient {
 	return &apiServiceClient{cc}
+}
+
+func (c *apiServiceClient) LogIn(ctx context.Context, in *gen.CredentialsRequest, opts ...grpc.CallOption) (*gen.UserWithTokensResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(gen.UserWithTokensResponse)
+	err := c.cc.Invoke(ctx, ApiService_LogIn_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *apiServiceClient) LogOut(ctx context.Context, in *gen.DecodeTokenRequest, opts ...grpc.CallOption) (*gen.MessageResponse, error) {
@@ -88,6 +100,7 @@ func (c *apiServiceClient) DecodeAccessToken(ctx context.Context, in *gen.Decode
 // All implementations must embed UnimplementedApiServiceServer
 // for forward compatibility.
 type ApiServiceServer interface {
+	LogIn(context.Context, *gen.CredentialsRequest) (*gen.UserWithTokensResponse, error)
 	LogOut(context.Context, *gen.DecodeTokenRequest) (*gen.MessageResponse, error)
 	LogOutAll(context.Context, *gen.DecodeTokenRequest) (*gen.MessageResponse, error)
 	RefreshTokens(context.Context, *gen.DecodeTokenRequest) (*gen.TokensResponse, error)
@@ -102,6 +115,9 @@ type ApiServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedApiServiceServer struct{}
 
+func (UnimplementedApiServiceServer) LogIn(context.Context, *gen.CredentialsRequest) (*gen.UserWithTokensResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method LogIn not implemented")
+}
 func (UnimplementedApiServiceServer) LogOut(context.Context, *gen.DecodeTokenRequest) (*gen.MessageResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method LogOut not implemented")
 }
@@ -133,6 +149,24 @@ func RegisterApiServiceServer(s grpc.ServiceRegistrar, srv ApiServiceServer) {
 		t.testEmbeddedByValue()
 	}
 	s.RegisterService(&ApiService_ServiceDesc, srv)
+}
+
+func _ApiService_LogIn_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(gen.CredentialsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ApiServiceServer).LogIn(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ApiService_LogIn_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ApiServiceServer).LogIn(ctx, req.(*gen.CredentialsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _ApiService_LogOut_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -214,6 +248,10 @@ var ApiService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "auth.api.ApiService",
 	HandlerType: (*ApiServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "LogIn",
+			Handler:    _ApiService_LogIn_Handler,
+		},
 		{
 			MethodName: "LogOut",
 			Handler:    _ApiService_LogOut_Handler,
