@@ -53,3 +53,14 @@ message UserId {
 message UserNameResponse {
     string name = 1;
 }
+
+message CredentialsRequest {
+    string phone_or_email = 1;
+    string password = 2;
+}
+
+message UserWithTokensResponse {
+    common.UserNameResponse name = 1;
+    common.TokensResponse tokens = 2;
+    common.MessageResponse message = 3;
+}
