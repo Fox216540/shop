@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"github.com/Fox216540/shop/auth-service/app/auth"
+	"github.com/Fox216540/shop/auth-service/app/user"
 	pbApi "github.com/Fox216540/shop/proto/auth-service/gen/api"
 	pbInterservice "github.com/Fox216540/shop/proto/auth-service/gen/interservice"
 	types "github.com/Fox216540/shop/proto/common/gen"
@@ -11,8 +12,35 @@ import (
 
 type GRPCHandler struct {
 	auth auth.UseCase
+	user user.UseCase
 	pbApi.UnimplementedApiServiceServer
 	pbInterservice.UnimplementedInterserviceServiceServer
+}
+
+func (h *GRPCHandler) LogIn(
+	ctx context.Context,
+	req *types.CredentialsRequest,
+) (*types.UserWithTokensResponse, error) {
+	name, id, err := h.user.VerifyUser(req.PhoneOrEmail, req.Password)
+	if err != nil {
+		return nil, err
+	}
+	tokens, err := h.auth.GenerateTokens(id)
+	if err != nil {
+		return nil, err
+	}
+	return &types.UserWithTokensResponse{
+		Tokens: &types.TokensResponse{
+			AccessToken:  tokens.AccessToken,
+			RefreshToken: tokens.RefreshToken,
+		},
+		Name: &types.UserNameResponse{
+			Name: name,
+		},
+		Message: &types.MessageResponse{
+			Message: "User logged in successfully",
+		},
+	}, nil
 }
 
 func (h *GRPCHandler) LogOut(
