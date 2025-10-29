@@ -7,6 +7,7 @@ import "common/types.proto";
 option go_package = "github.com/Fox216540/shop/proto/auth-service/gen/api;auth";
 
 service ApiService {
+    rpc LogIn (common.CredentialsRequest) returns (common.UserWithTokensResponse);
     rpc LogOut (common.DecodeTokenRequest) returns (common.MessageResponse);
     rpc LogOutAll (common.DecodeTokenRequest) returns (common.MessageResponse);
     rpc RefreshTokens (common.DecodeTokenRequest) returns (common.TokensResponse);
