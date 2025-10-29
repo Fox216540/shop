@@ -21,17 +21,19 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	InterserviceService_UpdateEmail_FullMethodName    = "/user.interservice.InterserviceService/UpdateEmail"
-	InterserviceService_UpdatePassword_FullMethodName = "/user.interservice.InterserviceService/UpdatePassword"
-	InterserviceService_UpdatePhone_FullMethodName    = "/user.interservice.InterserviceService/UpdatePhone"
-	InterserviceService_UpdateProfile_FullMethodName  = "/user.interservice.InterserviceService/UpdateProfile"
-	InterserviceService_DeleteUser_FullMethodName     = "/user.interservice.InterserviceService/DeleteUser"
+	InterserviceService_VerifyCredentials_FullMethodName = "/user.interservice.InterserviceService/VerifyCredentials"
+	InterserviceService_UpdateEmail_FullMethodName       = "/user.interservice.InterserviceService/UpdateEmail"
+	InterserviceService_UpdatePassword_FullMethodName    = "/user.interservice.InterserviceService/UpdatePassword"
+	InterserviceService_UpdatePhone_FullMethodName       = "/user.interservice.InterserviceService/UpdatePhone"
+	InterserviceService_UpdateProfile_FullMethodName     = "/user.interservice.InterserviceService/UpdateProfile"
+	InterserviceService_DeleteUser_FullMethodName        = "/user.interservice.InterserviceService/DeleteUser"
 )
 
 // InterserviceServiceClient is the client API for InterserviceService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type InterserviceServiceClient interface {
+	VerifyCredentials(ctx context.Context, in *gen.CredentialsRequest, opts ...grpc.CallOption) (*VerifyCredentialsResponse, error)
 	//В metadata передавать userID ↓
 	UpdateEmail(ctx context.Context, in *UpdateEmailRequest, opts ...grpc.CallOption) (*UserWithMessageResponse, error)
 	//В metadata передавать userID ↓
@@ -50,6 +52,16 @@ type interserviceServiceClient struct {
 
 func NewInterserviceServiceClient(cc grpc.ClientConnInterface) InterserviceServiceClient {
 	return &interserviceServiceClient{cc}
+}
+
+func (c *interserviceServiceClient) VerifyCredentials(ctx context.Context, in *gen.CredentialsRequest, opts ...grpc.CallOption) (*VerifyCredentialsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(VerifyCredentialsResponse)
+	err := c.cc.Invoke(ctx, InterserviceService_VerifyCredentials_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *interserviceServiceClient) UpdateEmail(ctx context.Context, in *UpdateEmailRequest, opts ...grpc.CallOption) (*UserWithMessageResponse, error) {
@@ -106,6 +118,7 @@ func (c *interserviceServiceClient) DeleteUser(ctx context.Context, in *emptypb.
 // All implementations must embed UnimplementedInterserviceServiceServer
 // for forward compatibility.
 type InterserviceServiceServer interface {
+	VerifyCredentials(context.Context, *gen.CredentialsRequest) (*VerifyCredentialsResponse, error)
 	//В metadata передавать userID ↓
 	UpdateEmail(context.Context, *UpdateEmailRequest) (*UserWithMessageResponse, error)
 	//В metadata передавать userID ↓
@@ -126,6 +139,9 @@ type InterserviceServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedInterserviceServiceServer struct{}
 
+func (UnimplementedInterserviceServiceServer) VerifyCredentials(context.Context, *gen.CredentialsRequest) (*VerifyCredentialsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method VerifyCredentials not implemented")
+}
 func (UnimplementedInterserviceServiceServer) UpdateEmail(context.Context, *UpdateEmailRequest) (*UserWithMessageResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateEmail not implemented")
 }
@@ -160,6 +176,24 @@ func RegisterInterserviceServiceServer(s grpc.ServiceRegistrar, srv Interservice
 		t.testEmbeddedByValue()
 	}
 	s.RegisterService(&InterserviceService_ServiceDesc, srv)
+}
+
+func _InterserviceService_VerifyCredentials_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(gen.CredentialsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(InterserviceServiceServer).VerifyCredentials(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: InterserviceService_VerifyCredentials_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(InterserviceServiceServer).VerifyCredentials(ctx, req.(*gen.CredentialsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _InterserviceService_UpdateEmail_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -259,6 +293,10 @@ var InterserviceService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "user.interservice.InterserviceService",
 	HandlerType: (*InterserviceServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "VerifyCredentials",
+			Handler:    _InterserviceService_VerifyCredentials_Handler,
+		},
 		{
 			MethodName: "UpdateEmail",
 			Handler:    _InterserviceService_UpdateEmail_Handler,

@@ -259,6 +259,58 @@ func (x *UpdateProfileRequest) GetAddress() string {
 	return ""
 }
 
+type VerifyCredentialsResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *VerifyCredentialsResponse) Reset() {
+	*x = VerifyCredentialsResponse{}
+	mi := &file_user_service_interservice_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *VerifyCredentialsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*VerifyCredentialsResponse) ProtoMessage() {}
+
+func (x *VerifyCredentialsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_user_service_interservice_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use VerifyCredentialsResponse.ProtoReflect.Descriptor instead.
+func (*VerifyCredentialsResponse) Descriptor() ([]byte, []int) {
+	return file_user_service_interservice_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *VerifyCredentialsResponse) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *VerifyCredentialsResponse) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
 var File_user_service_interservice_proto protoreflect.FileDescriptor
 
 const file_user_service_interservice_proto_rawDesc = "" +
@@ -278,8 +330,12 @@ const file_user_service_interservice_proto_rawDesc = "" +
 	"\aaddress\x18\x03 \x01(\tH\x01R\aaddress\x88\x01\x01B\a\n" +
 	"\x05_nameB\n" +
 	"\n" +
-	"\b_address2\xe6\x03\n" +
-	"\x13InterserviceService\x12`\n" +
+	"\b_address\"?\n" +
+	"\x19VerifyCredentialsResponse\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name2\xc5\x04\n" +
+	"\x13InterserviceService\x12]\n" +
+	"\x11VerifyCredentials\x12\x1a.common.CredentialsRequest\x1a,.user.interservice.VerifyCredentialsResponse\x12`\n" +
 	"\vUpdateEmail\x12%.user.interservice.UpdateEmailRequest\x1a*.user.interservice.UserWithMessageResponse\x12f\n" +
 	"\x0eUpdatePassword\x12(.user.interservice.UpdatePasswordRequest\x1a*.user.interservice.UserWithMessageResponse\x12`\n" +
 	"\vUpdatePhone\x12%.user.interservice.UpdatePhoneRequest\x1a*.user.interservice.UserWithMessageResponse\x12d\n" +
@@ -299,32 +355,36 @@ func file_user_service_interservice_proto_rawDescGZIP() []byte {
 	return file_user_service_interservice_proto_rawDescData
 }
 
-var file_user_service_interservice_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
+var file_user_service_interservice_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
 var file_user_service_interservice_proto_goTypes = []any{
-	(*UserWithMessageResponse)(nil), // 0: user.interservice.UserWithMessageResponse
-	(*UpdateEmailRequest)(nil),      // 1: user.interservice.UpdateEmailRequest
-	(*UpdatePasswordRequest)(nil),   // 2: user.interservice.UpdatePasswordRequest
-	(*UpdatePhoneRequest)(nil),      // 3: user.interservice.UpdatePhoneRequest
-	(*UpdateProfileRequest)(nil),    // 4: user.interservice.UpdateProfileRequest
-	(*gen.UserNameResponse)(nil),    // 5: common.UserNameResponse
-	(*gen.MessageResponse)(nil),     // 6: common.MessageResponse
-	(*emptypb.Empty)(nil),           // 7: google.protobuf.Empty
+	(*UserWithMessageResponse)(nil),   // 0: user.interservice.UserWithMessageResponse
+	(*UpdateEmailRequest)(nil),        // 1: user.interservice.UpdateEmailRequest
+	(*UpdatePasswordRequest)(nil),     // 2: user.interservice.UpdatePasswordRequest
+	(*UpdatePhoneRequest)(nil),        // 3: user.interservice.UpdatePhoneRequest
+	(*UpdateProfileRequest)(nil),      // 4: user.interservice.UpdateProfileRequest
+	(*VerifyCredentialsResponse)(nil), // 5: user.interservice.VerifyCredentialsResponse
+	(*gen.UserNameResponse)(nil),      // 6: common.UserNameResponse
+	(*gen.MessageResponse)(nil),       // 7: common.MessageResponse
+	(*gen.CredentialsRequest)(nil),    // 8: common.CredentialsRequest
+	(*emptypb.Empty)(nil),             // 9: google.protobuf.Empty
 }
 var file_user_service_interservice_proto_depIdxs = []int32{
-	5, // 0: user.interservice.UserWithMessageResponse.name:type_name -> common.UserNameResponse
-	6, // 1: user.interservice.UserWithMessageResponse.message:type_name -> common.MessageResponse
-	1, // 2: user.interservice.InterserviceService.UpdateEmail:input_type -> user.interservice.UpdateEmailRequest
-	2, // 3: user.interservice.InterserviceService.UpdatePassword:input_type -> user.interservice.UpdatePasswordRequest
-	3, // 4: user.interservice.InterserviceService.UpdatePhone:input_type -> user.interservice.UpdatePhoneRequest
-	4, // 5: user.interservice.InterserviceService.UpdateProfile:input_type -> user.interservice.UpdateProfileRequest
-	7, // 6: user.interservice.InterserviceService.DeleteUser:input_type -> google.protobuf.Empty
-	0, // 7: user.interservice.InterserviceService.UpdateEmail:output_type -> user.interservice.UserWithMessageResponse
-	0, // 8: user.interservice.InterserviceService.UpdatePassword:output_type -> user.interservice.UserWithMessageResponse
-	0, // 9: user.interservice.InterserviceService.UpdatePhone:output_type -> user.interservice.UserWithMessageResponse
-	0, // 10: user.interservice.InterserviceService.UpdateProfile:output_type -> user.interservice.UserWithMessageResponse
-	6, // 11: user.interservice.InterserviceService.DeleteUser:output_type -> common.MessageResponse
-	7, // [7:12] is the sub-list for method output_type
-	2, // [2:7] is the sub-list for method input_type
+	6, // 0: user.interservice.UserWithMessageResponse.name:type_name -> common.UserNameResponse
+	7, // 1: user.interservice.UserWithMessageResponse.message:type_name -> common.MessageResponse
+	8, // 2: user.interservice.InterserviceService.VerifyCredentials:input_type -> common.CredentialsRequest
+	1, // 3: user.interservice.InterserviceService.UpdateEmail:input_type -> user.interservice.UpdateEmailRequest
+	2, // 4: user.interservice.InterserviceService.UpdatePassword:input_type -> user.interservice.UpdatePasswordRequest
+	3, // 5: user.interservice.InterserviceService.UpdatePhone:input_type -> user.interservice.UpdatePhoneRequest
+	4, // 6: user.interservice.InterserviceService.UpdateProfile:input_type -> user.interservice.UpdateProfileRequest
+	9, // 7: user.interservice.InterserviceService.DeleteUser:input_type -> google.protobuf.Empty
+	5, // 8: user.interservice.InterserviceService.VerifyCredentials:output_type -> user.interservice.VerifyCredentialsResponse
+	0, // 9: user.interservice.InterserviceService.UpdateEmail:output_type -> user.interservice.UserWithMessageResponse
+	0, // 10: user.interservice.InterserviceService.UpdatePassword:output_type -> user.interservice.UserWithMessageResponse
+	0, // 11: user.interservice.InterserviceService.UpdatePhone:output_type -> user.interservice.UserWithMessageResponse
+	0, // 12: user.interservice.InterserviceService.UpdateProfile:output_type -> user.interservice.UserWithMessageResponse
+	7, // 13: user.interservice.InterserviceService.DeleteUser:output_type -> common.MessageResponse
+	8, // [8:14] is the sub-list for method output_type
+	2, // [2:8] is the sub-list for method input_type
 	2, // [2:2] is the sub-list for extension type_name
 	2, // [2:2] is the sub-list for extension extendee
 	0, // [0:2] is the sub-list for field type_name
@@ -342,7 +402,7 @@ func file_user_service_interservice_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_user_service_interservice_proto_rawDesc), len(file_user_service_interservice_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   5,
+			NumMessages:   6,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
