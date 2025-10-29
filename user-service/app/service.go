@@ -63,22 +63,17 @@ func (s *service) Register(u user.User) (user.User, auth.Tokens, error) {
 	return u, tokens, nil
 }
 
-func (s *service) Login(phoneOrEmail, password string) (user.User, auth.Tokens, error) {
+func (s *service) VerifyCredentials(phoneOrEmail, password string) (name string, id uuid.UUID, error error) {
 	u, err := s.r.FindByPhoneOrEmail(phoneOrEmail, phoneOrEmail)
 	if err != nil {
-		return u, auth.Tokens{}, s.mapError(err, NewInvalidLogin(err)) // Return error if unable to find user
+		return "", uuid.Nil, s.mapError(err, NewInvalidLogin(err)) // Return error if unable to find user
 	}
 
 	if err = s.h.VerifyPass(password, u.Password); err != nil {
-		return u, auth.Tokens{}, s.mapError(err, NewInvalidLogin(err)) // Password is invalid
+		return "", uuid.Nil, s.mapError(err, NewInvalidLogin(err)) // Password is invalid
 	}
 
-	tokens, err := s.auth.GenerateTokens(u.ID)
-	if err != nil {
-		return u, auth.Tokens{}, s.mapError(err, NewInvalidLogin(err)) // Return error if unable to generate tokens
-	}
-
-	return u, tokens, nil
+	return u.Name, u.ID, nil
 }
 
 func (s *service) UpdateEmail(userID uuid.UUID, newEmail string) (user.User, error) {
