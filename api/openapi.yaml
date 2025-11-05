@@ -354,10 +354,10 @@ paths:
             schema:
               type: object
               required:
-                - username_or_email
+                - phone_or_email
                 - password
               properties:
-                username_or_email:
+                phone_or_email:
                   type: string
                   example: john.doe@example.com
                 password:
@@ -622,6 +622,9 @@ components:
   schemas:
     CategoryResponse:
       type: object
+      required:
+        - id
+        - name
       properties:
         id:
           type: string
@@ -653,6 +656,8 @@ components:
 
     MessageResponse:
       type: object
+      required:
+        - message
       properties:
         message:
           type: string
@@ -660,6 +665,10 @@ components:
 
     OrderResponse:
       type: object
+      required:
+        - id
+        - order_number
+        - order_items
       properties:
         id:
           type: string
@@ -700,6 +709,10 @@ components:
 
     OrderDeletedResponse:
       type: object
+      required:
+        - id
+        - status
+        - message
       properties:
         id:
           type: string
@@ -714,6 +727,14 @@ components:
 
     ProductResponse:
       type: object
+      required:
+        - id
+        - name
+        - img
+        - price
+        - category_id
+        - description
+        - stock
       properties:
         id:
           type: string
@@ -770,6 +791,9 @@ components:
 
     UserResponse:
       type: object
+      required:
+        - name
+        - message
       properties:
         name:
           type: string
@@ -778,6 +802,10 @@ components:
 
     UserWithTokenResponse:
       type: object
+      required:
+        - name
+        - access_token
+        - message
       properties:
         name:
           type: string
