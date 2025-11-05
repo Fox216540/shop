@@ -39,21 +39,3 @@ func (c *GRPCClient) RegisterUser(u user.User) (name string, tokens auth.Tokens,
 		RefreshToken: resp.Tokens.RefreshToken,
 	}, resp.Message.Message, nil
 }
-
-func (c *GRPCClient) LogInUser(phoneOrEmail, password string) (name string, tokens auth.Tokens, message string, err error) {
-	ctx := c.conn.Context()
-
-	req := &pb.LogInRequest{
-		PhoneOrEmail: phoneOrEmail,
-		Password:     password,
-	}
-
-	resp, err := c.pb.LogIn(ctx, req)
-	if err != nil {
-		return "", auth.Tokens{}, "", err
-	}
-	return resp.Name.Name, auth.Tokens{
-		AccessToken:  resp.Tokens.AccessToken,
-		RefreshToken: resp.Tokens.RefreshToken,
-	}, resp.Message.Message, nil
-}
