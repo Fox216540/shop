@@ -18,8 +18,8 @@ const (
 
 // CategoryResponse defines model for CategoryResponse.
 type CategoryResponse struct {
-	Id   *openapi_types.UUID `json:"id,omitempty"`
-	Name *string             `json:"name,omitempty"`
+	Id   openapi_types.UUID `json:"id"`
+	Name string             `json:"name"`
 }
 
 // CreateOrderRequest defines model for CreateOrderRequest.
@@ -32,20 +32,20 @@ type CreateOrderRequest struct {
 
 // MessageResponse defines model for MessageResponse.
 type MessageResponse struct {
-	Message *string `json:"message,omitempty"`
+	Message string `json:"message"`
 }
 
 // OrderDeletedResponse defines model for OrderDeletedResponse.
 type OrderDeletedResponse struct {
-	Id      *openapi_types.UUID `json:"id,omitempty"`
-	Message *string             `json:"message,omitempty"`
-	Status  *string             `json:"status,omitempty"`
+	Id      openapi_types.UUID `json:"id"`
+	Message string             `json:"message"`
+	Status  string             `json:"status"`
 }
 
 // OrderResponse defines model for OrderResponse.
 type OrderResponse struct {
-	Id         *openapi_types.UUID `json:"id,omitempty"`
-	OrderItems *[]struct {
+	Id         openapi_types.UUID `json:"id"`
+	OrderItems []struct {
 		Product *[]struct {
 			Id    *openapi_types.UUID `json:"id,omitempty"`
 			Img   *string             `json:"img,omitempty"`
@@ -53,21 +53,21 @@ type OrderResponse struct {
 			Price *float32            `json:"price,omitempty"`
 		} `json:"product,omitempty"`
 		Quantity *int `json:"quantity,omitempty"`
-	} `json:"order_items,omitempty"`
-	OrderNumber *string  `json:"order_number,omitempty"`
+	} `json:"order_items"`
+	OrderNumber string   `json:"order_number"`
 	Status      *string  `json:"status,omitempty"`
 	Total       *float32 `json:"total,omitempty"`
 }
 
 // ProductResponse defines model for ProductResponse.
 type ProductResponse struct {
-	CategoryId  *openapi_types.UUID `json:"category_id,omitempty"`
-	Description *string             `json:"description,omitempty"`
-	Id          *openapi_types.UUID `json:"id,omitempty"`
-	Img         *string             `json:"img,omitempty"`
-	Name        *string             `json:"name,omitempty"`
-	Price       *float32            `json:"price,omitempty"`
-	Stock       *int                `json:"stock,omitempty"`
+	CategoryId  openapi_types.UUID `json:"category_id"`
+	Description string             `json:"description"`
+	Id          openapi_types.UUID `json:"id"`
+	Img         string             `json:"img"`
+	Name        string             `json:"name"`
+	Price       float32            `json:"price"`
+	Stock       int                `json:"stock"`
 }
 
 // RegisterRequest defines model for RegisterRequest.
@@ -81,21 +81,21 @@ type RegisterRequest struct {
 
 // UserResponse defines model for UserResponse.
 type UserResponse struct {
-	Message *string `json:"message,omitempty"`
-	Name    *string `json:"name,omitempty"`
+	Message string `json:"message"`
+	Name    string `json:"name"`
 }
 
 // UserWithTokenResponse defines model for UserWithTokenResponse.
 type UserWithTokenResponse struct {
-	AccessToken *string `json:"access_token,omitempty"`
-	Message     *string `json:"message,omitempty"`
-	Name        *string `json:"name,omitempty"`
+	AccessToken string `json:"access_token"`
+	Message     string `json:"message"`
+	Name        string `json:"name"`
 }
 
 // PostAuthLoginJSONBody defines parameters for PostAuthLogin.
 type PostAuthLoginJSONBody struct {
-	Password        string `json:"password"`
-	UsernameOrEmail string `json:"username_or_email"`
+	Password     string `json:"password"`
+	PhoneOrEmail string `json:"phone_or_email"`
 }
 
 // GetProductsParams defines parameters for GetProducts.
