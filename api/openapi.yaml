@@ -749,7 +749,7 @@ components:
           example: https://example.com/images/s23.jpg
         price:
           type: number
-          format: float
+          format: double
           example: 799.99
         category_id:
           type: string
@@ -760,6 +760,8 @@ components:
           example: A modern smartphone with an excellent camera and display.
         stock:
           type: integer
+          format: uint64
+          minimum: 0
           example: 42
 
     RegisterRequest:
