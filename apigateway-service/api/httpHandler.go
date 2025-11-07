@@ -83,13 +83,30 @@ func (h *HTTPHandler) PostAuthRefresh(c *gin.Context) {
 }
 
 func (h *HTTPHandler) GetCategories(c *gin.Context) {
-	//TODO implement me
-	panic("implement me")
+	categories, err := h.catalogUseCase.GetCategories()
+	if err != nil {
+		//TODO: Придумать ошибку
+		return
+
+	}
+	resp := make([]shopApiGen.CategoryResponse, 0, len(categories))
+	for _, category := range categories {
+		resp = append(resp, shopApiGen.CategoryResponse{
+			Id:   category.ID,
+			Name: category.Name,
+		})
+	}
+	c.JSON(http.StatusOK, resp)
+
 }
 
 func (h *HTTPHandler) GetOrders(c *gin.Context) {
-	//TODO implement me
-	panic("implement me")
+	id, exist := c.Get("user_id")
+	if !exist {
+		//TODO: Придумать ошибку
+		return
+	}
+	orders, err := h.catalogUseCase
 }
 
 func (h *HTTPHandler) PostOrders(c *gin.Context) {
@@ -108,13 +125,29 @@ func (h *HTTPHandler) GetOrdersId(c *gin.Context, id openapiTypes.UUID) {
 }
 
 func (h *HTTPHandler) GetProducts(c *gin.Context, params shopApiGen.GetProductsParams) {
-	//TODO implement me
-	panic("implement me")
+	products, err := h.catalogUseCase.GetProducts()
+	if err != nil {
+		//TODO:
+		return
+	}
+	resp := make([]shopApiGen.ProductResponse, 0, len(products))
+	for _, product := range products {
+		resp = append(resp, shopApiGen.ProductResponse{
+			Id:          product.ID,
+			Name:        product.Name,
+			Img:         product.Img,
+			Price:       product.Price,
+			CategoryId:  product.CategoryID,
+			Description: product.Description,
+			Stock:       product.Stock,
+		})
+	}
+
+	c.JSON(http.StatusOK, resp)
 }
 
 func (h *HTTPHandler) GetProductById(c *gin.Context, id openapiTypes.UUID) {
-	//TODO implement me
-	panic("implement me")
+
 }
 
 func (h *HTTPHandler) CreateUser(c *gin.Context) {
