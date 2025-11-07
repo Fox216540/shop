@@ -69,7 +69,7 @@ gen-order:
 			--go_opt=module=github.com/Fox216540/shop/proto/order-service \
 			--go-grpc_out=order-service/ \
 			--go-grpc_opt=module=github.com/Fox216540/shop/proto/order-service \
-		order-service/interservice.proto
+		order-service/api.proto
 	@echo "✅ Order proto generated"
 
 gen-user-api:
