@@ -1,15 +1,15 @@
 syntax = "proto3";
 
-package order.interservice;
+package order.api;
 
 import "common/types.proto";
 import "google/protobuf/empty.proto";
 
-option go_package = "github.com/Fox216540/shop/proto/order-service/gen/interservice;proto";
+option go_package = "github.com/Fox216540/shop/proto/order-service/gen/api;proto";
 
-service InterserviceService {
+service ApiService {
     //В metadata передавать userID ↓
-    rpc CreteOrder (CreateOrderRequest) returns (common.Order);
+    rpc CreateOrder (CreateOrderRequest) returns (common.Order);
     //В metadata передавать userID ↓
     rpc GetOrderById (common.OrderId) returns (common.Order);
     //В metadata передавать userID ↓
