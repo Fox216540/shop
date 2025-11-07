@@ -7,7 +7,7 @@ import (
 	"github.com/Fox216540/shop/order-service/app/dto"
 	orderDomain "github.com/Fox216540/shop/order-service/domain/order"
 	types "github.com/Fox216540/shop/proto/common/gen"
-	pbInterservice "github.com/Fox216540/shop/proto/order-service/gen/interservice"
+	pbApi "github.com/Fox216540/shop/proto/order-service/gen/api"
 	"github.com/google/uuid"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/protobuf/types/known/emptypb"
@@ -15,7 +15,7 @@ import (
 
 type GRPCHandler struct {
 	orderUC order.UseCase
-	pbInterservice.UnimplementedInterserviceServiceServer
+	pb      pbApi.UnimplementedApiServiceServer
 }
 
 func (h *GRPCHandler) mapOrder(
@@ -44,10 +44,10 @@ func (h *GRPCHandler) mapOrder(
 
 func (h *GRPCHandler) mapOrderForListToResponse(
 	orders []orderDomain.Order,
-) []*pbInterservice.OrderForList {
-	ordersForList := make([]*pbInterservice.OrderForList, 0, len(orders))
+) []*pbApi.OrderForList {
+	ordersForList := make([]*pbApi.OrderForList, 0, len(orders))
 	for _, o := range orders {
-		ordersForList = append(ordersForList, &pbInterservice.OrderForList{
+		ordersForList = append(ordersForList, &pbApi.OrderForList{
 			Id:       o.ID.String(),
 			OrderNum: o.OrderNum,
 			Total:    o.Total,
@@ -73,7 +73,7 @@ func (h *GRPCHandler) getUserIDFromMetadata(
 
 func (h *GRPCHandler) CreteOrder(
 	ctx context.Context,
-	req *pbInterservice.CreateOrderRequest,
+	req *pbApi.CreateOrderRequest,
 ) (*types.Order, error) {
 	userID, err := h.getUserIDFromMetadata(ctx)
 	if err != nil {
@@ -119,7 +119,7 @@ func (h *GRPCHandler) GetOrderById(
 func (h *GRPCHandler) GetOrdersByUserId(
 	ctx context.Context,
 	req *emptypb.Empty,
-) (*pbInterservice.GetOrdersByUserIdResponse, error) {
+) (*pbApi.GetOrdersByUserIdResponse, error) {
 	userID, err := h.getUserIDFromMetadata(ctx)
 	if err != nil {
 		return nil, err
@@ -128,7 +128,7 @@ func (h *GRPCHandler) GetOrdersByUserId(
 	if err != nil {
 		return nil, err
 	}
-	return &pbInterservice.GetOrdersByUserIdResponse{
+	return &pbApi.GetOrdersByUserIdResponse{
 		Orders: h.mapOrderForListToResponse(orders),
 	}, nil
 }
@@ -136,7 +136,7 @@ func (h *GRPCHandler) GetOrdersByUserId(
 func (h *GRPCHandler) DeleteOrder(
 	ctx context.Context,
 	req *types.OrderId,
-) (*pbInterservice.DeleteOrderResponse, error) {
+) (*pbApi.DeleteOrderResponse, error) {
 	userID, err := h.getUserIDFromMetadata(ctx)
 	if err != nil {
 		return nil, err
@@ -149,7 +149,7 @@ func (h *GRPCHandler) DeleteOrder(
 		return nil, err
 	}
 
-	return &pbInterservice.DeleteOrderResponse{
+	return &pbApi.DeleteOrderResponse{
 		OrderId: &types.OrderId{
 			Id: orderID.String(),
 		},
