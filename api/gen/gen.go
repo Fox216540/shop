@@ -66,8 +66,8 @@ type ProductResponse struct {
 	Id          openapi_types.UUID `json:"id"`
 	Img         string             `json:"img"`
 	Name        string             `json:"name"`
-	Price       float32            `json:"price"`
-	Stock       int                `json:"stock"`
+	Price       float64            `json:"price"`
+	Stock       uint64             `json:"stock"`
 }
 
 // RegisterRequest defines model for RegisterRequest.
