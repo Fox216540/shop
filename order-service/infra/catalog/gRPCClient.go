@@ -1,4 +1,4 @@
-package product
+package catalog
 
 import (
 	"github.com/Fox216540/shop/order-service/domain/product"
