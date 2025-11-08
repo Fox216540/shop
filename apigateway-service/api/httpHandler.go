@@ -5,7 +5,9 @@ import (
 	aUseCase "github.com/Fox216540/shop/apigateway-service/app/auth"
 	cUseCase "github.com/Fox216540/shop/apigateway-service/app/catalog"
 	uUseCase "github.com/Fox216540/shop/apigateway-service/app/user"
+	domainCatalog "github.com/Fox216540/shop/apigateway-service/domain/catalog"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	openapiTypes "github.com/oapi-codegen/runtime/types"
 	"net/http"
 )
@@ -124,12 +126,7 @@ func (h *HTTPHandler) GetOrdersId(c *gin.Context, id openapiTypes.UUID) {
 	panic("implement me")
 }
 
-func (h *HTTPHandler) GetProducts(c *gin.Context, params shopApiGen.GetProductsParams) {
-	products, err := h.catalogUseCase.GetProducts()
-	if err != nil {
-		//TODO:
-		return
-	}
+func (h *HTTPHandler) productsToResponse(products []domainCatalog.Product) []shopApiGen.ProductResponse {
 	resp := make([]shopApiGen.ProductResponse, 0, len(products))
 	for _, product := range products {
 		resp = append(resp, shopApiGen.ProductResponse{
@@ -142,12 +139,31 @@ func (h *HTTPHandler) GetProducts(c *gin.Context, params shopApiGen.GetProductsP
 			Stock:       product.Stock,
 		})
 	}
+	return resp
+}
 
-	c.JSON(http.StatusOK, resp)
+func (h *HTTPHandler) GetProducts(c *gin.Context, params shopApiGen.GetProductsParams) {
+	products, err := h.catalogUseCase.GetProducts()
+	if err != nil {
+		//TODO:
+		return
+	}
+	c.JSON(http.StatusOK, h.productsToResponse(products))
 }
 
 func (h *HTTPHandler) GetProductById(c *gin.Context, id openapiTypes.UUID) {
-
+	idString := c.Param("id")
+	id, err := uuid.Parse(idString)
+	if err != nil {
+		//TODO: Придумать ошибку
+		return
+	}
+	products, err := h.catalogUseCase.GetProductsOfCategoryID(id)
+	if err != nil {
+		//TODO: Придумать ошибку
+		return
+	}
+	c.JSON(http.StatusOK, h.productsToResponse(products))
 }
 
 func (h *HTTPHandler) CreateUser(c *gin.Context) {
