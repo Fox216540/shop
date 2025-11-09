@@ -87,6 +87,22 @@ func (h *GRPCHandler) RegisterUser(
 	), nil
 }
 
+func (h *GRPCHandler) DeleteUser(
+	ctx context.Context,
+	req *emptypb.Empty,
+) (*types.MessageResponse, error) {
+	userID, err := h.getUserIDFromMetadata(ctx)
+	if err != nil {
+		return nil, err
+	}
+	if err = h.userUS.DeleteUser(userID); err != nil {
+		return nil, err
+	}
+	return &types.MessageResponse{
+		Message: "User deleted successfully",
+	}, nil
+}
+
 func (h *GRPCHandler) VerifyCredentials(
 	ctx context.Context,
 	req *types.CredentialsRequest,
@@ -166,22 +182,6 @@ func (h *GRPCHandler) UpdateProfile(
 		u,
 		"Profile updated successfully",
 	), nil
-}
-
-func (h *GRPCHandler) DeleteUser(
-	ctx context.Context,
-	req *emptypb.Empty,
-) (*types.MessageResponse, error) {
-	userID, err := h.getUserIDFromMetadata(ctx)
-	if err != nil {
-		return nil, err
-	}
-	if err = h.userUS.DeleteUser(userID); err != nil {
-		return nil, err
-	}
-	return &types.MessageResponse{
-		Message: "User deleted successfully",
-	}, nil
 }
 
 func NewGRPCHandler(userUS user.UseCase) *GRPCHandler {
