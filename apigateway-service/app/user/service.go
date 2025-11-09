@@ -5,6 +5,7 @@ import (
 	"github.com/Fox216540/shop/apigateway-service/domain/auth"
 	"github.com/Fox216540/shop/apigateway-service/domain/user"
 	userDomain "github.com/Fox216540/shop/apigateway-service/domain/user"
+	"github.com/google/uuid"
 )
 
 type service struct {
@@ -30,4 +31,12 @@ func (s *service) RegisterUser(dto dto.User) (string, auth.Tokens, string, error
 		return "", auth.Tokens{}, "", err
 	}
 	return name, tokens, message, err
+}
+
+func (s *service) DeleteUser(id uuid.UUID) (string, error) {
+	msg, err := s.userClient.DeleteUser(id)
+	if err != nil {
+		return "", err
+	}
+	return msg, nil
 }
