@@ -12,7 +12,6 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
-	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -26,7 +25,6 @@ const (
 	InterserviceService_UpdatePassword_FullMethodName    = "/user.interservice.InterserviceService/UpdatePassword"
 	InterserviceService_UpdatePhone_FullMethodName       = "/user.interservice.InterserviceService/UpdatePhone"
 	InterserviceService_UpdateProfile_FullMethodName     = "/user.interservice.InterserviceService/UpdateProfile"
-	InterserviceService_DeleteUser_FullMethodName        = "/user.interservice.InterserviceService/DeleteUser"
 )
 
 // InterserviceServiceClient is the client API for InterserviceService service.
@@ -42,8 +40,6 @@ type InterserviceServiceClient interface {
 	UpdatePhone(ctx context.Context, in *UpdatePhoneRequest, opts ...grpc.CallOption) (*UserWithMessageResponse, error)
 	//В metadata передавать userID ↓
 	UpdateProfile(ctx context.Context, in *UpdateProfileRequest, opts ...grpc.CallOption) (*UserWithMessageResponse, error)
-	//В metadata передавать userID ↓
-	DeleteUser(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*gen.MessageResponse, error)
 }
 
 type interserviceServiceClient struct {
@@ -104,16 +100,6 @@ func (c *interserviceServiceClient) UpdateProfile(ctx context.Context, in *Updat
 	return out, nil
 }
 
-func (c *interserviceServiceClient) DeleteUser(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*gen.MessageResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(gen.MessageResponse)
-	err := c.cc.Invoke(ctx, InterserviceService_DeleteUser_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 // InterserviceServiceServer is the server API for InterserviceService service.
 // All implementations must embed UnimplementedInterserviceServiceServer
 // for forward compatibility.
@@ -127,8 +113,6 @@ type InterserviceServiceServer interface {
 	UpdatePhone(context.Context, *UpdatePhoneRequest) (*UserWithMessageResponse, error)
 	//В metadata передавать userID ↓
 	UpdateProfile(context.Context, *UpdateProfileRequest) (*UserWithMessageResponse, error)
-	//В metadata передавать userID ↓
-	DeleteUser(context.Context, *emptypb.Empty) (*gen.MessageResponse, error)
 	mustEmbedUnimplementedInterserviceServiceServer()
 }
 
@@ -153,9 +137,6 @@ func (UnimplementedInterserviceServiceServer) UpdatePhone(context.Context, *Upda
 }
 func (UnimplementedInterserviceServiceServer) UpdateProfile(context.Context, *UpdateProfileRequest) (*UserWithMessageResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateProfile not implemented")
-}
-func (UnimplementedInterserviceServiceServer) DeleteUser(context.Context, *emptypb.Empty) (*gen.MessageResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method DeleteUser not implemented")
 }
 func (UnimplementedInterserviceServiceServer) mustEmbedUnimplementedInterserviceServiceServer() {}
 func (UnimplementedInterserviceServiceServer) testEmbeddedByValue()                             {}
@@ -268,24 +249,6 @@ func _InterserviceService_UpdateProfile_Handler(srv interface{}, ctx context.Con
 	return interceptor(ctx, in, info, handler)
 }
 
-func _InterserviceService_DeleteUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(emptypb.Empty)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(InterserviceServiceServer).DeleteUser(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: InterserviceService_DeleteUser_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(InterserviceServiceServer).DeleteUser(ctx, req.(*emptypb.Empty))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 // InterserviceService_ServiceDesc is the grpc.ServiceDesc for InterserviceService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -312,10 +275,6 @@ var InterserviceService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UpdateProfile",
 			Handler:    _InterserviceService_UpdateProfile_Handler,
-		},
-		{
-			MethodName: "DeleteUser",
-			Handler:    _InterserviceService_DeleteUser_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

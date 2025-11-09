@@ -10,7 +10,6 @@ import (
 	gen "github.com/Fox216540/shop/proto/common/gen"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -315,7 +314,7 @@ var File_user_service_interservice_proto protoreflect.FileDescriptor
 
 const file_user_service_interservice_proto_rawDesc = "" +
 	"\n" +
-	"\x1fuser-service/interservice.proto\x12\x11user.interservice\x1a\x12common/types.proto\x1a\x1bgoogle/protobuf/empty.proto\"z\n" +
+	"\x1fuser-service/interservice.proto\x12\x11user.interservice\x1a\x12common/types.proto\"z\n" +
 	"\x17UserWithMessageResponse\x12,\n" +
 	"\x04name\x18\x01 \x01(\v2\x18.common.UserNameResponseR\x04name\x121\n" +
 	"\amessage\x18\x02 \x01(\v2\x17.common.MessageResponseR\amessage\"*\n" +
@@ -333,15 +332,13 @@ const file_user_service_interservice_proto_rawDesc = "" +
 	"\b_address\"?\n" +
 	"\x19VerifyCredentialsResponse\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
-	"\x04name\x18\x02 \x01(\tR\x04name2\xc5\x04\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name2\x86\x04\n" +
 	"\x13InterserviceService\x12]\n" +
 	"\x11VerifyCredentials\x12\x1a.common.CredentialsRequest\x1a,.user.interservice.VerifyCredentialsResponse\x12`\n" +
 	"\vUpdateEmail\x12%.user.interservice.UpdateEmailRequest\x1a*.user.interservice.UserWithMessageResponse\x12f\n" +
 	"\x0eUpdatePassword\x12(.user.interservice.UpdatePasswordRequest\x1a*.user.interservice.UserWithMessageResponse\x12`\n" +
 	"\vUpdatePhone\x12%.user.interservice.UpdatePhoneRequest\x1a*.user.interservice.UserWithMessageResponse\x12d\n" +
-	"\rUpdateProfile\x12'.user.interservice.UpdateProfileRequest\x1a*.user.interservice.UserWithMessageResponse\x12=\n" +
-	"\n" +
-	"DeleteUser\x12\x16.google.protobuf.Empty\x1a\x17.common.MessageResponseBEZCgithub.com/Fox216540/shop/proto/user-service/gen/interservice;protob\x06proto3"
+	"\rUpdateProfile\x12'.user.interservice.UpdateProfileRequest\x1a*.user.interservice.UserWithMessageResponseBEZCgithub.com/Fox216540/shop/proto/user-service/gen/interservice;protob\x06proto3"
 
 var (
 	file_user_service_interservice_proto_rawDescOnce sync.Once
@@ -366,7 +363,6 @@ var file_user_service_interservice_proto_goTypes = []any{
 	(*gen.UserNameResponse)(nil),      // 6: common.UserNameResponse
 	(*gen.MessageResponse)(nil),       // 7: common.MessageResponse
 	(*gen.CredentialsRequest)(nil),    // 8: common.CredentialsRequest
-	(*emptypb.Empty)(nil),             // 9: google.protobuf.Empty
 }
 var file_user_service_interservice_proto_depIdxs = []int32{
 	6, // 0: user.interservice.UserWithMessageResponse.name:type_name -> common.UserNameResponse
@@ -376,15 +372,13 @@ var file_user_service_interservice_proto_depIdxs = []int32{
 	2, // 4: user.interservice.InterserviceService.UpdatePassword:input_type -> user.interservice.UpdatePasswordRequest
 	3, // 5: user.interservice.InterserviceService.UpdatePhone:input_type -> user.interservice.UpdatePhoneRequest
 	4, // 6: user.interservice.InterserviceService.UpdateProfile:input_type -> user.interservice.UpdateProfileRequest
-	9, // 7: user.interservice.InterserviceService.DeleteUser:input_type -> google.protobuf.Empty
-	5, // 8: user.interservice.InterserviceService.VerifyCredentials:output_type -> user.interservice.VerifyCredentialsResponse
-	0, // 9: user.interservice.InterserviceService.UpdateEmail:output_type -> user.interservice.UserWithMessageResponse
-	0, // 10: user.interservice.InterserviceService.UpdatePassword:output_type -> user.interservice.UserWithMessageResponse
-	0, // 11: user.interservice.InterserviceService.UpdatePhone:output_type -> user.interservice.UserWithMessageResponse
-	0, // 12: user.interservice.InterserviceService.UpdateProfile:output_type -> user.interservice.UserWithMessageResponse
-	7, // 13: user.interservice.InterserviceService.DeleteUser:output_type -> common.MessageResponse
-	8, // [8:14] is the sub-list for method output_type
-	2, // [2:8] is the sub-list for method input_type
+	5, // 7: user.interservice.InterserviceService.VerifyCredentials:output_type -> user.interservice.VerifyCredentialsResponse
+	0, // 8: user.interservice.InterserviceService.UpdateEmail:output_type -> user.interservice.UserWithMessageResponse
+	0, // 9: user.interservice.InterserviceService.UpdatePassword:output_type -> user.interservice.UserWithMessageResponse
+	0, // 10: user.interservice.InterserviceService.UpdatePhone:output_type -> user.interservice.UserWithMessageResponse
+	0, // 11: user.interservice.InterserviceService.UpdateProfile:output_type -> user.interservice.UserWithMessageResponse
+	7, // [7:12] is the sub-list for method output_type
+	2, // [2:7] is the sub-list for method input_type
 	2, // [2:2] is the sub-list for extension type_name
 	2, // [2:2] is the sub-list for extension extendee
 	0, // [0:2] is the sub-list for field type_name
