@@ -4,7 +4,9 @@ import (
 	shopApiGen "github.com/Fox216540/shop/api/gen"
 	aUseCase "github.com/Fox216540/shop/apigateway-service/app/auth"
 	cUseCase "github.com/Fox216540/shop/apigateway-service/app/catalog"
+	DTO "github.com/Fox216540/shop/apigateway-service/app/dto"
 	uUseCase "github.com/Fox216540/shop/apigateway-service/app/user"
+	domainAuth "github.com/Fox216540/shop/apigateway-service/domain/auth"
 	domainCatalog "github.com/Fox216540/shop/apigateway-service/domain/catalog"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -16,6 +18,14 @@ type HTTPHandler struct {
 	authUseCase    aUseCase.UseCase
 	catalogUseCase cUseCase.UseCase
 	userUseCase    uUseCase.UseCase
+}
+
+func (h *HTTPHandler) userWithTokenResponse(name string, tokens domainAuth.Tokens, message string) shopApiGen.UserWithTokenResponse {
+	return shopApiGen.UserWithTokenResponse{
+		AccessToken: tokens.AccessToken,
+		Message:     message,
+		Name:        name,
+	}
 }
 
 func (h *HTTPHandler) PostAuthLogin(c *gin.Context) {
@@ -31,11 +41,7 @@ func (h *HTTPHandler) PostAuthLogin(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	resp := shopApiGen.UserWithTokenResponse{
-		AccessToken: tokens.AccessToken,
-		Message:     message,
-		Name:        name,
-	}
+	resp := h.userWithTokenResponse(name, tokens, message)
 	c.JSON(http.StatusOK, resp)
 }
 
@@ -167,13 +173,53 @@ func (h *HTTPHandler) GetProductById(c *gin.Context, id openapiTypes.UUID) {
 }
 
 func (h *HTTPHandler) CreateUser(c *gin.Context) {
-	//TODO implement me
-	panic("implement me")
+	var req shopApiGen.CreateUserJSONRequestBody
+	if err := c.ShouldBindJSON(&req); err != nil {
+		//TODO: Придумать ошибку
+		return
+	}
+	userDTO := DTO.User{
+		Name:     req.Name,
+		Email:    string(req.Email),
+		Password: req.Password,
+		Phone:    req.Phone,
+		Address:  req.Address,
+	}
+	name, tokens, msg, err := h.userUseCase.RegisterUser(userDTO)
+	if err != nil {
+		//TODO: Придумать ошибку
+		return
+	}
+	resp := h.userWithTokenResponse(name, tokens, msg)
+
+	c.JSON(http.StatusCreated, resp)
+
 }
 
 func (h *HTTPHandler) DeleteUser(c *gin.Context) {
-	//TODO implement me
-	panic("implement me")
+	idValue, exists := c.Get("user_id")
+	if !exists {
+		//TODO: Придумать ошибку
+		return
+	}
+	idString, ok := idValue.(string)
+	if !ok {
+		//TODO: Придумать ошибку
+		return
+	}
+	id, err := uuid.Parse(idString)
+	if err != nil {
+		//TODO: Придумать ошибку
+		return
+	}
+	msg, err := h.userUseCase.DeleteUser(id)
+	if err != nil {
+		//TODO: Придумать ошибку
+		return
+	}
+	c.JSON(http.StatusOK, shopApiGen.MessageResponse{
+		Message: msg,
+	})
 }
 
 func (h *HTTPHandler) PatchUsersMeEmail(c *gin.Context) {
