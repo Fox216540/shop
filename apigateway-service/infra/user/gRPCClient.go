@@ -5,6 +5,9 @@ import (
 	"github.com/Fox216540/shop/apigateway-service/domain/user"
 	"github.com/Fox216540/shop/apigateway-service/infra/client"
 	pb "github.com/Fox216540/shop/proto/user-service/gen/api"
+	"github.com/google/uuid"
+	"google.golang.org/grpc/metadata"
+	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 type GRPCClient struct {
@@ -38,4 +41,14 @@ func (c *GRPCClient) RegisterUser(u user.User) (name string, tokens auth.Tokens,
 		AccessToken:  resp.Tokens.AccessToken,
 		RefreshToken: resp.Tokens.RefreshToken,
 	}, resp.Message.Message, nil
+}
+
+func (c *GRPCClient) DeleteUser(id uuid.UUID) (message string, err error) {
+	ctx := c.conn.Context()
+	ctx = metadata.AppendToOutgoingContext(ctx, "user_id", id.String())
+	resp, err := c.pb.DeleteUser(ctx, &emptypb.Empty{})
+	if err != nil {
+		return "", err
+	}
+	return resp.Message, nil
 }
