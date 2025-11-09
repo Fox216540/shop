@@ -3,11 +3,14 @@ syntax = "proto3";
 package user.api;
 
 import "common/types.proto";
+import "google/protobuf/empty.proto";
 
 option go_package = "github.com/Fox216540/shop/proto/user-service/gen/api;proto";
 
 service ApiService {
     rpc RegisterUser (RegisterUserRequest) returns (common.UserWithTokensResponse);
+    //В metadata передавать userID ↓
+    rpc DeleteUser (google.protobuf.Empty) returns (common.MessageResponse);
 }
 
 message RegisterUserRequest {
