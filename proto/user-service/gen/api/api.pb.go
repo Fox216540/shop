@@ -10,6 +10,7 @@ import (
 	gen "github.com/Fox216540/shop/proto/common/gen"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -102,16 +103,18 @@ var File_user_service_api_proto protoreflect.FileDescriptor
 
 const file_user_service_api_proto_rawDesc = "" +
 	"\n" +
-	"\x16user-service/api.proto\x12\buser.api\x1a\x12common/types.proto\"\x8b\x01\n" +
+	"\x16user-service/api.proto\x12\buser.api\x1a\x12common/types.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x8b\x01\n" +
 	"\x13RegisterUserRequest\x12\x14\n" +
 	"\x05email\x18\x01 \x01(\tR\x05email\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x1a\n" +
 	"\bpassword\x18\x03 \x01(\tR\bpassword\x12\x18\n" +
 	"\aaddress\x18\x04 \x01(\tR\aaddress\x12\x14\n" +
-	"\x05phone\x18\x05 \x01(\tR\x05phone2[\n" +
+	"\x05phone\x18\x05 \x01(\tR\x05phone2\x9a\x01\n" +
 	"\n" +
 	"ApiService\x12M\n" +
-	"\fRegisterUser\x12\x1d.user.api.RegisterUserRequest\x1a\x1e.common.UserWithTokensResponseB<Z:github.com/Fox216540/shop/proto/user-service/gen/api;protob\x06proto3"
+	"\fRegisterUser\x12\x1d.user.api.RegisterUserRequest\x1a\x1e.common.UserWithTokensResponse\x12=\n" +
+	"\n" +
+	"DeleteUser\x12\x16.google.protobuf.Empty\x1a\x17.common.MessageResponseB<Z:github.com/Fox216540/shop/proto/user-service/gen/api;protob\x06proto3"
 
 var (
 	file_user_service_api_proto_rawDescOnce sync.Once
@@ -128,13 +131,17 @@ func file_user_service_api_proto_rawDescGZIP() []byte {
 var file_user_service_api_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
 var file_user_service_api_proto_goTypes = []any{
 	(*RegisterUserRequest)(nil),        // 0: user.api.RegisterUserRequest
-	(*gen.UserWithTokensResponse)(nil), // 1: common.UserWithTokensResponse
+	(*emptypb.Empty)(nil),              // 1: google.protobuf.Empty
+	(*gen.UserWithTokensResponse)(nil), // 2: common.UserWithTokensResponse
+	(*gen.MessageResponse)(nil),        // 3: common.MessageResponse
 }
 var file_user_service_api_proto_depIdxs = []int32{
 	0, // 0: user.api.ApiService.RegisterUser:input_type -> user.api.RegisterUserRequest
-	1, // 1: user.api.ApiService.RegisterUser:output_type -> common.UserWithTokensResponse
-	1, // [1:2] is the sub-list for method output_type
-	0, // [0:1] is the sub-list for method input_type
+	1, // 1: user.api.ApiService.DeleteUser:input_type -> google.protobuf.Empty
+	2, // 2: user.api.ApiService.RegisterUser:output_type -> common.UserWithTokensResponse
+	3, // 3: user.api.ApiService.DeleteUser:output_type -> common.MessageResponse
+	2, // [2:4] is the sub-list for method output_type
+	0, // [0:2] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
 	0, // [0:0] is the sub-list for extension extendee
 	0, // [0:0] is the sub-list for field type_name

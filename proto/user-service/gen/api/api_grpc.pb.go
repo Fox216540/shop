@@ -12,6 +12,7 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -21,6 +22,7 @@ const _ = grpc.SupportPackageIsVersion9
 
 const (
 	ApiService_RegisterUser_FullMethodName = "/user.api.ApiService/RegisterUser"
+	ApiService_DeleteUser_FullMethodName   = "/user.api.ApiService/DeleteUser"
 )
 
 // ApiServiceClient is the client API for ApiService service.
@@ -28,6 +30,8 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ApiServiceClient interface {
 	RegisterUser(ctx context.Context, in *RegisterUserRequest, opts ...grpc.CallOption) (*gen.UserWithTokensResponse, error)
+	//В metadata передавать userID ↓
+	DeleteUser(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*gen.MessageResponse, error)
 }
 
 type apiServiceClient struct {
@@ -48,11 +52,23 @@ func (c *apiServiceClient) RegisterUser(ctx context.Context, in *RegisterUserReq
 	return out, nil
 }
 
+func (c *apiServiceClient) DeleteUser(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*gen.MessageResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(gen.MessageResponse)
+	err := c.cc.Invoke(ctx, ApiService_DeleteUser_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ApiServiceServer is the server API for ApiService service.
 // All implementations must embed UnimplementedApiServiceServer
 // for forward compatibility.
 type ApiServiceServer interface {
 	RegisterUser(context.Context, *RegisterUserRequest) (*gen.UserWithTokensResponse, error)
+	//В metadata передавать userID ↓
+	DeleteUser(context.Context, *emptypb.Empty) (*gen.MessageResponse, error)
 	mustEmbedUnimplementedApiServiceServer()
 }
 
@@ -65,6 +81,9 @@ type UnimplementedApiServiceServer struct{}
 
 func (UnimplementedApiServiceServer) RegisterUser(context.Context, *RegisterUserRequest) (*gen.UserWithTokensResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RegisterUser not implemented")
+}
+func (UnimplementedApiServiceServer) DeleteUser(context.Context, *emptypb.Empty) (*gen.MessageResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteUser not implemented")
 }
 func (UnimplementedApiServiceServer) mustEmbedUnimplementedApiServiceServer() {}
 func (UnimplementedApiServiceServer) testEmbeddedByValue()                    {}
@@ -105,6 +124,24 @@ func _ApiService_RegisterUser_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ApiService_DeleteUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ApiServiceServer).DeleteUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ApiService_DeleteUser_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ApiServiceServer).DeleteUser(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ApiService_ServiceDesc is the grpc.ServiceDesc for ApiService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -115,6 +152,10 @@ var ApiService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "RegisterUser",
 			Handler:    _ApiService_RegisterUser_Handler,
+		},
+		{
+			MethodName: "DeleteUser",
+			Handler:    _ApiService_DeleteUser_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
