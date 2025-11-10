@@ -223,8 +223,12 @@ func (h *HTTPHandler) DeleteUser(c *gin.Context) {
 }
 
 func (h *HTTPHandler) PatchUsersMeEmail(c *gin.Context) {
-	//TODO implement me
-	panic("implement me")
+	var req shopApiGen.PatchUsersMeEmailJSONBody
+	if err := c.ShouldBindJSON(&req); err != nil {
+		//TODO: Придумать ошибку
+		return
+	}
+	h.userUseCase
 }
 
 func (h *HTTPHandler) PatchUsersMePassword(c *gin.Context) {
