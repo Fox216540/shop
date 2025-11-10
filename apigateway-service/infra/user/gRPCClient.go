@@ -52,3 +52,32 @@ func (c *GRPCClient) DeleteUser(id uuid.UUID) (message string, err error) {
 	}
 	return resp.Message, nil
 }
+
+func (c *GRPCClient) UpdateEmail(id uuid.UUID, email string) (message string, err error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (c *GRPCClient) UpdatePassword(id uuid.UUID, password string) (message string, err error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (c *GRPCClient) UpdatePhone(id uuid.UUID, phone string) (message string, err error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (c *GRPCClient) UpdateProfile(id uuid.UUID, name *string, address *string) (newName string, message string, err error) {
+	ctx := c.conn.Context()
+	ctx = metadata.AppendToOutgoingContext(ctx, "user_id", id.String())
+	req := &pb.UpdateProfileRequest{
+		Name:    name,
+		Address: address,
+	}
+	resp, err := c.pb.UpdateProfile(ctx, req)
+	if err != nil {
+		return "", "", err
+	}
+	return resp.Name.Name, resp.Message.Message, nil
+}
