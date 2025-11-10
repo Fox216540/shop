@@ -21,10 +21,6 @@ const _ = grpc.SupportPackageIsVersion9
 
 const (
 	InterserviceService_VerifyCredentials_FullMethodName = "/user.interservice.InterserviceService/VerifyCredentials"
-	InterserviceService_UpdateEmail_FullMethodName       = "/user.interservice.InterserviceService/UpdateEmail"
-	InterserviceService_UpdatePassword_FullMethodName    = "/user.interservice.InterserviceService/UpdatePassword"
-	InterserviceService_UpdatePhone_FullMethodName       = "/user.interservice.InterserviceService/UpdatePhone"
-	InterserviceService_UpdateProfile_FullMethodName     = "/user.interservice.InterserviceService/UpdateProfile"
 )
 
 // InterserviceServiceClient is the client API for InterserviceService service.
@@ -32,14 +28,6 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type InterserviceServiceClient interface {
 	VerifyCredentials(ctx context.Context, in *gen.CredentialsRequest, opts ...grpc.CallOption) (*VerifyCredentialsResponse, error)
-	//В metadata передавать userID ↓
-	UpdateEmail(ctx context.Context, in *UpdateEmailRequest, opts ...grpc.CallOption) (*UserWithMessageResponse, error)
-	//В metadata передавать userID ↓
-	UpdatePassword(ctx context.Context, in *UpdatePasswordRequest, opts ...grpc.CallOption) (*UserWithMessageResponse, error)
-	//В metadata передавать userID ↓
-	UpdatePhone(ctx context.Context, in *UpdatePhoneRequest, opts ...grpc.CallOption) (*UserWithMessageResponse, error)
-	//В metadata передавать userID ↓
-	UpdateProfile(ctx context.Context, in *UpdateProfileRequest, opts ...grpc.CallOption) (*UserWithMessageResponse, error)
 }
 
 type interserviceServiceClient struct {
@@ -60,59 +48,11 @@ func (c *interserviceServiceClient) VerifyCredentials(ctx context.Context, in *g
 	return out, nil
 }
 
-func (c *interserviceServiceClient) UpdateEmail(ctx context.Context, in *UpdateEmailRequest, opts ...grpc.CallOption) (*UserWithMessageResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(UserWithMessageResponse)
-	err := c.cc.Invoke(ctx, InterserviceService_UpdateEmail_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *interserviceServiceClient) UpdatePassword(ctx context.Context, in *UpdatePasswordRequest, opts ...grpc.CallOption) (*UserWithMessageResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(UserWithMessageResponse)
-	err := c.cc.Invoke(ctx, InterserviceService_UpdatePassword_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *interserviceServiceClient) UpdatePhone(ctx context.Context, in *UpdatePhoneRequest, opts ...grpc.CallOption) (*UserWithMessageResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(UserWithMessageResponse)
-	err := c.cc.Invoke(ctx, InterserviceService_UpdatePhone_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *interserviceServiceClient) UpdateProfile(ctx context.Context, in *UpdateProfileRequest, opts ...grpc.CallOption) (*UserWithMessageResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(UserWithMessageResponse)
-	err := c.cc.Invoke(ctx, InterserviceService_UpdateProfile_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 // InterserviceServiceServer is the server API for InterserviceService service.
 // All implementations must embed UnimplementedInterserviceServiceServer
 // for forward compatibility.
 type InterserviceServiceServer interface {
 	VerifyCredentials(context.Context, *gen.CredentialsRequest) (*VerifyCredentialsResponse, error)
-	//В metadata передавать userID ↓
-	UpdateEmail(context.Context, *UpdateEmailRequest) (*UserWithMessageResponse, error)
-	//В metadata передавать userID ↓
-	UpdatePassword(context.Context, *UpdatePasswordRequest) (*UserWithMessageResponse, error)
-	//В metadata передавать userID ↓
-	UpdatePhone(context.Context, *UpdatePhoneRequest) (*UserWithMessageResponse, error)
-	//В metadata передавать userID ↓
-	UpdateProfile(context.Context, *UpdateProfileRequest) (*UserWithMessageResponse, error)
 	mustEmbedUnimplementedInterserviceServiceServer()
 }
 
@@ -125,18 +65,6 @@ type UnimplementedInterserviceServiceServer struct{}
 
 func (UnimplementedInterserviceServiceServer) VerifyCredentials(context.Context, *gen.CredentialsRequest) (*VerifyCredentialsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method VerifyCredentials not implemented")
-}
-func (UnimplementedInterserviceServiceServer) UpdateEmail(context.Context, *UpdateEmailRequest) (*UserWithMessageResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method UpdateEmail not implemented")
-}
-func (UnimplementedInterserviceServiceServer) UpdatePassword(context.Context, *UpdatePasswordRequest) (*UserWithMessageResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method UpdatePassword not implemented")
-}
-func (UnimplementedInterserviceServiceServer) UpdatePhone(context.Context, *UpdatePhoneRequest) (*UserWithMessageResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method UpdatePhone not implemented")
-}
-func (UnimplementedInterserviceServiceServer) UpdateProfile(context.Context, *UpdateProfileRequest) (*UserWithMessageResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method UpdateProfile not implemented")
 }
 func (UnimplementedInterserviceServiceServer) mustEmbedUnimplementedInterserviceServiceServer() {}
 func (UnimplementedInterserviceServiceServer) testEmbeddedByValue()                             {}
@@ -177,78 +105,6 @@ func _InterserviceService_VerifyCredentials_Handler(srv interface{}, ctx context
 	return interceptor(ctx, in, info, handler)
 }
 
-func _InterserviceService_UpdateEmail_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UpdateEmailRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(InterserviceServiceServer).UpdateEmail(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: InterserviceService_UpdateEmail_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(InterserviceServiceServer).UpdateEmail(ctx, req.(*UpdateEmailRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _InterserviceService_UpdatePassword_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UpdatePasswordRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(InterserviceServiceServer).UpdatePassword(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: InterserviceService_UpdatePassword_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(InterserviceServiceServer).UpdatePassword(ctx, req.(*UpdatePasswordRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _InterserviceService_UpdatePhone_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UpdatePhoneRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(InterserviceServiceServer).UpdatePhone(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: InterserviceService_UpdatePhone_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(InterserviceServiceServer).UpdatePhone(ctx, req.(*UpdatePhoneRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _InterserviceService_UpdateProfile_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UpdateProfileRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(InterserviceServiceServer).UpdateProfile(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: InterserviceService_UpdateProfile_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(InterserviceServiceServer).UpdateProfile(ctx, req.(*UpdateProfileRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 // InterserviceService_ServiceDesc is the grpc.ServiceDesc for InterserviceService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -259,22 +115,6 @@ var InterserviceService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "VerifyCredentials",
 			Handler:    _InterserviceService_VerifyCredentials_Handler,
-		},
-		{
-			MethodName: "UpdateEmail",
-			Handler:    _InterserviceService_UpdateEmail_Handler,
-		},
-		{
-			MethodName: "UpdatePassword",
-			Handler:    _InterserviceService_UpdatePassword_Handler,
-		},
-		{
-			MethodName: "UpdatePhone",
-			Handler:    _InterserviceService_UpdatePhone_Handler,
-		},
-		{
-			MethodName: "UpdateProfile",
-			Handler:    _InterserviceService_UpdateProfile_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

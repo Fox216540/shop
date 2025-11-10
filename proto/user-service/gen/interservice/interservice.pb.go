@@ -22,242 +22,6 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type UserWithMessageResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Name          *gen.UserNameResponse  `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	Message       *gen.MessageResponse   `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *UserWithMessageResponse) Reset() {
-	*x = UserWithMessageResponse{}
-	mi := &file_user_service_interservice_proto_msgTypes[0]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *UserWithMessageResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*UserWithMessageResponse) ProtoMessage() {}
-
-func (x *UserWithMessageResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_user_service_interservice_proto_msgTypes[0]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use UserWithMessageResponse.ProtoReflect.Descriptor instead.
-func (*UserWithMessageResponse) Descriptor() ([]byte, []int) {
-	return file_user_service_interservice_proto_rawDescGZIP(), []int{0}
-}
-
-func (x *UserWithMessageResponse) GetName() *gen.UserNameResponse {
-	if x != nil {
-		return x.Name
-	}
-	return nil
-}
-
-func (x *UserWithMessageResponse) GetMessage() *gen.MessageResponse {
-	if x != nil {
-		return x.Message
-	}
-	return nil
-}
-
-type UpdateEmailRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Email         string                 `protobuf:"bytes,2,opt,name=email,proto3" json:"email,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *UpdateEmailRequest) Reset() {
-	*x = UpdateEmailRequest{}
-	mi := &file_user_service_interservice_proto_msgTypes[1]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *UpdateEmailRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*UpdateEmailRequest) ProtoMessage() {}
-
-func (x *UpdateEmailRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_user_service_interservice_proto_msgTypes[1]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use UpdateEmailRequest.ProtoReflect.Descriptor instead.
-func (*UpdateEmailRequest) Descriptor() ([]byte, []int) {
-	return file_user_service_interservice_proto_rawDescGZIP(), []int{1}
-}
-
-func (x *UpdateEmailRequest) GetEmail() string {
-	if x != nil {
-		return x.Email
-	}
-	return ""
-}
-
-type UpdatePasswordRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Password      string                 `protobuf:"bytes,2,opt,name=password,proto3" json:"password,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *UpdatePasswordRequest) Reset() {
-	*x = UpdatePasswordRequest{}
-	mi := &file_user_service_interservice_proto_msgTypes[2]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *UpdatePasswordRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*UpdatePasswordRequest) ProtoMessage() {}
-
-func (x *UpdatePasswordRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_user_service_interservice_proto_msgTypes[2]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use UpdatePasswordRequest.ProtoReflect.Descriptor instead.
-func (*UpdatePasswordRequest) Descriptor() ([]byte, []int) {
-	return file_user_service_interservice_proto_rawDescGZIP(), []int{2}
-}
-
-func (x *UpdatePasswordRequest) GetPassword() string {
-	if x != nil {
-		return x.Password
-	}
-	return ""
-}
-
-type UpdatePhoneRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Phone         string                 `protobuf:"bytes,2,opt,name=phone,proto3" json:"phone,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *UpdatePhoneRequest) Reset() {
-	*x = UpdatePhoneRequest{}
-	mi := &file_user_service_interservice_proto_msgTypes[3]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *UpdatePhoneRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*UpdatePhoneRequest) ProtoMessage() {}
-
-func (x *UpdatePhoneRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_user_service_interservice_proto_msgTypes[3]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use UpdatePhoneRequest.ProtoReflect.Descriptor instead.
-func (*UpdatePhoneRequest) Descriptor() ([]byte, []int) {
-	return file_user_service_interservice_proto_rawDescGZIP(), []int{3}
-}
-
-func (x *UpdatePhoneRequest) GetPhone() string {
-	if x != nil {
-		return x.Phone
-	}
-	return ""
-}
-
-type UpdateProfileRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Name          *string                `protobuf:"bytes,2,opt,name=name,proto3,oneof" json:"name,omitempty"`
-	Address       *string                `protobuf:"bytes,3,opt,name=address,proto3,oneof" json:"address,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *UpdateProfileRequest) Reset() {
-	*x = UpdateProfileRequest{}
-	mi := &file_user_service_interservice_proto_msgTypes[4]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *UpdateProfileRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*UpdateProfileRequest) ProtoMessage() {}
-
-func (x *UpdateProfileRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_user_service_interservice_proto_msgTypes[4]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use UpdateProfileRequest.ProtoReflect.Descriptor instead.
-func (*UpdateProfileRequest) Descriptor() ([]byte, []int) {
-	return file_user_service_interservice_proto_rawDescGZIP(), []int{4}
-}
-
-func (x *UpdateProfileRequest) GetName() string {
-	if x != nil && x.Name != nil {
-		return *x.Name
-	}
-	return ""
-}
-
-func (x *UpdateProfileRequest) GetAddress() string {
-	if x != nil && x.Address != nil {
-		return *x.Address
-	}
-	return ""
-}
-
 type VerifyCredentialsResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
@@ -268,7 +32,7 @@ type VerifyCredentialsResponse struct {
 
 func (x *VerifyCredentialsResponse) Reset() {
 	*x = VerifyCredentialsResponse{}
-	mi := &file_user_service_interservice_proto_msgTypes[5]
+	mi := &file_user_service_interservice_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -280,7 +44,7 @@ func (x *VerifyCredentialsResponse) String() string {
 func (*VerifyCredentialsResponse) ProtoMessage() {}
 
 func (x *VerifyCredentialsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_user_service_interservice_proto_msgTypes[5]
+	mi := &file_user_service_interservice_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -293,7 +57,7 @@ func (x *VerifyCredentialsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use VerifyCredentialsResponse.ProtoReflect.Descriptor instead.
 func (*VerifyCredentialsResponse) Descriptor() ([]byte, []int) {
-	return file_user_service_interservice_proto_rawDescGZIP(), []int{5}
+	return file_user_service_interservice_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *VerifyCredentialsResponse) GetId() string {
@@ -314,31 +78,12 @@ var File_user_service_interservice_proto protoreflect.FileDescriptor
 
 const file_user_service_interservice_proto_rawDesc = "" +
 	"\n" +
-	"\x1fuser-service/interservice.proto\x12\x11user.interservice\x1a\x12common/types.proto\"z\n" +
-	"\x17UserWithMessageResponse\x12,\n" +
-	"\x04name\x18\x01 \x01(\v2\x18.common.UserNameResponseR\x04name\x121\n" +
-	"\amessage\x18\x02 \x01(\v2\x17.common.MessageResponseR\amessage\"*\n" +
-	"\x12UpdateEmailRequest\x12\x14\n" +
-	"\x05email\x18\x02 \x01(\tR\x05email\"3\n" +
-	"\x15UpdatePasswordRequest\x12\x1a\n" +
-	"\bpassword\x18\x02 \x01(\tR\bpassword\"*\n" +
-	"\x12UpdatePhoneRequest\x12\x14\n" +
-	"\x05phone\x18\x02 \x01(\tR\x05phone\"c\n" +
-	"\x14UpdateProfileRequest\x12\x17\n" +
-	"\x04name\x18\x02 \x01(\tH\x00R\x04name\x88\x01\x01\x12\x1d\n" +
-	"\aaddress\x18\x03 \x01(\tH\x01R\aaddress\x88\x01\x01B\a\n" +
-	"\x05_nameB\n" +
-	"\n" +
-	"\b_address\"?\n" +
+	"\x1fuser-service/interservice.proto\x12\x11user.interservice\x1a\x12common/types.proto\"?\n" +
 	"\x19VerifyCredentialsResponse\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
-	"\x04name\x18\x02 \x01(\tR\x04name2\x86\x04\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name2t\n" +
 	"\x13InterserviceService\x12]\n" +
-	"\x11VerifyCredentials\x12\x1a.common.CredentialsRequest\x1a,.user.interservice.VerifyCredentialsResponse\x12`\n" +
-	"\vUpdateEmail\x12%.user.interservice.UpdateEmailRequest\x1a*.user.interservice.UserWithMessageResponse\x12f\n" +
-	"\x0eUpdatePassword\x12(.user.interservice.UpdatePasswordRequest\x1a*.user.interservice.UserWithMessageResponse\x12`\n" +
-	"\vUpdatePhone\x12%.user.interservice.UpdatePhoneRequest\x1a*.user.interservice.UserWithMessageResponse\x12d\n" +
-	"\rUpdateProfile\x12'.user.interservice.UpdateProfileRequest\x1a*.user.interservice.UserWithMessageResponseBEZCgithub.com/Fox216540/shop/proto/user-service/gen/interservice;protob\x06proto3"
+	"\x11VerifyCredentials\x12\x1a.common.CredentialsRequest\x1a,.user.interservice.VerifyCredentialsResponseBEZCgithub.com/Fox216540/shop/proto/user-service/gen/interservice;protob\x06proto3"
 
 var (
 	file_user_service_interservice_proto_rawDescOnce sync.Once
@@ -352,36 +97,19 @@ func file_user_service_interservice_proto_rawDescGZIP() []byte {
 	return file_user_service_interservice_proto_rawDescData
 }
 
-var file_user_service_interservice_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+var file_user_service_interservice_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
 var file_user_service_interservice_proto_goTypes = []any{
-	(*UserWithMessageResponse)(nil),   // 0: user.interservice.UserWithMessageResponse
-	(*UpdateEmailRequest)(nil),        // 1: user.interservice.UpdateEmailRequest
-	(*UpdatePasswordRequest)(nil),     // 2: user.interservice.UpdatePasswordRequest
-	(*UpdatePhoneRequest)(nil),        // 3: user.interservice.UpdatePhoneRequest
-	(*UpdateProfileRequest)(nil),      // 4: user.interservice.UpdateProfileRequest
-	(*VerifyCredentialsResponse)(nil), // 5: user.interservice.VerifyCredentialsResponse
-	(*gen.UserNameResponse)(nil),      // 6: common.UserNameResponse
-	(*gen.MessageResponse)(nil),       // 7: common.MessageResponse
-	(*gen.CredentialsRequest)(nil),    // 8: common.CredentialsRequest
+	(*VerifyCredentialsResponse)(nil), // 0: user.interservice.VerifyCredentialsResponse
+	(*gen.CredentialsRequest)(nil),    // 1: common.CredentialsRequest
 }
 var file_user_service_interservice_proto_depIdxs = []int32{
-	6, // 0: user.interservice.UserWithMessageResponse.name:type_name -> common.UserNameResponse
-	7, // 1: user.interservice.UserWithMessageResponse.message:type_name -> common.MessageResponse
-	8, // 2: user.interservice.InterserviceService.VerifyCredentials:input_type -> common.CredentialsRequest
-	1, // 3: user.interservice.InterserviceService.UpdateEmail:input_type -> user.interservice.UpdateEmailRequest
-	2, // 4: user.interservice.InterserviceService.UpdatePassword:input_type -> user.interservice.UpdatePasswordRequest
-	3, // 5: user.interservice.InterserviceService.UpdatePhone:input_type -> user.interservice.UpdatePhoneRequest
-	4, // 6: user.interservice.InterserviceService.UpdateProfile:input_type -> user.interservice.UpdateProfileRequest
-	5, // 7: user.interservice.InterserviceService.VerifyCredentials:output_type -> user.interservice.VerifyCredentialsResponse
-	0, // 8: user.interservice.InterserviceService.UpdateEmail:output_type -> user.interservice.UserWithMessageResponse
-	0, // 9: user.interservice.InterserviceService.UpdatePassword:output_type -> user.interservice.UserWithMessageResponse
-	0, // 10: user.interservice.InterserviceService.UpdatePhone:output_type -> user.interservice.UserWithMessageResponse
-	0, // 11: user.interservice.InterserviceService.UpdateProfile:output_type -> user.interservice.UserWithMessageResponse
-	7, // [7:12] is the sub-list for method output_type
-	2, // [2:7] is the sub-list for method input_type
-	2, // [2:2] is the sub-list for extension type_name
-	2, // [2:2] is the sub-list for extension extendee
-	0, // [0:2] is the sub-list for field type_name
+	1, // 0: user.interservice.InterserviceService.VerifyCredentials:input_type -> common.CredentialsRequest
+	0, // 1: user.interservice.InterserviceService.VerifyCredentials:output_type -> user.interservice.VerifyCredentialsResponse
+	1, // [1:2] is the sub-list for method output_type
+	0, // [0:1] is the sub-list for method input_type
+	0, // [0:0] is the sub-list for extension type_name
+	0, // [0:0] is the sub-list for extension extendee
+	0, // [0:0] is the sub-list for field type_name
 }
 
 func init() { file_user_service_interservice_proto_init() }
@@ -389,14 +117,13 @@ func file_user_service_interservice_proto_init() {
 	if File_user_service_interservice_proto != nil {
 		return
 	}
-	file_user_service_interservice_proto_msgTypes[4].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_user_service_interservice_proto_rawDesc), len(file_user_service_interservice_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   6,
+			NumMessages:   1,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
