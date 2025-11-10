@@ -21,8 +21,12 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	ApiService_RegisterUser_FullMethodName = "/user.api.ApiService/RegisterUser"
-	ApiService_DeleteUser_FullMethodName   = "/user.api.ApiService/DeleteUser"
+	ApiService_RegisterUser_FullMethodName   = "/user.api.ApiService/RegisterUser"
+	ApiService_DeleteUser_FullMethodName     = "/user.api.ApiService/DeleteUser"
+	ApiService_UpdateEmail_FullMethodName    = "/user.api.ApiService/UpdateEmail"
+	ApiService_UpdatePassword_FullMethodName = "/user.api.ApiService/UpdatePassword"
+	ApiService_UpdatePhone_FullMethodName    = "/user.api.ApiService/UpdatePhone"
+	ApiService_UpdateProfile_FullMethodName  = "/user.api.ApiService/UpdateProfile"
 )
 
 // ApiServiceClient is the client API for ApiService service.
@@ -32,6 +36,14 @@ type ApiServiceClient interface {
 	RegisterUser(ctx context.Context, in *RegisterUserRequest, opts ...grpc.CallOption) (*gen.UserWithTokensResponse, error)
 	//В metadata передавать userID ↓
 	DeleteUser(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*gen.MessageResponse, error)
+	//В metadata передавать userID ↓
+	UpdateEmail(ctx context.Context, in *UpdateEmailRequest, opts ...grpc.CallOption) (*UserWithMessageResponse, error)
+	//В metadata передавать userID ↓
+	UpdatePassword(ctx context.Context, in *UpdatePasswordRequest, opts ...grpc.CallOption) (*UserWithMessageResponse, error)
+	//В metadata передавать userID ↓
+	UpdatePhone(ctx context.Context, in *UpdatePhoneRequest, opts ...grpc.CallOption) (*UserWithMessageResponse, error)
+	//В metadata передавать userID ↓
+	UpdateProfile(ctx context.Context, in *UpdateProfileRequest, opts ...grpc.CallOption) (*UserWithMessageResponse, error)
 }
 
 type apiServiceClient struct {
@@ -62,6 +74,46 @@ func (c *apiServiceClient) DeleteUser(ctx context.Context, in *emptypb.Empty, op
 	return out, nil
 }
 
+func (c *apiServiceClient) UpdateEmail(ctx context.Context, in *UpdateEmailRequest, opts ...grpc.CallOption) (*UserWithMessageResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UserWithMessageResponse)
+	err := c.cc.Invoke(ctx, ApiService_UpdateEmail_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *apiServiceClient) UpdatePassword(ctx context.Context, in *UpdatePasswordRequest, opts ...grpc.CallOption) (*UserWithMessageResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UserWithMessageResponse)
+	err := c.cc.Invoke(ctx, ApiService_UpdatePassword_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *apiServiceClient) UpdatePhone(ctx context.Context, in *UpdatePhoneRequest, opts ...grpc.CallOption) (*UserWithMessageResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UserWithMessageResponse)
+	err := c.cc.Invoke(ctx, ApiService_UpdatePhone_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *apiServiceClient) UpdateProfile(ctx context.Context, in *UpdateProfileRequest, opts ...grpc.CallOption) (*UserWithMessageResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UserWithMessageResponse)
+	err := c.cc.Invoke(ctx, ApiService_UpdateProfile_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ApiServiceServer is the server API for ApiService service.
 // All implementations must embed UnimplementedApiServiceServer
 // for forward compatibility.
@@ -69,6 +121,14 @@ type ApiServiceServer interface {
 	RegisterUser(context.Context, *RegisterUserRequest) (*gen.UserWithTokensResponse, error)
 	//В metadata передавать userID ↓
 	DeleteUser(context.Context, *emptypb.Empty) (*gen.MessageResponse, error)
+	//В metadata передавать userID ↓
+	UpdateEmail(context.Context, *UpdateEmailRequest) (*UserWithMessageResponse, error)
+	//В metadata передавать userID ↓
+	UpdatePassword(context.Context, *UpdatePasswordRequest) (*UserWithMessageResponse, error)
+	//В metadata передавать userID ↓
+	UpdatePhone(context.Context, *UpdatePhoneRequest) (*UserWithMessageResponse, error)
+	//В metadata передавать userID ↓
+	UpdateProfile(context.Context, *UpdateProfileRequest) (*UserWithMessageResponse, error)
 	mustEmbedUnimplementedApiServiceServer()
 }
 
@@ -84,6 +144,18 @@ func (UnimplementedApiServiceServer) RegisterUser(context.Context, *RegisterUser
 }
 func (UnimplementedApiServiceServer) DeleteUser(context.Context, *emptypb.Empty) (*gen.MessageResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteUser not implemented")
+}
+func (UnimplementedApiServiceServer) UpdateEmail(context.Context, *UpdateEmailRequest) (*UserWithMessageResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateEmail not implemented")
+}
+func (UnimplementedApiServiceServer) UpdatePassword(context.Context, *UpdatePasswordRequest) (*UserWithMessageResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdatePassword not implemented")
+}
+func (UnimplementedApiServiceServer) UpdatePhone(context.Context, *UpdatePhoneRequest) (*UserWithMessageResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdatePhone not implemented")
+}
+func (UnimplementedApiServiceServer) UpdateProfile(context.Context, *UpdateProfileRequest) (*UserWithMessageResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateProfile not implemented")
 }
 func (UnimplementedApiServiceServer) mustEmbedUnimplementedApiServiceServer() {}
 func (UnimplementedApiServiceServer) testEmbeddedByValue()                    {}
@@ -142,6 +214,78 @@ func _ApiService_DeleteUser_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ApiService_UpdateEmail_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateEmailRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ApiServiceServer).UpdateEmail(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ApiService_UpdateEmail_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ApiServiceServer).UpdateEmail(ctx, req.(*UpdateEmailRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ApiService_UpdatePassword_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdatePasswordRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ApiServiceServer).UpdatePassword(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ApiService_UpdatePassword_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ApiServiceServer).UpdatePassword(ctx, req.(*UpdatePasswordRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ApiService_UpdatePhone_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdatePhoneRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ApiServiceServer).UpdatePhone(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ApiService_UpdatePhone_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ApiServiceServer).UpdatePhone(ctx, req.(*UpdatePhoneRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ApiService_UpdateProfile_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateProfileRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ApiServiceServer).UpdateProfile(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ApiService_UpdateProfile_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ApiServiceServer).UpdateProfile(ctx, req.(*UpdateProfileRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ApiService_ServiceDesc is the grpc.ServiceDesc for ApiService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -156,6 +300,22 @@ var ApiService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeleteUser",
 			Handler:    _ApiService_DeleteUser_Handler,
+		},
+		{
+			MethodName: "UpdateEmail",
+			Handler:    _ApiService_UpdateEmail_Handler,
+		},
+		{
+			MethodName: "UpdatePassword",
+			Handler:    _ApiService_UpdatePassword_Handler,
+		},
+		{
+			MethodName: "UpdatePhone",
+			Handler:    _ApiService_UpdatePhone_Handler,
+		},
+		{
+			MethodName: "UpdateProfile",
+			Handler:    _ApiService_UpdateProfile_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
