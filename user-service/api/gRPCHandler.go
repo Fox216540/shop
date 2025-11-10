@@ -40,8 +40,8 @@ func (h *GRPCHandler) returnUserWithTokensResponse(
 
 func (h *GRPCHandler) returnUserWithMessageResponse(
 	u userDomain.User, msg string,
-) *pbInterservice.UserWithMessageResponse {
-	return &pbInterservice.UserWithMessageResponse{
+) *pbApi.UserWithMessageResponse {
+	return &pbApi.UserWithMessageResponse{
 		Name: &types.UserNameResponse{
 			Name: u.Name,
 		},
@@ -119,8 +119,8 @@ func (h *GRPCHandler) VerifyCredentials(
 
 func (h *GRPCHandler) UpdateEmail(
 	ctx context.Context,
-	req *pbInterservice.UpdateEmailRequest,
-) (*pbInterservice.UserWithMessageResponse, error) {
+	req *pbApi.UpdateEmailRequest,
+) (*pbApi.UserWithMessageResponse, error) {
 	userID, err := h.getUserIDFromMetadata(ctx)
 	u, err := h.userUS.UpdateEmail(userID, req.Email)
 	if err != nil {
@@ -134,8 +134,8 @@ func (h *GRPCHandler) UpdateEmail(
 
 func (h *GRPCHandler) UpdatePassword(
 	ctx context.Context,
-	req *pbInterservice.UpdatePasswordRequest,
-) (*pbInterservice.UserWithMessageResponse, error) {
+	req *pbApi.UpdatePasswordRequest,
+) (*pbApi.UserWithMessageResponse, error) {
 	userID, err := h.getUserIDFromMetadata(ctx)
 	u, err := h.userUS.UpdatePassword(userID, req.Password)
 	if err != nil {
@@ -149,8 +149,8 @@ func (h *GRPCHandler) UpdatePassword(
 
 func (h *GRPCHandler) UpdatePhone(
 	ctx context.Context,
-	req *pbInterservice.UpdatePhoneRequest,
-) (*pbInterservice.UserWithMessageResponse, error) {
+	req *pbApi.UpdatePhoneRequest,
+) (*pbApi.UserWithMessageResponse, error) {
 	userID, err := h.getUserIDFromMetadata(ctx)
 	u, err := h.userUS.UpdatePhone(userID, req.Phone)
 	if err != nil {
@@ -164,8 +164,8 @@ func (h *GRPCHandler) UpdatePhone(
 
 func (h *GRPCHandler) UpdateProfile(
 	ctx context.Context,
-	req *pbInterservice.UpdateProfileRequest,
-) (*pbInterservice.UserWithMessageResponse, error) {
+	req *pbApi.UpdateProfileRequest,
+) (*pbApi.UserWithMessageResponse, error) {
 	userID, err := h.getUserIDFromMetadata(ctx)
 	if err != nil {
 		return nil, err
