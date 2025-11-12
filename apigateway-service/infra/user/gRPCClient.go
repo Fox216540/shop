@@ -11,14 +11,14 @@ import (
 )
 
 type GRPCClient struct {
-	conn *client.GRPCClient
-	pb   pb.ApiServiceClient
+	conn     *client.GRPCClient
+	pbClient pb.ApiServiceClient
 }
 
 func NewGRPCClient(client *client.GRPCClient) *GRPCClient {
 	return &GRPCClient{
-		conn: client,
-		pb:   pb.NewApiServiceClient(client.Conn()), // Инициализация клиента
+		conn:     client,
+		pbClient: pb.NewApiServiceClient(client.Conn()), // Инициализация клиента
 	}
 }
 
@@ -33,7 +33,7 @@ func (c *GRPCClient) Register(u user.User) (name string, tokens auth.Tokens, mes
 		Address:  u.Address,
 	}
 
-	resp, err := c.pb.RegisterUser(ctx, req)
+	resp, err := c.pbClient.RegisterUser(ctx, req)
 	if err != nil {
 		return "", auth.Tokens{}, "", err
 	}
@@ -46,7 +46,7 @@ func (c *GRPCClient) Register(u user.User) (name string, tokens auth.Tokens, mes
 func (c *GRPCClient) Delete(id uuid.UUID) (message string, err error) {
 	ctx := c.conn.Context()
 	ctx = metadata.AppendToOutgoingContext(ctx, "user_id", id.String())
-	resp, err := c.pb.DeleteUser(ctx, &emptypb.Empty{})
+	resp, err := c.pbClient.DeleteUser(ctx, &emptypb.Empty{})
 	if err != nil {
 		return "", err
 	}
@@ -59,7 +59,7 @@ func (c *GRPCClient) UpdateEmail(id uuid.UUID, email string) (message string, er
 	req := &pb.UpdateEmailRequest{
 		Email: email,
 	}
-	resp, err := c.pb.UpdateEmail(ctx, req)
+	resp, err := c.pbClient.UpdateEmail(ctx, req)
 	if err != nil {
 		return "", err
 	}
@@ -72,7 +72,7 @@ func (c *GRPCClient) UpdatePassword(id uuid.UUID, password string) (message stri
 	req := &pb.UpdatePasswordRequest{
 		Password: password,
 	}
-	resp, err := c.pb.UpdatePassword(ctx, req)
+	resp, err := c.pbClient.UpdatePassword(ctx, req)
 	if err != nil {
 		return "", err
 	}
@@ -85,7 +85,7 @@ func (c *GRPCClient) UpdatePhone(id uuid.UUID, phone string) (message string, er
 	req := &pb.UpdatePhoneRequest{
 		Phone: phone,
 	}
-	resp, err := c.pb.UpdatePhone(ctx, req)
+	resp, err := c.pbClient.UpdatePhone(ctx, req)
 	if err != nil {
 		return "", err
 	}
@@ -99,7 +99,7 @@ func (c *GRPCClient) UpdateProfile(id uuid.UUID, name *string, address *string) 
 		Name:    name,
 		Address: address,
 	}
-	resp, err := c.pb.UpdateProfile(ctx, req)
+	resp, err := c.pbClient.UpdateProfile(ctx, req)
 	if err != nil {
 		return "", "", err
 	}
