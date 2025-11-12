@@ -18,12 +18,12 @@ type GRPCHandler struct {
 	pb      pbApi.UnimplementedApiServiceServer
 }
 
-func (h *GRPCHandler) mapOrder(
+func (h *GRPCHandler) mapOrderWithItems(
 	order orderDomain.Order,
-) *types.Order {
-	items := make([]*types.Item, 0, len(order.OrderItems))
+) *pbApi.OrderWithItems {
+	items := make([]*pbApi.Item, 0, len(order.OrderItems))
 	for _, item := range order.OrderItems {
-		items = append(items, &types.Item{
+		items = append(items, &pbApi.Item{
 			Product: &types.Product{
 				Id:    item.Product.ID.String(),
 				Name:  item.Product.Name,
@@ -33,21 +33,23 @@ func (h *GRPCHandler) mapOrder(
 			Quantity: item.Quantity,
 		})
 	}
-	return &types.Order{
-		Id:       order.ID.String(),
-		OrderNum: order.OrderNum,
-		Items:    items,
-		Total:    order.Total,
-		Status:   order.Status,
+	return &pbApi.OrderWithItems{
+		Order: &pbApi.Order{
+			Id:       order.ID.String(),
+			OrderNum: order.OrderNum,
+			Total:    order.Total,
+			Status:   order.Status,
+		},
+		Items: items,
 	}
 }
 
-func (h *GRPCHandler) mapOrderForListToResponse(
+func (h *GRPCHandler) mapOrderToResponse(
 	orders []orderDomain.Order,
-) []*pbApi.OrderForList {
-	ordersForList := make([]*pbApi.OrderForList, 0, len(orders))
+) []*pbApi.Order {
+	ordersForList := make([]*pbApi.Order, 0, len(orders))
 	for _, o := range orders {
-		ordersForList = append(ordersForList, &pbApi.OrderForList{
+		ordersForList = append(ordersForList, &pbApi.Order{
 			Id:       o.ID.String(),
 			OrderNum: o.OrderNum,
 			Total:    o.Total,
@@ -74,7 +76,7 @@ func (h *GRPCHandler) getUserIDFromMetadata(
 func (h *GRPCHandler) CreteOrder(
 	ctx context.Context,
 	req *pbApi.CreateOrderRequest,
-) (*types.Order, error) {
+) (*pbApi.OrderWithItems, error) {
 	userID, err := h.getUserIDFromMetadata(ctx)
 	if err != nil {
 		return nil, err
@@ -92,13 +94,13 @@ func (h *GRPCHandler) CreteOrder(
 	if err != nil {
 		return nil, err
 	}
-	return h.mapOrder(o), nil
+	return h.mapOrderWithItems(o), nil
 }
 
 func (h *GRPCHandler) GetOrderById(
 	ctx context.Context,
-	req *types.OrderId,
-) (*types.Order, error) {
+	req *pbApi.OrderId,
+) (*pbApi.OrderWithItems, error) {
 	userID, err := h.getUserIDFromMetadata(ctx)
 	if err != nil {
 		return nil, err
@@ -113,7 +115,7 @@ func (h *GRPCHandler) GetOrderById(
 		return nil, err
 	}
 
-	return h.mapOrder(o), nil
+	return h.mapOrderWithItems(o), nil
 }
 
 func (h *GRPCHandler) GetOrdersByUserId(
@@ -129,13 +131,13 @@ func (h *GRPCHandler) GetOrdersByUserId(
 		return nil, err
 	}
 	return &pbApi.GetOrdersByUserIdResponse{
-		Orders: h.mapOrderForListToResponse(orders),
+		Orders: h.mapOrderToResponse(orders),
 	}, nil
 }
 
 func (h *GRPCHandler) DeleteOrder(
 	ctx context.Context,
-	req *types.OrderId,
+	req *pbApi.OrderId,
 ) (*pbApi.DeleteOrderResponse, error) {
 	userID, err := h.getUserIDFromMetadata(ctx)
 	if err != nil {
@@ -150,7 +152,7 @@ func (h *GRPCHandler) DeleteOrder(
 	}
 
 	return &pbApi.DeleteOrderResponse{
-		OrderId: &types.OrderId{
+		OrderId: &pbApi.OrderId{
 			Id: orderID.String(),
 		},
 		Status: "deleted",
