@@ -9,13 +9,27 @@ option go_package = "github.com/Fox216540/shop/proto/order-service/gen/api;proto
 
 service ApiService {
     //В metadata передавать userID ↓
-    rpc CreateOrder (CreateOrderRequest) returns (common.Order);
+    rpc CreateOrder (CreateOrderRequest) returns (Order);
     //В metadata передавать userID ↓
-    rpc GetOrderById (common.OrderId) returns (common.Order);
+    rpc GetOrderById (OrderId) returns (Order);
     //В metadata передавать userID ↓
     rpc GetOrdersByUserId (google.protobuf.Empty) returns (GetOrdersByUserIdResponse);
     //В metadata передавать userID ↓
-    rpc DeleteOrder (common.OrderId) returns (DeleteOrderResponse);
+    rpc DeleteOrder (OrderId) returns (DeleteOrderResponse);
+}
+
+message Item {
+    common.Product product = 1;
+    uint64 quantity = 2;
+}
+
+message OrderId {
+    string id = 1;
+}
+
+message OrderWithItems {
+    Order order = 1;
+    repeated Item items = 2;
 }
 
 message ItemRequest {
@@ -24,22 +38,22 @@ message ItemRequest {
 }
 
 message CreateOrderRequest {
-    repeated ItemRequest items = 2;
+    repeated ItemRequest items = 1;
 }
 
-message OrderForList {
+message Order {
     string id = 1;
     string order_num = 2;
-    double total = 4;
-    string status = 5;
+    double total = 3;
+    string status = 4;
 }
 
 message GetOrdersByUserIdResponse {
-    repeated OrderForList orders = 1;
+    repeated Order orders = 1;
 }
 
 message DeleteOrderResponse {
-    common.OrderId order_id = 1;
+    OrderId order_id = 1;
     string status = 2;
     common.MessageResponse message = 3;
 }
