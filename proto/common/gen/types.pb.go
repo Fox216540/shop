@@ -134,179 +134,6 @@ func (x *Product) GetPrice() float64 {
 	return 0
 }
 
-//Order-service:
-type Item struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Product       *Product               `protobuf:"bytes,1,opt,name=product,proto3" json:"product,omitempty"`
-	Quantity      uint64                 `protobuf:"varint,2,opt,name=quantity,proto3" json:"quantity,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *Item) Reset() {
-	*x = Item{}
-	mi := &file_common_types_proto_msgTypes[2]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *Item) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*Item) ProtoMessage() {}
-
-func (x *Item) ProtoReflect() protoreflect.Message {
-	mi := &file_common_types_proto_msgTypes[2]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use Item.ProtoReflect.Descriptor instead.
-func (*Item) Descriptor() ([]byte, []int) {
-	return file_common_types_proto_rawDescGZIP(), []int{2}
-}
-
-func (x *Item) GetProduct() *Product {
-	if x != nil {
-		return x.Product
-	}
-	return nil
-}
-
-func (x *Item) GetQuantity() uint64 {
-	if x != nil {
-		return x.Quantity
-	}
-	return 0
-}
-
-type OrderId struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *OrderId) Reset() {
-	*x = OrderId{}
-	mi := &file_common_types_proto_msgTypes[3]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *OrderId) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*OrderId) ProtoMessage() {}
-
-func (x *OrderId) ProtoReflect() protoreflect.Message {
-	mi := &file_common_types_proto_msgTypes[3]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use OrderId.ProtoReflect.Descriptor instead.
-func (*OrderId) Descriptor() ([]byte, []int) {
-	return file_common_types_proto_rawDescGZIP(), []int{3}
-}
-
-func (x *OrderId) GetId() string {
-	if x != nil {
-		return x.Id
-	}
-	return ""
-}
-
-type Order struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	OrderNum      string                 `protobuf:"bytes,2,opt,name=order_num,json=orderNum,proto3" json:"order_num,omitempty"`
-	Items         []*Item                `protobuf:"bytes,4,rep,name=items,proto3" json:"items,omitempty"`
-	Total         float64                `protobuf:"fixed64,5,opt,name=total,proto3" json:"total,omitempty"`
-	Status        string                 `protobuf:"bytes,6,opt,name=status,proto3" json:"status,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *Order) Reset() {
-	*x = Order{}
-	mi := &file_common_types_proto_msgTypes[4]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *Order) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*Order) ProtoMessage() {}
-
-func (x *Order) ProtoReflect() protoreflect.Message {
-	mi := &file_common_types_proto_msgTypes[4]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use Order.ProtoReflect.Descriptor instead.
-func (*Order) Descriptor() ([]byte, []int) {
-	return file_common_types_proto_rawDescGZIP(), []int{4}
-}
-
-func (x *Order) GetId() string {
-	if x != nil {
-		return x.Id
-	}
-	return ""
-}
-
-func (x *Order) GetOrderNum() string {
-	if x != nil {
-		return x.OrderNum
-	}
-	return ""
-}
-
-func (x *Order) GetItems() []*Item {
-	if x != nil {
-		return x.Items
-	}
-	return nil
-}
-
-func (x *Order) GetTotal() float64 {
-	if x != nil {
-		return x.Total
-	}
-	return 0
-}
-
-func (x *Order) GetStatus() string {
-	if x != nil {
-		return x.Status
-	}
-	return ""
-}
-
 //Auth-service:
 type TokensResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -318,7 +145,7 @@ type TokensResponse struct {
 
 func (x *TokensResponse) Reset() {
 	*x = TokensResponse{}
-	mi := &file_common_types_proto_msgTypes[5]
+	mi := &file_common_types_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -330,7 +157,7 @@ func (x *TokensResponse) String() string {
 func (*TokensResponse) ProtoMessage() {}
 
 func (x *TokensResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_common_types_proto_msgTypes[5]
+	mi := &file_common_types_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -343,7 +170,7 @@ func (x *TokensResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TokensResponse.ProtoReflect.Descriptor instead.
 func (*TokensResponse) Descriptor() ([]byte, []int) {
-	return file_common_types_proto_rawDescGZIP(), []int{5}
+	return file_common_types_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *TokensResponse) GetAccessToken() string {
@@ -369,7 +196,7 @@ type DecodeTokenRequest struct {
 
 func (x *DecodeTokenRequest) Reset() {
 	*x = DecodeTokenRequest{}
-	mi := &file_common_types_proto_msgTypes[6]
+	mi := &file_common_types_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -381,7 +208,7 @@ func (x *DecodeTokenRequest) String() string {
 func (*DecodeTokenRequest) ProtoMessage() {}
 
 func (x *DecodeTokenRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_common_types_proto_msgTypes[6]
+	mi := &file_common_types_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -394,7 +221,7 @@ func (x *DecodeTokenRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DecodeTokenRequest.ProtoReflect.Descriptor instead.
 func (*DecodeTokenRequest) Descriptor() ([]byte, []int) {
-	return file_common_types_proto_rawDescGZIP(), []int{6}
+	return file_common_types_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *DecodeTokenRequest) GetToken() string {
@@ -413,7 +240,7 @@ type UserId struct {
 
 func (x *UserId) Reset() {
 	*x = UserId{}
-	mi := &file_common_types_proto_msgTypes[7]
+	mi := &file_common_types_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -425,7 +252,7 @@ func (x *UserId) String() string {
 func (*UserId) ProtoMessage() {}
 
 func (x *UserId) ProtoReflect() protoreflect.Message {
-	mi := &file_common_types_proto_msgTypes[7]
+	mi := &file_common_types_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -438,7 +265,7 @@ func (x *UserId) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UserId.ProtoReflect.Descriptor instead.
 func (*UserId) Descriptor() ([]byte, []int) {
-	return file_common_types_proto_rawDescGZIP(), []int{7}
+	return file_common_types_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *UserId) GetId() string {
@@ -458,7 +285,7 @@ type UserNameResponse struct {
 
 func (x *UserNameResponse) Reset() {
 	*x = UserNameResponse{}
-	mi := &file_common_types_proto_msgTypes[8]
+	mi := &file_common_types_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -470,7 +297,7 @@ func (x *UserNameResponse) String() string {
 func (*UserNameResponse) ProtoMessage() {}
 
 func (x *UserNameResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_common_types_proto_msgTypes[8]
+	mi := &file_common_types_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -483,7 +310,7 @@ func (x *UserNameResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UserNameResponse.ProtoReflect.Descriptor instead.
 func (*UserNameResponse) Descriptor() ([]byte, []int) {
-	return file_common_types_proto_rawDescGZIP(), []int{8}
+	return file_common_types_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *UserNameResponse) GetName() string {
@@ -503,7 +330,7 @@ type CredentialsRequest struct {
 
 func (x *CredentialsRequest) Reset() {
 	*x = CredentialsRequest{}
-	mi := &file_common_types_proto_msgTypes[9]
+	mi := &file_common_types_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -515,7 +342,7 @@ func (x *CredentialsRequest) String() string {
 func (*CredentialsRequest) ProtoMessage() {}
 
 func (x *CredentialsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_common_types_proto_msgTypes[9]
+	mi := &file_common_types_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -528,7 +355,7 @@ func (x *CredentialsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CredentialsRequest.ProtoReflect.Descriptor instead.
 func (*CredentialsRequest) Descriptor() ([]byte, []int) {
-	return file_common_types_proto_rawDescGZIP(), []int{9}
+	return file_common_types_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *CredentialsRequest) GetPhoneOrEmail() string {
@@ -556,7 +383,7 @@ type UserWithTokensResponse struct {
 
 func (x *UserWithTokensResponse) Reset() {
 	*x = UserWithTokensResponse{}
-	mi := &file_common_types_proto_msgTypes[10]
+	mi := &file_common_types_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -568,7 +395,7 @@ func (x *UserWithTokensResponse) String() string {
 func (*UserWithTokensResponse) ProtoMessage() {}
 
 func (x *UserWithTokensResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_common_types_proto_msgTypes[10]
+	mi := &file_common_types_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -581,7 +408,7 @@ func (x *UserWithTokensResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UserWithTokensResponse.ProtoReflect.Descriptor instead.
 func (*UserWithTokensResponse) Descriptor() ([]byte, []int) {
-	return file_common_types_proto_rawDescGZIP(), []int{10}
+	return file_common_types_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *UserWithTokensResponse) GetName() *UserNameResponse {
@@ -616,18 +443,7 @@ const file_common_types_proto_rawDesc = "" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x10\n" +
 	"\x03img\x18\x03 \x01(\tR\x03img\x12\x14\n" +
-	"\x05price\x18\x04 \x01(\x01R\x05price\"M\n" +
-	"\x04Item\x12)\n" +
-	"\aproduct\x18\x01 \x01(\v2\x0f.common.ProductR\aproduct\x12\x1a\n" +
-	"\bquantity\x18\x02 \x01(\x04R\bquantity\"\x19\n" +
-	"\aOrderId\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\"\x86\x01\n" +
-	"\x05Order\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1b\n" +
-	"\torder_num\x18\x02 \x01(\tR\borderNum\x12\"\n" +
-	"\x05items\x18\x04 \x03(\v2\f.common.ItemR\x05items\x12\x14\n" +
-	"\x05total\x18\x05 \x01(\x01R\x05total\x12\x16\n" +
-	"\x06status\x18\x06 \x01(\tR\x06status\"X\n" +
+	"\x05price\x18\x04 \x01(\x01R\x05price\"X\n" +
 	"\x0eTokensResponse\x12!\n" +
 	"\faccess_token\x18\x01 \x01(\tR\vaccessToken\x12#\n" +
 	"\rrefresh_token\x18\x02 \x01(\tR\frefreshToken\"*\n" +
@@ -657,31 +473,26 @@ func file_common_types_proto_rawDescGZIP() []byte {
 	return file_common_types_proto_rawDescData
 }
 
-var file_common_types_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
+var file_common_types_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
 var file_common_types_proto_goTypes = []any{
 	(*MessageResponse)(nil),        // 0: common.MessageResponse
 	(*Product)(nil),                // 1: common.Product
-	(*Item)(nil),                   // 2: common.Item
-	(*OrderId)(nil),                // 3: common.OrderId
-	(*Order)(nil),                  // 4: common.Order
-	(*TokensResponse)(nil),         // 5: common.TokensResponse
-	(*DecodeTokenRequest)(nil),     // 6: common.DecodeTokenRequest
-	(*UserId)(nil),                 // 7: common.UserId
-	(*UserNameResponse)(nil),       // 8: common.UserNameResponse
-	(*CredentialsRequest)(nil),     // 9: common.CredentialsRequest
-	(*UserWithTokensResponse)(nil), // 10: common.UserWithTokensResponse
+	(*TokensResponse)(nil),         // 2: common.TokensResponse
+	(*DecodeTokenRequest)(nil),     // 3: common.DecodeTokenRequest
+	(*UserId)(nil),                 // 4: common.UserId
+	(*UserNameResponse)(nil),       // 5: common.UserNameResponse
+	(*CredentialsRequest)(nil),     // 6: common.CredentialsRequest
+	(*UserWithTokensResponse)(nil), // 7: common.UserWithTokensResponse
 }
 var file_common_types_proto_depIdxs = []int32{
-	1, // 0: common.Item.product:type_name -> common.Product
-	2, // 1: common.Order.items:type_name -> common.Item
-	8, // 2: common.UserWithTokensResponse.name:type_name -> common.UserNameResponse
-	5, // 3: common.UserWithTokensResponse.tokens:type_name -> common.TokensResponse
-	0, // 4: common.UserWithTokensResponse.message:type_name -> common.MessageResponse
-	5, // [5:5] is the sub-list for method output_type
-	5, // [5:5] is the sub-list for method input_type
-	5, // [5:5] is the sub-list for extension type_name
-	5, // [5:5] is the sub-list for extension extendee
-	0, // [0:5] is the sub-list for field type_name
+	5, // 0: common.UserWithTokensResponse.name:type_name -> common.UserNameResponse
+	2, // 1: common.UserWithTokensResponse.tokens:type_name -> common.TokensResponse
+	0, // 2: common.UserWithTokensResponse.message:type_name -> common.MessageResponse
+	3, // [3:3] is the sub-list for method output_type
+	3, // [3:3] is the sub-list for method input_type
+	3, // [3:3] is the sub-list for extension type_name
+	3, // [3:3] is the sub-list for extension extendee
+	0, // [0:3] is the sub-list for field type_name
 }
 
 func init() { file_common_types_proto_init() }
@@ -695,7 +506,7 @@ func file_common_types_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_common_types_proto_rawDesc), len(file_common_types_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   11,
+			NumMessages:   8,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
