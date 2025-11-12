@@ -8,7 +8,6 @@ package proto
 
 import (
 	context "context"
-	gen "github.com/Fox216540/shop/proto/common/gen"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -32,13 +31,13 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ApiServiceClient interface {
 	//В metadata передавать userID ↓
-	CreateOrder(ctx context.Context, in *CreateOrderRequest, opts ...grpc.CallOption) (*gen.Order, error)
+	CreateOrder(ctx context.Context, in *CreateOrderRequest, opts ...grpc.CallOption) (*Order, error)
 	//В metadata передавать userID ↓
-	GetOrderById(ctx context.Context, in *gen.OrderId, opts ...grpc.CallOption) (*gen.Order, error)
+	GetOrderById(ctx context.Context, in *OrderId, opts ...grpc.CallOption) (*Order, error)
 	//В metadata передавать userID ↓
 	GetOrdersByUserId(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetOrdersByUserIdResponse, error)
 	//В metadata передавать userID ↓
-	DeleteOrder(ctx context.Context, in *gen.OrderId, opts ...grpc.CallOption) (*DeleteOrderResponse, error)
+	DeleteOrder(ctx context.Context, in *OrderId, opts ...grpc.CallOption) (*DeleteOrderResponse, error)
 }
 
 type apiServiceClient struct {
@@ -49,9 +48,9 @@ func NewApiServiceClient(cc grpc.ClientConnInterface) ApiServiceClient {
 	return &apiServiceClient{cc}
 }
 
-func (c *apiServiceClient) CreateOrder(ctx context.Context, in *CreateOrderRequest, opts ...grpc.CallOption) (*gen.Order, error) {
+func (c *apiServiceClient) CreateOrder(ctx context.Context, in *CreateOrderRequest, opts ...grpc.CallOption) (*Order, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(gen.Order)
+	out := new(Order)
 	err := c.cc.Invoke(ctx, ApiService_CreateOrder_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -59,9 +58,9 @@ func (c *apiServiceClient) CreateOrder(ctx context.Context, in *CreateOrderReque
 	return out, nil
 }
 
-func (c *apiServiceClient) GetOrderById(ctx context.Context, in *gen.OrderId, opts ...grpc.CallOption) (*gen.Order, error) {
+func (c *apiServiceClient) GetOrderById(ctx context.Context, in *OrderId, opts ...grpc.CallOption) (*Order, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(gen.Order)
+	out := new(Order)
 	err := c.cc.Invoke(ctx, ApiService_GetOrderById_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -79,7 +78,7 @@ func (c *apiServiceClient) GetOrdersByUserId(ctx context.Context, in *emptypb.Em
 	return out, nil
 }
 
-func (c *apiServiceClient) DeleteOrder(ctx context.Context, in *gen.OrderId, opts ...grpc.CallOption) (*DeleteOrderResponse, error) {
+func (c *apiServiceClient) DeleteOrder(ctx context.Context, in *OrderId, opts ...grpc.CallOption) (*DeleteOrderResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(DeleteOrderResponse)
 	err := c.cc.Invoke(ctx, ApiService_DeleteOrder_FullMethodName, in, out, cOpts...)
@@ -94,13 +93,13 @@ func (c *apiServiceClient) DeleteOrder(ctx context.Context, in *gen.OrderId, opt
 // for forward compatibility.
 type ApiServiceServer interface {
 	//В metadata передавать userID ↓
-	CreateOrder(context.Context, *CreateOrderRequest) (*gen.Order, error)
+	CreateOrder(context.Context, *CreateOrderRequest) (*Order, error)
 	//В metadata передавать userID ↓
-	GetOrderById(context.Context, *gen.OrderId) (*gen.Order, error)
+	GetOrderById(context.Context, *OrderId) (*Order, error)
 	//В metadata передавать userID ↓
 	GetOrdersByUserId(context.Context, *emptypb.Empty) (*GetOrdersByUserIdResponse, error)
 	//В metadata передавать userID ↓
-	DeleteOrder(context.Context, *gen.OrderId) (*DeleteOrderResponse, error)
+	DeleteOrder(context.Context, *OrderId) (*DeleteOrderResponse, error)
 	mustEmbedUnimplementedApiServiceServer()
 }
 
@@ -111,16 +110,16 @@ type ApiServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedApiServiceServer struct{}
 
-func (UnimplementedApiServiceServer) CreateOrder(context.Context, *CreateOrderRequest) (*gen.Order, error) {
+func (UnimplementedApiServiceServer) CreateOrder(context.Context, *CreateOrderRequest) (*Order, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateOrder not implemented")
 }
-func (UnimplementedApiServiceServer) GetOrderById(context.Context, *gen.OrderId) (*gen.Order, error) {
+func (UnimplementedApiServiceServer) GetOrderById(context.Context, *OrderId) (*Order, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetOrderById not implemented")
 }
 func (UnimplementedApiServiceServer) GetOrdersByUserId(context.Context, *emptypb.Empty) (*GetOrdersByUserIdResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetOrdersByUserId not implemented")
 }
-func (UnimplementedApiServiceServer) DeleteOrder(context.Context, *gen.OrderId) (*DeleteOrderResponse, error) {
+func (UnimplementedApiServiceServer) DeleteOrder(context.Context, *OrderId) (*DeleteOrderResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteOrder not implemented")
 }
 func (UnimplementedApiServiceServer) mustEmbedUnimplementedApiServiceServer() {}
@@ -163,7 +162,7 @@ func _ApiService_CreateOrder_Handler(srv interface{}, ctx context.Context, dec f
 }
 
 func _ApiService_GetOrderById_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(gen.OrderId)
+	in := new(OrderId)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -175,7 +174,7 @@ func _ApiService_GetOrderById_Handler(srv interface{}, ctx context.Context, dec 
 		FullMethod: ApiService_GetOrderById_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ApiServiceServer).GetOrderById(ctx, req.(*gen.OrderId))
+		return srv.(ApiServiceServer).GetOrderById(ctx, req.(*OrderId))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -199,7 +198,7 @@ func _ApiService_GetOrdersByUserId_Handler(srv interface{}, ctx context.Context,
 }
 
 func _ApiService_DeleteOrder_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(gen.OrderId)
+	in := new(OrderId)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -211,7 +210,7 @@ func _ApiService_DeleteOrder_Handler(srv interface{}, ctx context.Context, dec f
 		FullMethod: ApiService_DeleteOrder_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ApiServiceServer).DeleteOrder(ctx, req.(*gen.OrderId))
+		return srv.(ApiServiceServer).DeleteOrder(ctx, req.(*OrderId))
 	}
 	return interceptor(ctx, in, info, handler)
 }
