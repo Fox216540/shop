@@ -22,7 +22,7 @@ func NewGRPCClient(client *client.GRPCClient) *GRPCClient {
 	}
 }
 
-func (c *GRPCClient) RegisterUser(u user.User) (name string, tokens auth.Tokens, message string, err error) {
+func (c *GRPCClient) Register(u user.User) (name string, tokens auth.Tokens, message string, err error) {
 	ctx := c.conn.Context()
 
 	req := &pb.RegisterUserRequest{
@@ -43,7 +43,7 @@ func (c *GRPCClient) RegisterUser(u user.User) (name string, tokens auth.Tokens,
 	}, resp.Message.Message, nil
 }
 
-func (c *GRPCClient) DeleteUser(id uuid.UUID) (message string, err error) {
+func (c *GRPCClient) Delete(id uuid.UUID) (message string, err error) {
 	ctx := c.conn.Context()
 	ctx = metadata.AppendToOutgoingContext(ctx, "user_id", id.String())
 	resp, err := c.pb.DeleteUser(ctx, &emptypb.Empty{})
@@ -54,18 +54,42 @@ func (c *GRPCClient) DeleteUser(id uuid.UUID) (message string, err error) {
 }
 
 func (c *GRPCClient) UpdateEmail(id uuid.UUID, email string) (message string, err error) {
-	//TODO implement me
-	panic("implement me")
+	ctx := c.conn.Context()
+	ctx = metadata.AppendToOutgoingContext(ctx, "user_id", id.String())
+	req := &pb.UpdateEmailRequest{
+		Email: email,
+	}
+	resp, err := c.pb.UpdateEmail(ctx, req)
+	if err != nil {
+		return "", err
+	}
+	return resp.Message.Message, nil
 }
 
 func (c *GRPCClient) UpdatePassword(id uuid.UUID, password string) (message string, err error) {
-	//TODO implement me
-	panic("implement me")
+	ctx := c.conn.Context()
+	ctx = metadata.AppendToOutgoingContext(ctx, "user_id", id.String())
+	req := &pb.UpdatePasswordRequest{
+		Password: password,
+	}
+	resp, err := c.pb.UpdatePassword(ctx, req)
+	if err != nil {
+		return "", err
+	}
+	return resp.Message.Message, nil
 }
 
 func (c *GRPCClient) UpdatePhone(id uuid.UUID, phone string) (message string, err error) {
-	//TODO implement me
-	panic("implement me")
+	ctx := c.conn.Context()
+	ctx = metadata.AppendToOutgoingContext(ctx, "user_id", id.String())
+	req := &pb.UpdatePhoneRequest{
+		Phone: phone,
+	}
+	resp, err := c.pb.UpdatePhone(ctx, req)
+	if err != nil {
+		return "", err
+	}
+	return resp.Message.Message, nil
 }
 
 func (c *GRPCClient) UpdateProfile(id uuid.UUID, name *string, address *string) (newName string, message string, err error) {
