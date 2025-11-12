@@ -1,6 +1,7 @@
 package api
 
 import (
+	"errors"
 	shopApiGen "github.com/Fox216540/shop/api/gen"
 	aUseCase "github.com/Fox216540/shop/apigateway-service/app/auth"
 	cUseCase "github.com/Fox216540/shop/apigateway-service/app/catalog"
@@ -196,18 +197,27 @@ func (h *HTTPHandler) CreateUser(c *gin.Context) {
 
 }
 
-func (h *HTTPHandler) DeleteUser(c *gin.Context) {
+func (h *HTTPHandler) getIDOfUser(c *gin.Context) (uuid.UUID, error) {
 	idValue, exists := c.Get("user_id")
 	if !exists {
 		//TODO: Придумать ошибку
-		return
+		return uuid.Nil, errors.New("user id not found")
 	}
 	idString, ok := idValue.(string)
 	if !ok {
 		//TODO: Придумать ошибку
-		return
+		return uuid.Nil, errors.New("user id not found")
 	}
 	id, err := uuid.Parse(idString)
+	if err != nil {
+		//TODO: Придумать ошибку
+		return uuid.Nil, errors.New("user id not found")
+	}
+	return id, nil
+}
+
+func (h *HTTPHandler) DeleteUser(c *gin.Context) {
+	id, err := h.getIDOfUser(c)
 	if err != nil {
 		//TODO: Придумать ошибку
 		return
@@ -223,25 +233,76 @@ func (h *HTTPHandler) DeleteUser(c *gin.Context) {
 }
 
 func (h *HTTPHandler) PatchUsersMeEmail(c *gin.Context) {
-	var req shopApiGen.PatchUsersMeEmailJSONBody
-	if err := c.ShouldBindJSON(&req); err != nil {
+	id, err := h.getIDOfUser(c)
+	if err != nil {
 		//TODO: Придумать ошибку
 		return
 	}
-	h.userUseCase
+	var req shopApiGen.PatchUsersMeEmailJSONRequestBody
+	if err = c.ShouldBindJSON(&req); err != nil {
+		//TODO: Придумать ошибку
+		return
+	}
+
+	msg, err := h.userUseCase.UpdateEmailOfUser(id, string(req.Email))
+	c.JSON(http.StatusOK, shopApiGen.MessageResponse{
+		Message: msg,
+	})
 }
 
 func (h *HTTPHandler) PatchUsersMePassword(c *gin.Context) {
-	//TODO implement me
-	panic("implement me")
+	id, err := h.getIDOfUser(c)
+	if err != nil {
+		//TODO: Придумать ошибку
+		return
+	}
+	var req shopApiGen.PatchUsersMePasswordJSONRequestBody
+	if err = c.ShouldBindJSON(&req); err != nil {
+		//TODO: Придумать ошибку
+		return
+	}
+
+	msg, err := h.userUseCase.UpdatePasswordOfUser(id, req.Password)
+	c.JSON(http.StatusOK, shopApiGen.MessageResponse{
+		Message: msg,
+	})
 }
 
 func (h *HTTPHandler) PatchUsersMePhone(c *gin.Context) {
-	//TODO implement me
-	panic("implement me")
+	id, err := h.getIDOfUser(c)
+	if err != nil {
+		//TODO: Придумать ошибку
+		return
+	}
+	var req shopApiGen.PatchUsersMePhoneJSONRequestBody
+	if err = c.ShouldBindJSON(&req); err != nil {
+		//TODO: Придумать ошибку
+		return
+	}
+	msg, err := h.userUseCase.UpdatePhoneOfUser(id, req.Phone)
+	c.JSON(http.StatusOK, shopApiGen.MessageResponse{
+		Message: msg,
+	})
 }
 
 func (h *HTTPHandler) PatchUsersMeProfile(c *gin.Context) {
-	//TODO implement me
-	panic("implement me")
+	id, err := h.getIDOfUser(c)
+	if err != nil {
+		//TODO: Придумать ошибку
+		return
+	}
+	var req shopApiGen.PatchUsersMeProfileJSONRequestBody
+	if err = c.ShouldBindJSON(&req); err != nil {
+		//TODO: Придумать ошибку
+		return
+	}
+	msg, name, err := h.userUseCase.UpdateProfileOfUser(id, req.Name, req.Address)
+	if err != nil {
+		//TODO: Придумать ошибку
+		return
+	}
+	c.JSON(http.StatusOK, shopApiGen.UserResponse{
+		Name:    name,
+		Message: msg,
+	})
 }
