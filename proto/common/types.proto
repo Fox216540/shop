@@ -16,25 +16,6 @@ message Product {
     double price = 4;
 }
 
-
-//Order-service:
-message Item {
-    Product product = 1;
-    uint64 quantity = 2;
-}
-
-message OrderId {
-    string id = 1;
-}
-
-message Order {
-    string id = 1;
-    string order_num = 2;
-    repeated Item items = 4;
-    double total = 5;
-    string status = 6;
-}
-
 //Auth-service:
 message TokensResponse {
     string access_token = 1;
