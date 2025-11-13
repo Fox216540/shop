@@ -24,10 +24,13 @@ type CategoryResponse struct {
 
 // CreateOrderRequest defines model for CreateOrderRequest.
 type CreateOrderRequest struct {
-	ProductItems []struct {
-		ProductId openapi_types.UUID `json:"product_id"`
-		Quantity  int                `json:"quantity"`
-	} `json:"product_items"`
+	ProductItems []ProductItemRequest `json:"product_items"`
+}
+
+// LoginRequest defines model for LoginRequest.
+type LoginRequest struct {
+	Password     string `json:"password"`
+	PhoneOrEmail string `json:"phone_or_email"`
 }
 
 // MessageResponse defines model for MessageResponse.
@@ -42,21 +45,33 @@ type OrderDeletedResponse struct {
 	Status  string             `json:"status"`
 }
 
+// OrderItem defines model for OrderItem.
+type OrderItem struct {
+	Product  ProductShort `json:"product"`
+	Quantity int          `json:"quantity"`
+}
+
 // OrderResponse defines model for OrderResponse.
 type OrderResponse struct {
-	Id         openapi_types.UUID `json:"id"`
-	OrderItems []struct {
-		Product *[]struct {
-			Id    *openapi_types.UUID `json:"id,omitempty"`
-			Img   *string             `json:"img,omitempty"`
-			Name  *string             `json:"name,omitempty"`
-			Price *float32            `json:"price,omitempty"`
-		} `json:"product,omitempty"`
-		Quantity *int `json:"quantity,omitempty"`
-	} `json:"order_items"`
-	OrderNumber string   `json:"order_number"`
-	Status      *string  `json:"status,omitempty"`
-	Total       *float32 `json:"total,omitempty"`
+	Id          openapi_types.UUID `json:"id"`
+	OrderNumber string             `json:"order_number"`
+	Status      string             `json:"status"`
+	Total       float64            `json:"total"`
+}
+
+// OrderWithItemsResponse defines model for OrderWithItemsResponse.
+type OrderWithItemsResponse struct {
+	Id          openapi_types.UUID `json:"id"`
+	OrderItems  []OrderItem        `json:"order_items"`
+	OrderNumber string             `json:"order_number"`
+	Status      string             `json:"status"`
+	Total       float64            `json:"total"`
+}
+
+// ProductItemRequest defines model for ProductItemRequest.
+type ProductItemRequest struct {
+	ProductId openapi_types.UUID `json:"product_id"`
+	Quantity  uint64             `json:"quantity"`
 }
 
 // ProductResponse defines model for ProductResponse.
@@ -70,6 +85,14 @@ type ProductResponse struct {
 	Stock       uint64             `json:"stock"`
 }
 
+// ProductShort defines model for ProductShort.
+type ProductShort struct {
+	Id    openapi_types.UUID `json:"id"`
+	Img   string             `json:"img"`
+	Name  string             `json:"name"`
+	Price float64            `json:"price"`
+}
+
 // RegisterRequest defines model for RegisterRequest.
 type RegisterRequest struct {
 	Address  string              `json:"address"`
@@ -77,6 +100,27 @@ type RegisterRequest struct {
 	Name     string              `json:"name"`
 	Password string              `json:"password"`
 	Phone    string              `json:"phone"`
+}
+
+// UpdateEmailRequest defines model for UpdateEmailRequest.
+type UpdateEmailRequest struct {
+	Email openapi_types.Email `json:"email"`
+}
+
+// UpdatePasswordRequest defines model for UpdatePasswordRequest.
+type UpdatePasswordRequest struct {
+	Password string `json:"password"`
+}
+
+// UpdatePhoneRequest defines model for UpdatePhoneRequest.
+type UpdatePhoneRequest struct {
+	Phone string `json:"phone"`
+}
+
+// UpdateProfileRequest defines model for UpdateProfileRequest.
+type UpdateProfileRequest struct {
+	Address *string `json:"address,omitempty"`
+	Name    *string `json:"name,omitempty"`
 }
 
 // UserResponse defines model for UserResponse.
@@ -92,41 +136,77 @@ type UserWithTokenResponse struct {
 	Name        string `json:"name"`
 }
 
-// PostAuthLoginJSONBody defines parameters for PostAuthLogin.
-type PostAuthLoginJSONBody struct {
-	Password     string `json:"password"`
-	PhoneOrEmail string `json:"phone_or_email"`
+// CategoryQuery defines model for CategoryQuery.
+type CategoryQuery = openapi_types.UUID
+
+// OrderId defines model for OrderId.
+type OrderId = openapi_types.UUID
+
+// ProductId defines model for ProductId.
+type ProductId = openapi_types.UUID
+
+// BadRequest defines model for BadRequest.
+type BadRequest = MessageResponse
+
+// CategoriesList defines model for CategoriesList.
+type CategoriesList = []CategoryResponse
+
+// Conflict defines model for Conflict.
+type Conflict = MessageResponse
+
+// MessageOK defines model for MessageOK.
+type MessageOK = MessageResponse
+
+// NotFound defines model for NotFound.
+type NotFound = MessageResponse
+
+// Order defines model for Order.
+type Order = OrderWithItemsResponse
+
+// OrderCreated defines model for OrderCreated.
+type OrderCreated = OrderResponse
+
+// OrderDeleted defines model for OrderDeleted.
+type OrderDeleted = OrderDeletedResponse
+
+// OrdersList defines model for OrdersList.
+type OrdersList = []OrderResponse
+
+// Product defines model for Product.
+type Product = ProductResponse
+
+// ProductsList defines model for ProductsList.
+type ProductsList = []ProductResponse
+
+// RefreshResponse defines model for RefreshResponse.
+type RefreshResponse struct {
+	AccessToken *string `json:"access_token,omitempty"`
+	Message     *string `json:"message,omitempty"`
 }
+
+// ServerError defines model for ServerError.
+type ServerError = MessageResponse
+
+// Unauthorized defines model for Unauthorized.
+type Unauthorized = MessageResponse
+
+// UserCreated defines model for UserCreated.
+type UserCreated = UserWithTokenResponse
+
+// UserDeleted defines model for UserDeleted.
+type UserDeleted = UserResponse
+
+// UserWithToken defines model for UserWithToken.
+type UserWithToken = UserWithTokenResponse
 
 // GetProductsParams defines parameters for GetProducts.
 type GetProductsParams struct {
 	// Category Category UUID (optional — if omitted, returns all products)
-	Category *openapi_types.UUID `form:"category,omitempty" json:"category,omitempty"`
-}
-
-// PatchUsersMeEmailJSONBody defines parameters for PatchUsersMeEmail.
-type PatchUsersMeEmailJSONBody struct {
-	Email openapi_types.Email `json:"email"`
-}
-
-// PatchUsersMePasswordJSONBody defines parameters for PatchUsersMePassword.
-type PatchUsersMePasswordJSONBody struct {
-	Password string `json:"password"`
-}
-
-// PatchUsersMePhoneJSONBody defines parameters for PatchUsersMePhone.
-type PatchUsersMePhoneJSONBody struct {
-	Phone string `json:"phone"`
-}
-
-// PatchUsersMeProfileJSONBody defines parameters for PatchUsersMeProfile.
-type PatchUsersMeProfileJSONBody struct {
-	Address *string `json:"address,omitempty"`
-	Name    *string `json:"name,omitempty"`
+	Category *CategoryQuery `form:"category,omitempty" json:"category,omitempty"`
 }
 
 // PostAuthLoginJSONRequestBody defines body for PostAuthLogin for application/json ContentType.
-type PostAuthLoginJSONRequestBody PostAuthLoginJSONBody
+type PostAuthLoginJSONRequestBody = LoginRequest
 
 // PostOrdersJSONRequestBody defines body for PostOrders for application/json ContentType.
 type PostOrdersJSONRequestBody = CreateOrderRequest
@@ -135,16 +215,16 @@ type PostOrdersJSONRequestBody = CreateOrderRequest
 type CreateUserJSONRequestBody = RegisterRequest
 
 // PatchUsersMeEmailJSONRequestBody defines body for PatchUsersMeEmail for application/json ContentType.
-type PatchUsersMeEmailJSONRequestBody PatchUsersMeEmailJSONBody
+type PatchUsersMeEmailJSONRequestBody = UpdateEmailRequest
 
 // PatchUsersMePasswordJSONRequestBody defines body for PatchUsersMePassword for application/json ContentType.
-type PatchUsersMePasswordJSONRequestBody PatchUsersMePasswordJSONBody
+type PatchUsersMePasswordJSONRequestBody = UpdatePasswordRequest
 
 // PatchUsersMePhoneJSONRequestBody defines body for PatchUsersMePhone for application/json ContentType.
-type PatchUsersMePhoneJSONRequestBody PatchUsersMePhoneJSONBody
+type PatchUsersMePhoneJSONRequestBody = UpdatePhoneRequest
 
 // PatchUsersMeProfileJSONRequestBody defines body for PatchUsersMeProfile for application/json ContentType.
-type PatchUsersMeProfileJSONRequestBody PatchUsersMeProfileJSONBody
+type PatchUsersMeProfileJSONRequestBody = UpdateProfileRequest
 
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
@@ -171,16 +251,16 @@ type ServerInterface interface {
 	PostOrders(c *gin.Context)
 	// Delete an order
 	// (DELETE /orders/{id})
-	DeleteOrdersId(c *gin.Context, id openapi_types.UUID)
+	DeleteOrdersId(c *gin.Context, id OrderId)
 	// Get an order by its ID
 	// (GET /orders/{id})
-	GetOrdersId(c *gin.Context, id openapi_types.UUID)
+	GetOrdersId(c *gin.Context, id OrderId)
 	// Get products (optionally filtered by category)
 	// (GET /products)
 	GetProducts(c *gin.Context, params GetProductsParams)
 	// Get a product by its ID
 	// (GET /products/{id})
-	GetProductById(c *gin.Context, id openapi_types.UUID)
+	GetProductById(c *gin.Context, id ProductId)
 	// Register a new user
 	// (POST /users)
 	CreateUser(c *gin.Context)
@@ -315,7 +395,7 @@ func (siw *ServerInterfaceWrapper) DeleteOrdersId(c *gin.Context) {
 	var err error
 
 	// ------------- Path parameter "id" -------------
-	var id openapi_types.UUID
+	var id OrderId
 
 	err = runtime.BindStyledParameterWithOptions("simple", "id", c.Param("id"), &id, runtime.BindStyledParameterOptions{Explode: false, Required: true})
 	if err != nil {
@@ -341,7 +421,7 @@ func (siw *ServerInterfaceWrapper) GetOrdersId(c *gin.Context) {
 	var err error
 
 	// ------------- Path parameter "id" -------------
-	var id openapi_types.UUID
+	var id OrderId
 
 	err = runtime.BindStyledParameterWithOptions("simple", "id", c.Param("id"), &id, runtime.BindStyledParameterOptions{Explode: false, Required: true})
 	if err != nil {
@@ -393,7 +473,7 @@ func (siw *ServerInterfaceWrapper) GetProductById(c *gin.Context) {
 	var err error
 
 	// ------------- Path parameter "id" -------------
-	var id openapi_types.UUID
+	var id ProductId
 
 	err = runtime.BindStyledParameterWithOptions("simple", "id", c.Param("id"), &id, runtime.BindStyledParameterOptions{Explode: false, Required: true})
 	if err != nil {
