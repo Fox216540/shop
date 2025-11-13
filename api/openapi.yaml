@@ -16,13 +16,9 @@ paths:
         - Categories
       responses:
         '200':
-          description: Categories retrieved successfully
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/CategoryResponse'
+          $ref: '#/components/responses/CategoriesList'
+        '500':
+          $ref: '#/components/responses/ServerError'
 
   /products:
     get:
@@ -31,22 +27,12 @@ paths:
       tags:
         - Catalog
       parameters:
-        - name: category
-          in: query
-          description: Category UUID (optional — if omitted, returns all products)
-          required: false
-          schema:
-            type: string
-            format: uuid
+        - $ref: '#/components/parameters/CategoryQuery'
       responses:
         '200':
-          description: Products retrieved successfully
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ProductResponse'
+          $ref: '#/components/responses/ProductsList'
+        '500':
+          $ref: '#/components/responses/ServerError'
 
   /products/{id}:
     get:
@@ -55,22 +41,14 @@ paths:
       tags:
         - Catalog
       parameters:
-        - name: id
-          in: path
-          required: true
-          description: Product UUID
-          schema:
-            type: string
-            format: uuid
+        - $ref: '#/components/parameters/ProductId'
       responses:
         '200':
-          description: Product retrieved successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ProductResponse'
+          $ref: '#/components/responses/Product'
         '404':
-          description: Product not found
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
 
   /users:
     post:
@@ -86,41 +64,13 @@ paths:
               $ref: '#/components/schemas/RegisterRequest'
       responses:
         '201':
-          description: User created successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UserWithTokenResponse'
+          $ref: '#/components/responses/UserCreated'
         '400':
-          description: Invalid request payload
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MessageResponse'
-              examples:
-                invalidPayload:
-                  value:
-                    message: Invalid email or missing required fields
+          $ref: '#/components/responses/BadRequest'
         '409':
-          description: User already exists
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MessageResponse'
-              examples:
-                conflict:
-                  value:
-                    message: User already exists
+          $ref: '#/components/responses/Conflict'
         '500':
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MessageResponse'
-              examples:
-                serverError:
-                  value:
-                    message: Internal server error
+          $ref: '#/components/responses/ServerError'
 
   /users/me:
     delete:
@@ -133,38 +83,13 @@ paths:
         - bearerAuth: [ ]
       responses:
         '200':
-          description: User deleted successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UserResponse'
-              example:
-                name: John Doe
-                message: User deleted successfully
+          $ref: '#/components/responses/UserDeleted'
         '401':
-          description: Unauthorized - missing or invalid token
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MessageResponse'
-              example:
-                message: Unauthorized
+          $ref: '#/components/responses/Unauthorized'
         '404':
-          description: User not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MessageResponse'
-              example:
-                message: User not found
+          $ref: '#/components/responses/NotFound'
         '500':
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MessageResponse'
-              example:
-                message: Internal server error
+          $ref: '#/components/responses/ServerError'
 
   /users/me/email:
     patch:
@@ -179,36 +104,16 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              required:
-                - email
-              properties:
-                email:
-                  type: string
-                  format: email
-                  example: new.email@example.com
+              $ref: '#/components/schemas/UpdateEmailRequest'
       responses:
         '200':
-          description: Email updated successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UserResponse'
-              example:
-                name: John Doe
-                message: Email updated successfully
+          $ref: '#/components/responses/UserResponse'
         '400':
-          description: Invalid email
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MessageResponse'
+          $ref: '#/components/responses/BadRequest'
         '401':
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MessageResponse'
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/ServerError'
 
   /users/me/password:
     patch:
@@ -223,36 +128,16 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              required:
-                - password
-              properties:
-                password:
-                  type: string
-                  format: password
-                  example: NewSecurePass123
+              $ref: '#/components/schemas/UpdatePasswordRequest'
       responses:
         '200':
-          description: Password updated successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UserResponse'
-              example:
-                name: John Doe
-                message: Password updated successfully
+          $ref: '#/components/responses/UserResponse'
         '400':
-          description: Invalid password
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MessageResponse'
+          $ref: '#/components/responses/BadRequest'
         '401':
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MessageResponse'
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/ServerError'
 
   /users/me/phone:
     patch:
@@ -267,35 +152,16 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              required:
-                - phone
-              properties:
-                phone:
-                  type: string
-                  example: "+1-555-123-4567"
+              $ref: '#/components/schemas/UpdatePhoneRequest'
       responses:
         '200':
-          description: Phone updated successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UserResponse'
-              example:
-                name: John Doe
-                message: Phone updated successfully
+          $ref: '#/components/responses/UserResponse'
         '400':
-          description: Invalid phone
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MessageResponse'
+          $ref: '#/components/responses/BadRequest'
         '401':
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MessageResponse'
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/ServerError'
 
   /users/me/profile:
     patch:
@@ -310,36 +176,16 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                name:
-                  type: string
-                  example: Andrei
-                address:
-                  type: string
-                  example: 123 Main St, Springfield
+              $ref: '#/components/schemas/UpdateProfileRequest'
       responses:
         '200':
-          description: Profile updated successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UserResponse'
-              example:
-                name: John Doe
-                message: Profile updated successfully
+          $ref: '#/components/responses/UserResponse'
         '400':
-          description: Invalid data
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MessageResponse'
+          $ref: '#/components/responses/BadRequest'
         '401':
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MessageResponse'
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/ServerError'
 
   /auth/login:
     post:
@@ -352,33 +198,15 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              required:
-                - phone_or_email
-                - password
-              properties:
-                phone_or_email:
-                  type: string
-                  example: john.doe@example.com
-                password:
-                  type: string
-                  format: password
-                  example: MySecurePass123
+              $ref: '#/components/schemas/LoginRequest'
       responses:
         '200':
-          description: Login successful
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UserWithTokenResponse'
+          $ref: '#/components/responses/UserWithToken'
         '401':
-          description: Invalid credentials
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MessageResponse'
-              example:
-                message: Invalid credentials
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
   /auth/logout:
     post:
       summary: Logout from current session
@@ -389,19 +217,11 @@ paths:
         - bearerAuth: [ ]
       responses:
         '200':
-          description: Logout successful
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MessageResponse'
-              example:
-                message: Logged out successfully
+          $ref: '#/components/responses/MessageOK'
         '401':
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MessageResponse'
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/ServerError'
 
   /auth/logout-all:
     post:
@@ -413,19 +233,11 @@ paths:
         - bearerAuth: [ ]
       responses:
         '200':
-          description: Logout from all sessions successful
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MessageResponse'
-              example:
-                message: Logged out from all devices successfully
+          $ref: '#/components/responses/MessageOK'
         '401':
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MessageResponse'
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/ServerError'
 
   /auth/refresh:
     post:
@@ -435,24 +247,11 @@ paths:
         - Auth
       responses:
         '200':
-          description: Token refreshed successfully, refresh token updated
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  access_token:
-                    type: string
-                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-                  message:
-                    type: string
-                    example: Access and refresh tokens updated successfully
+          $ref: '#/components/responses/RefreshResponse'
         '401':
-          description: Invalid or expired refresh token
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MessageResponse'
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/ServerError'
 
   /orders:
     post:
@@ -474,29 +273,14 @@ paths:
                   quantity: 10
       responses:
         '201':
-          description: Order created successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/OrderResponse'
+          $ref: '#/components/responses/OrderCreated'
         '400':
-          description: Invalid order data
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MessageResponse'
+          $ref: '#/components/responses/BadRequest'
         '401':
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MessageResponse'
+          $ref: '#/components/responses/Unauthorized'
         '500':
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MessageResponse'
+          $ref: '#/components/responses/ServerError'
+
     get:
       summary: Get all orders of the authenticated user
       description: Retrieves all orders for the current user. Requires Bearer token.
@@ -506,25 +290,11 @@ paths:
         - bearerAuth: [ ]
       responses:
         '200':
-          description: Orders retrieved successfully
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/OrderResponse'
+          $ref: '#/components/responses/OrdersList'
         '401':
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MessageResponse'
+          $ref: '#/components/responses/Unauthorized'
         '500':
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MessageResponse'
+          $ref: '#/components/responses/ServerError'
 
   /orders/{id}:
     get:
@@ -535,38 +305,17 @@ paths:
       security:
         - bearerAuth: [ ]
       parameters:
-        - name: id
-          in: path
-          required: true
-          description: Order UUID
-          schema:
-            type: string
-            format: uuid
+        - $ref: '#/components/parameters/OrderId'
       responses:
         '200':
-          description: Order retrieved successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/OrderResponse'
+          $ref: '#/components/responses/Order'
         '401':
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MessageResponse'
+          $ref: '#/components/responses/Unauthorized'
         '404':
-          description: Order not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MessageResponse'
+          $ref: '#/components/responses/NotFound'
         '500':
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MessageResponse'
+          $ref: '#/components/responses/ServerError'
+
     delete:
       summary: Delete an order
       description: Deletes a specific order by ID. Requires Bearer token.
@@ -575,42 +324,16 @@ paths:
       security:
         - bearerAuth: [ ]
       parameters:
-        - name: id
-          in: path
-          required: true
-          description: Order UUID
-          schema:
-            type: string
-            format: uuid
+        - $ref: '#/components/parameters/OrderId'
       responses:
         '200':
-          description: Order deleted successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/OrderDeletedResponse'
-              example:
-                id: "2b13fa9e-a5a7-4c71-8cc9-f11164fd2628"
-                status: deleted
-                message: "Order deleted successfully"
+          $ref: '#/components/responses/OrderDeleted'
         '401':
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MessageResponse'
+          $ref: '#/components/responses/Unauthorized'
         '404':
-          description: Order not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MessageResponse'
+          $ref: '#/components/responses/NotFound'
         '500':
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MessageResponse'
+          $ref: '#/components/responses/ServerError'
 
 components:
   securitySchemes:
@@ -619,7 +342,213 @@ components:
       scheme: bearer
       bearerFormat: JWT
 
+  parameters:
+    CategoryQuery:
+      name: category
+      in: query
+      description: Category UUID (optional — if omitted, returns all products)
+      required: false
+      schema:
+        type: string
+        format: uuid
+
+    ProductId:
+      name: id
+      in: path
+      required: true
+      description: Product UUID
+      schema:
+        type: string
+        format: uuid
+
+    OrderId:
+      name: id
+      in: path
+      required: true
+      description: Order UUID
+      schema:
+        type: string
+        format: uuid
+
+  responses:
+    Unauthorized:
+      description: Unauthorized - missing or invalid token
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/MessageResponse'
+          example:
+            message: Unauthorized
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/MessageResponse'
+          example:
+            message: Not found
+
+    ServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/MessageResponse'
+          example:
+            message: Internal server error
+
+    BadRequest:
+      description: Invalid request payload
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/MessageResponse'
+          examples:
+            invalidPayload:
+              value:
+                message: Invalid email or missing required fields
+
+    Conflict:
+      description: Conflict - resource already exists
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/MessageResponse'
+          examples:
+            conflict:
+              value:
+                message: User already exists
+
+    MessageOK:
+      description: OK
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/MessageResponse'
+          example:
+            message: Operation successful
+
+    CategoriesList:
+      description: Categories retrieved successfully
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/CategoryResponse'
+
+    ProductsList:
+      description: Products retrieved successfully
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/ProductResponse'
+
+    Product:
+      description: Product retrieved successfully
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ProductResponse'
+
+    UserCreated:
+      description: User created successfully
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/UserWithTokenResponse'
+
+    UserDeleted:
+      description: User deleted successfully
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/UserResponse'
+          example:
+            name: John Doe
+            message: User deleted successfully
+
+
+    UserWithToken:
+      description: Login successful
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/UserWithTokenResponse'
+
+    UserResponse:
+      description: User operation result
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/UserResponse'
+          example:
+            name: John Doe
+            message: Operation successful
+
+    RefreshResponse:
+      description: Token refreshed successfully, refresh token updated
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              access_token:
+                type: string
+                example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+              message:
+                type: string
+                example: Access and refresh tokens updated successfully
+
+    OrderCreated:
+      description: Order created successfully
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/OrderResponse'
+
+    OrdersList:
+      description: Orders retrieved successfully
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/OrderResponse'
+
+    Order:
+      description: Order retrieved successfully
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/OrderWithItemsResponse'
+
+    OrderDeleted:
+      description: Order deleted successfully
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/OrderDeletedResponse'
+          example:
+            id: "2b13fa9e-a5a7-4c71-8cc9-f11164fd2628"
+            status: deleted
+            message: "Order deleted successfully"
+
   schemas:
+    # Reusable simple message
+    MessageResponse:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          example: Error message description
+
+    # Categories
     CategoryResponse:
       type: object
       required:
@@ -634,6 +563,7 @@ components:
           type: string
           example: Electronics
 
+    # Orders: requests
     CreateOrderRequest:
       type: object
       required:
@@ -642,33 +572,72 @@ components:
         product_items:
           type: array
           items:
-            type: object
-            required:
-              - product_id
-              - quantity
-            properties:
-              product_id:
-                type: string
-                format: uuid
-              quantity:
-                type: integer
-                minimum: 1
+            $ref: '#/components/schemas/ProductItemRequest'
 
-    MessageResponse:
+    ProductItemRequest:
       type: object
       required:
-        - message
+        - product_id
+        - quantity
       properties:
-        message:
+        product_id:
           type: string
-          example: Error message description
+          format: uuid
+        quantity:
+          type: integer
+          format: uint64
+          minimum: 1
+
+    # Orders and products: shared building blocks
+    ProductShort:
+      type: object
+      required:
+        - id
+        - name
+        - img
+        - price
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        img:
+          type: string
+          format: uri
+        price:
+          type: number
+          format: double
+
+    ProductResponse:
+      allOf:
+        - $ref: '#/components/schemas/ProductShort'
+        - type: object
+          required:
+            - category_id
+            - description
+            - stock
+          properties:
+            category_id:
+              type: string
+              format: uuid
+              example: 4b8f5db4-ac77-4738-ad9e-9da30f215b2e
+            description:
+              type: string
+              example: A modern smartphone with an excellent camera and display.
+            stock:
+              type: integer
+              format: uint64
+              minimum: 0
+              example: 42
 
     OrderResponse:
       type: object
       required:
         - id
         - order_number
-        - order_items
+        - total
+        - status
       properties:
         id:
           type: string
@@ -676,36 +645,36 @@ components:
         order_number:
           type: string
           example: ORD-123456789
-        order_items:
-          type: array
-          items:
-            type: object
-            properties:
-              product:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    id:
-                      type: string
-                      format: uuid
-                    name:
-                      type: string
-                    img:
-                      type: string
-                      format: uri
-                    price:
-                      type: number
-                      format: float
-              quantity:
-                type: integer
         total:
           type: number
-          format: float
+          format: double
           example: 1599.98
         status:
           type: string
           example: pending
+
+    OrderItem:
+      type: object
+      required:
+        - quantity
+        - product
+      properties:
+        product:
+          $ref: '#/components/schemas/ProductShort'
+        quantity:
+          type: integer
+
+    OrderWithItemsResponse:
+      allOf:
+        - $ref: '#/components/schemas/OrderResponse'
+        - type: object
+          required:
+            - order_items
+          properties:
+            order_items:
+              type: array
+              items:
+                $ref: '#/components/schemas/OrderItem'
 
     OrderDeletedResponse:
       type: object
@@ -725,45 +694,7 @@ components:
           type: string
           example: Order deleted successfully
 
-    ProductResponse:
-      type: object
-      required:
-        - id
-        - name
-        - img
-        - price
-        - category_id
-        - description
-        - stock
-      properties:
-        id:
-          type: string
-          format: uuid
-          example: 23509e16-004c-41ee-8fe2-f93554064eef
-        name:
-          type: string
-          example: Samsung Galaxy S23 Smartphone
-        img:
-          type: string
-          format: uri
-          example: https://example.com/images/s23.jpg
-        price:
-          type: number
-          format: double
-          example: 799.99
-        category_id:
-          type: string
-          format: uuid
-          example: 4b8f5db4-ac77-4738-ad9e-9da30f215b2e
-        description:
-          type: string
-          example: A modern smartphone with an excellent camera and display.
-        stock:
-          type: integer
-          format: uint64
-          minimum: 0
-          example: 42
-
+    # User-related schemas
     RegisterRequest:
       type: object
       required:
@@ -818,3 +749,59 @@ components:
         message:
           type: string
           example: Success
+
+    # Login
+    LoginRequest:
+      type: object
+      required:
+        - phone_or_email
+        - password
+      properties:
+        phone_or_email:
+          type: string
+          example: john.doe@example.com
+        password:
+          type: string
+          format: password
+          example: MySecurePass123
+
+    # Update small fields requests (kept separate for clear validation and examples)
+    UpdateEmailRequest:
+      type: object
+      required:
+        - email
+      properties:
+        email:
+          type: string
+          format: email
+          example: new.email@example.com
+
+    UpdatePasswordRequest:
+      type: object
+      required:
+        - password
+      properties:
+        password:
+          type: string
+          format: password
+          example: NewSecurePass123
+
+    UpdatePhoneRequest:
+      type: object
+      required:
+        - phone
+      properties:
+        phone:
+          type: string
+          example: "+1-555-123-4567"
+
+    UpdateProfileRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          example: Andrei
+        address:
+          type: string
+          example: 123 Main St, Springfield
+
