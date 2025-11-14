@@ -23,13 +23,13 @@ func (OrderProductORM) TableName() string {
 
 type OrderORM struct {
 	gorm.Model
-	ID         int                `gorm:"primaryKey;autoIncrement"`
-	OrderID    uuid.UUID          `gorm:"type:uuid;not null;uniqueIndex"`
-	UserID     uuid.UUID          `gorm:"type:uuid;not null;index"`
-	OrderNum   string             `gorm:"type:varchar(50);not null;uniqueIndex"`
-	Status     string             `gorm:"type:varchar(50);not null"`
-	Total      float64            `gorm:"type:decimal(10,2);not null"` // Total order amount
-	OrderItems []*OrderProductORM `gorm:"foreignKey:OrderID;references:OrderID;constraint:OnDelete:CASCADE"`
+	ID         int               `gorm:"primaryKey;autoIncrement"`
+	OrderID    uuid.UUID         `gorm:"type:uuid;not null;uniqueIndex"`
+	UserID     uuid.UUID         `gorm:"type:uuid;not null;index"`
+	OrderNum   string            `gorm:"type:varchar(50);not null;uniqueIndex"`
+	Status     string            `gorm:"type:varchar(50);not null"`
+	Total      float64           `gorm:"type:decimal(10,2);not null"` // Total order amount
+	OrderItems []OrderProductORM `gorm:"foreignKey:OrderID;references:OrderID;constraint:OnDelete:CASCADE"`
 }
 
 func (OrderORM) TableName() string {
@@ -43,11 +43,11 @@ func FromORM(orm OrderORM) order.Order {
 		Status:     orm.Status,
 		UserID:     orm.UserID,
 		Total:      orm.Total,
-		OrderItems: make([]*order.Item, 0, len(orm.OrderItems)),
+		OrderItems: make([]order.Item, 0, len(orm.OrderItems)),
 	}
 	for _, item := range orm.OrderItems {
-		o.OrderItems = append(o.OrderItems, &order.Item{
-			Product: &product.Product{
+		o.OrderItems = append(o.OrderItems, order.Item{
+			Product: product.Product{
 				ID:    item.ProductID,
 				Name:  item.ProductName,
 				Img:   item.ProductImg,

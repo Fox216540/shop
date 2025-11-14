@@ -28,14 +28,14 @@ func (c *GRPClient) mapOrder(o *pb.Order) (order.Order, error) {
 }
 
 func (c *GRPClient) mapOrderWithItems(o *pb.OrderWithItems) (order.OrderWithItems, error) {
-	items := make([]*order.Item, 0, len(o.Items))
+	items := make([]order.Item, 0, len(o.Items))
 	for _, item := range o.Items {
 		productID, err := uuid.Parse(item.Product.Id)
 		if err != nil {
 			return order.OrderWithItems{}, err
 		}
-		items = append(items, &order.Item{
-			Product: &order.Product{
+		items = append(items, order.Item{
+			Product: order.Product{
 				ID:    productID,
 				Name:  item.Product.Name,
 				Img:   item.Product.Img,
@@ -49,7 +49,7 @@ func (c *GRPClient) mapOrderWithItems(o *pb.OrderWithItems) (order.OrderWithItem
 
 	}
 	return order.OrderWithItems{
-		Order: &orderWithoutItems,
+		Order: orderWithoutItems,
 		Items: items,
 	}, nil
 }

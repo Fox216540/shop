@@ -15,13 +15,13 @@ type Product struct {
 }
 
 type Item struct {
-	Product  *Product
+	Product  Product
 	Quantity uint64
 }
 
 type OrderWithItems struct {
-	Order *Order
-	Items []*Item
+	Order Order
+	Items []Item
 }
 
 type Order struct {

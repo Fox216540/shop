@@ -25,11 +25,11 @@ func (r *repository) Save(o order.Order) (order.Order, error) {
 		Status:     o.Status,
 		UserID:     o.UserID,
 		Total:      o.Total,
-		OrderItems: []*models.OrderProductORM{},
+		OrderItems: []models.OrderProductORM{},
 	}
 
 	for _, item := range o.OrderItems {
-		newOrder.OrderItems = append(newOrder.OrderItems, &models.OrderProductORM{
+		newOrder.OrderItems = append(newOrder.OrderItems, models.OrderProductORM{
 			ProductID: item.Product.ID,
 			Quantity:  item.Quantity,
 			OrderID:   o.ID,
