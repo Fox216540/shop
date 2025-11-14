@@ -6,9 +6,11 @@ import (
 	aUseCase "github.com/Fox216540/shop/apigateway-service/app/auth"
 	cUseCase "github.com/Fox216540/shop/apigateway-service/app/catalog"
 	DTO "github.com/Fox216540/shop/apigateway-service/app/dto"
+	oUseCase "github.com/Fox216540/shop/apigateway-service/app/order"
 	uUseCase "github.com/Fox216540/shop/apigateway-service/app/user"
 	domainAuth "github.com/Fox216540/shop/apigateway-service/domain/auth"
 	domainCatalog "github.com/Fox216540/shop/apigateway-service/domain/catalog"
+	domainOrder "github.com/Fox216540/shop/apigateway-service/domain/order"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	openapiTypes "github.com/oapi-codegen/runtime/types"
@@ -19,6 +21,7 @@ type HTTPHandler struct {
 	authUseCase    aUseCase.UseCase
 	catalogUseCase cUseCase.UseCase
 	userUseCase    uUseCase.UseCase
+	orderUseCase   oUseCase.UseCase
 }
 
 func (h *HTTPHandler) userWithTokenResponse(name string, tokens domainAuth.Tokens, message string) shopApiGen.UserWithTokenResponse {
@@ -109,28 +112,133 @@ func (h *HTTPHandler) GetCategories(c *gin.Context) {
 
 }
 
+func (h *HTTPHandler) getIDOfUser(c *gin.Context) (uuid.UUID, error) {
+	idValue, exists := c.Get("user_id")
+	if !exists {
+		//TODO: Придумать ошибку
+		return uuid.Nil, errors.New("user id not found")
+	}
+	idString, ok := idValue.(string)
+	if !ok {
+		//TODO: Придумать ошибку
+		return uuid.Nil, errors.New("user id not found")
+	}
+	id, err := uuid.Parse(idString)
+	if err != nil {
+		//TODO: Придумать ошибку
+		return uuid.Nil, errors.New("user id not found")
+	}
+	return id, nil
+}
+
+func (h *HTTPHandler) orderWithItemsResponse(order domainOrder.OrderWithItems) shopApiGen.OrderWithItemsResponse {
+	items := make([]shopApiGen.OrderItem, 0, len(order.Items))
+	for _, item := range order.Items {
+		items = append(items, shopApiGen.OrderItem{
+			Product: shopApiGen.ProductShort{
+				Id:    item.Product.ID,
+				Img:   item.Product.Img,
+				Name:  item.Product.Name,
+				Price: item.Product.Price,
+			},
+			Quantity: item.Quantity,
+		})
+
+	}
+	return shopApiGen.OrderWithItemsResponse{
+		Id:          order.Order.ID,
+		OrderNumber: order.Order.OrderNum,
+		Status:      order.Order.Status,
+		Total:       order.Order.Total,
+		OrderItems:  items,
+	}
+}
+
+func (h *HTTPHandler) ordersToResponse(orders []domainOrder.Order) []shopApiGen.OrderResponse {
+	resp := make([]shopApiGen.OrderResponse, 0, len(orders))
+	for _, order := range orders {
+		resp = append(resp, shopApiGen.OrderResponse{
+			Id:          order.ID,
+			OrderNumber: order.OrderNum,
+			Status:      order.Status,
+			Total:       order.Total,
+		})
+	}
+	return resp
+}
+
 func (h *HTTPHandler) GetOrders(c *gin.Context) {
-	id, exist := c.Get("user_id")
-	if !exist {
+	userID, err := h.getIDOfUser(c)
+	if err != nil {
 		//TODO: Придумать ошибку
 		return
 	}
-	orders, err := h.catalogUseCase
+	orders, err := h.orderUseCase.GetOrders(userID)
+	c.JSON(http.StatusOK, h.ordersToResponse(orders))
 }
 
 func (h *HTTPHandler) PostOrders(c *gin.Context) {
-	//TODO implement me
-	panic("implement me")
+	userID, err := h.getIDOfUser(c)
+	if err != nil {
+		//TODO: Придумать ошибку
+		return
+	}
+	var req shopApiGen.PostOrdersJSONRequestBody
+	if err = c.ShouldBindJSON(&req); err != nil {
+		//TODO: Придумать ошибку
+		return
+	}
+
+	items := make([]domainOrder.ProductRequest, 0, len(req.ProductItems))
+	for _, item := range req.ProductItems {
+		items = append(items, domainOrder.ProductRequest{
+			ID:       item.ProductId,
+			Quantity: item.Quantity,
+		})
+	}
+
+	o, err := h.orderUseCase.CreateOrder(userID, items)
+	if err != nil {
+		return
+	}
+	c.JSON(http.StatusCreated, shopApiGen.OrderResponse{
+		Id:          o.ID,
+		OrderNumber: o.OrderNum,
+		Status:      o.Status,
+		Total:       o.Total,
+	})
 }
 
 func (h *HTTPHandler) DeleteOrdersId(c *gin.Context, id openapiTypes.UUID) {
-	//TODO implement me
-	panic("implement me")
+	userID, err := h.getIDOfUser(c)
+	if err != nil {
+		//TODO: Придумать ошибку
+		return
+	}
+	deletedID, msg, status, err := h.orderUseCase.DeleteOrder(userID, id)
+	if err != nil {
+		//TODO: Придумать ошибку
+		return
+	}
+	c.JSON(http.StatusOK, shopApiGen.OrderDeletedResponse{
+		Id:      deletedID,
+		Message: msg,
+		Status:  status,
+	})
 }
 
 func (h *HTTPHandler) GetOrdersId(c *gin.Context, id openapiTypes.UUID) {
-	//TODO implement me
-	panic("implement me")
+	userID, err := h.getIDOfUser(c)
+	if err != nil {
+		//TODO: Придумать ошибку
+		return
+	}
+	o, err := h.orderUseCase.GetOrder(userID, id)
+	if err != nil {
+		//TODO: Придумать ошибку
+		return
+	}
+	c.JSON(http.StatusOK, h.orderWithItemsResponse(o))
 }
 
 func (h *HTTPHandler) productsToResponse(products []domainCatalog.Product) []shopApiGen.ProductResponse {
@@ -150,7 +258,15 @@ func (h *HTTPHandler) productsToResponse(products []domainCatalog.Product) []sho
 }
 
 func (h *HTTPHandler) GetProducts(c *gin.Context, params shopApiGen.GetProductsParams) {
-	products, err := h.catalogUseCase.GetProducts()
+	var (
+		products []domainCatalog.Product
+		err      error
+	)
+	if params.Category != nil {
+		products, err = h.catalogUseCase.GetProductsOfCategoryID(*params.Category)
+	} else {
+		products, err = h.catalogUseCase.GetProducts()
+	}
 	if err != nil {
 		//TODO:
 		return
@@ -159,12 +275,6 @@ func (h *HTTPHandler) GetProducts(c *gin.Context, params shopApiGen.GetProductsP
 }
 
 func (h *HTTPHandler) GetProductById(c *gin.Context, id openapiTypes.UUID) {
-	idString := c.Param("id")
-	id, err := uuid.Parse(idString)
-	if err != nil {
-		//TODO: Придумать ошибку
-		return
-	}
 	products, err := h.catalogUseCase.GetProductsOfCategoryID(id)
 	if err != nil {
 		//TODO: Придумать ошибку
@@ -197,32 +307,13 @@ func (h *HTTPHandler) CreateUser(c *gin.Context) {
 
 }
 
-func (h *HTTPHandler) getIDOfUser(c *gin.Context) (uuid.UUID, error) {
-	idValue, exists := c.Get("user_id")
-	if !exists {
-		//TODO: Придумать ошибку
-		return uuid.Nil, errors.New("user id not found")
-	}
-	idString, ok := idValue.(string)
-	if !ok {
-		//TODO: Придумать ошибку
-		return uuid.Nil, errors.New("user id not found")
-	}
-	id, err := uuid.Parse(idString)
-	if err != nil {
-		//TODO: Придумать ошибку
-		return uuid.Nil, errors.New("user id not found")
-	}
-	return id, nil
-}
-
 func (h *HTTPHandler) DeleteUser(c *gin.Context) {
-	id, err := h.getIDOfUser(c)
+	userID, err := h.getIDOfUser(c)
 	if err != nil {
 		//TODO: Придумать ошибку
 		return
 	}
-	msg, err := h.userUseCase.DeleteUser(id)
+	msg, err := h.userUseCase.DeleteUser(userID)
 	if err != nil {
 		//TODO: Придумать ошибку
 		return
@@ -233,7 +324,7 @@ func (h *HTTPHandler) DeleteUser(c *gin.Context) {
 }
 
 func (h *HTTPHandler) PatchUsersMeEmail(c *gin.Context) {
-	id, err := h.getIDOfUser(c)
+	userID, err := h.getIDOfUser(c)
 	if err != nil {
 		//TODO: Придумать ошибку
 		return
@@ -244,14 +335,14 @@ func (h *HTTPHandler) PatchUsersMeEmail(c *gin.Context) {
 		return
 	}
 
-	msg, err := h.userUseCase.UpdateEmailOfUser(id, string(req.Email))
+	msg, err := h.userUseCase.UpdateEmailOfUser(userID, string(req.Email))
 	c.JSON(http.StatusOK, shopApiGen.MessageResponse{
 		Message: msg,
 	})
 }
 
 func (h *HTTPHandler) PatchUsersMePassword(c *gin.Context) {
-	id, err := h.getIDOfUser(c)
+	userID, err := h.getIDOfUser(c)
 	if err != nil {
 		//TODO: Придумать ошибку
 		return
@@ -262,14 +353,14 @@ func (h *HTTPHandler) PatchUsersMePassword(c *gin.Context) {
 		return
 	}
 
-	msg, err := h.userUseCase.UpdatePasswordOfUser(id, req.Password)
+	msg, err := h.userUseCase.UpdatePasswordOfUser(userID, req.Password)
 	c.JSON(http.StatusOK, shopApiGen.MessageResponse{
 		Message: msg,
 	})
 }
 
 func (h *HTTPHandler) PatchUsersMePhone(c *gin.Context) {
-	id, err := h.getIDOfUser(c)
+	userID, err := h.getIDOfUser(c)
 	if err != nil {
 		//TODO: Придумать ошибку
 		return
@@ -279,14 +370,14 @@ func (h *HTTPHandler) PatchUsersMePhone(c *gin.Context) {
 		//TODO: Придумать ошибку
 		return
 	}
-	msg, err := h.userUseCase.UpdatePhoneOfUser(id, req.Phone)
+	msg, err := h.userUseCase.UpdatePhoneOfUser(userID, req.Phone)
 	c.JSON(http.StatusOK, shopApiGen.MessageResponse{
 		Message: msg,
 	})
 }
 
 func (h *HTTPHandler) PatchUsersMeProfile(c *gin.Context) {
-	id, err := h.getIDOfUser(c)
+	userID, err := h.getIDOfUser(c)
 	if err != nil {
 		//TODO: Придумать ошибку
 		return
@@ -296,7 +387,7 @@ func (h *HTTPHandler) PatchUsersMeProfile(c *gin.Context) {
 		//TODO: Придумать ошибку
 		return
 	}
-	msg, name, err := h.userUseCase.UpdateProfileOfUser(id, req.Name, req.Address)
+	msg, name, err := h.userUseCase.UpdateProfileOfUser(userID, req.Name, req.Address)
 	if err != nil {
 		//TODO: Придумать ошибку
 		return
