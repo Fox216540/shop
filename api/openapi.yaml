@@ -663,6 +663,8 @@ components:
           $ref: '#/components/schemas/ProductShort'
         quantity:
           type: integer
+          format: uint64
+          minimum: 1
 
     OrderWithItemsResponse:
       allOf:
