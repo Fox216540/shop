@@ -48,7 +48,7 @@ type OrderDeletedResponse struct {
 // OrderItem defines model for OrderItem.
 type OrderItem struct {
 	Product  ProductShort `json:"product"`
-	Quantity int          `json:"quantity"`
+	Quantity uint64       `json:"quantity"`
 }
 
 // OrderResponse defines model for OrderResponse.
