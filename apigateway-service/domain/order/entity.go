@@ -16,7 +16,7 @@ type Product struct {
 
 type Item struct {
 	Product  *Product
-	quantity uint64
+	Quantity uint64
 }
 
 type OrderWithItems struct {
