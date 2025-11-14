@@ -11,7 +11,7 @@ service ApiService {
     //В metadata передавать userID ↓
     rpc CreateOrder (CreateOrderRequest) returns (Order);
     //В metadata передавать userID ↓
-    rpc GetOrderById (OrderId) returns (Order);
+    rpc GetOrderById (OrderId) returns (OrderWithItems);
     //В metadata передавать userID ↓
     rpc GetOrdersByUserId (google.protobuf.Empty) returns (GetOrdersByUserIdResponse);
     //В metadata передавать userID ↓
