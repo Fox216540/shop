@@ -33,7 +33,7 @@ type ApiServiceClient interface {
 	//В metadata передавать userID ↓
 	CreateOrder(ctx context.Context, in *CreateOrderRequest, opts ...grpc.CallOption) (*Order, error)
 	//В metadata передавать userID ↓
-	GetOrderById(ctx context.Context, in *OrderId, opts ...grpc.CallOption) (*Order, error)
+	GetOrderById(ctx context.Context, in *OrderId, opts ...grpc.CallOption) (*OrderWithItems, error)
 	//В metadata передавать userID ↓
 	GetOrdersByUserId(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetOrdersByUserIdResponse, error)
 	//В metadata передавать userID ↓
@@ -58,9 +58,9 @@ func (c *apiServiceClient) CreateOrder(ctx context.Context, in *CreateOrderReque
 	return out, nil
 }
 
-func (c *apiServiceClient) GetOrderById(ctx context.Context, in *OrderId, opts ...grpc.CallOption) (*Order, error) {
+func (c *apiServiceClient) GetOrderById(ctx context.Context, in *OrderId, opts ...grpc.CallOption) (*OrderWithItems, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Order)
+	out := new(OrderWithItems)
 	err := c.cc.Invoke(ctx, ApiService_GetOrderById_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -95,7 +95,7 @@ type ApiServiceServer interface {
 	//В metadata передавать userID ↓
 	CreateOrder(context.Context, *CreateOrderRequest) (*Order, error)
 	//В metadata передавать userID ↓
-	GetOrderById(context.Context, *OrderId) (*Order, error)
+	GetOrderById(context.Context, *OrderId) (*OrderWithItems, error)
 	//В metadata передавать userID ↓
 	GetOrdersByUserId(context.Context, *emptypb.Empty) (*GetOrdersByUserIdResponse, error)
 	//В metadata передавать userID ↓
@@ -113,7 +113,7 @@ type UnimplementedApiServiceServer struct{}
 func (UnimplementedApiServiceServer) CreateOrder(context.Context, *CreateOrderRequest) (*Order, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateOrder not implemented")
 }
-func (UnimplementedApiServiceServer) GetOrderById(context.Context, *OrderId) (*Order, error) {
+func (UnimplementedApiServiceServer) GetOrderById(context.Context, *OrderId) (*OrderWithItems, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetOrderById not implemented")
 }
 func (UnimplementedApiServiceServer) GetOrdersByUserId(context.Context, *emptypb.Empty) (*GetOrdersByUserIdResponse, error) {

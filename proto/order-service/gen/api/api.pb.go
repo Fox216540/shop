@@ -468,11 +468,11 @@ const file_order_service_api_proto_rawDesc = "" +
 	"\x13DeleteOrderResponse\x12-\n" +
 	"\border_id\x18\x01 \x01(\v2\x12.order.api.OrderIdR\aorderId\x12\x16\n" +
 	"\x06status\x18\x02 \x01(\tR\x06status\x121\n" +
-	"\amessage\x18\x03 \x01(\v2\x17.common.MessageResponseR\amessage2\x98\x02\n" +
+	"\amessage\x18\x03 \x01(\v2\x17.common.MessageResponseR\amessage2\xa1\x02\n" +
 	"\n" +
 	"ApiService\x12>\n" +
-	"\vCreateOrder\x12\x1d.order.api.CreateOrderRequest\x1a\x10.order.api.Order\x124\n" +
-	"\fGetOrderById\x12\x12.order.api.OrderId\x1a\x10.order.api.Order\x12Q\n" +
+	"\vCreateOrder\x12\x1d.order.api.CreateOrderRequest\x1a\x10.order.api.Order\x12=\n" +
+	"\fGetOrderById\x12\x12.order.api.OrderId\x1a\x19.order.api.OrderWithItems\x12Q\n" +
 	"\x11GetOrdersByUserId\x12\x16.google.protobuf.Empty\x1a$.order.api.GetOrdersByUserIdResponse\x12A\n" +
 	"\vDeleteOrder\x12\x12.order.api.OrderId\x1a\x1e.order.api.DeleteOrderResponseB=Z;github.com/Fox216540/shop/proto/order-service/gen/api;protob\x06proto3"
 
@@ -515,7 +515,7 @@ var file_order_service_api_proto_depIdxs = []int32{
 	10, // 9: order.api.ApiService.GetOrdersByUserId:input_type -> google.protobuf.Empty
 	1,  // 10: order.api.ApiService.DeleteOrder:input_type -> order.api.OrderId
 	5,  // 11: order.api.ApiService.CreateOrder:output_type -> order.api.Order
-	5,  // 12: order.api.ApiService.GetOrderById:output_type -> order.api.Order
+	2,  // 12: order.api.ApiService.GetOrderById:output_type -> order.api.OrderWithItems
 	6,  // 13: order.api.ApiService.GetOrdersByUserId:output_type -> order.api.GetOrdersByUserIdResponse
 	7,  // 14: order.api.ApiService.DeleteOrder:output_type -> order.api.DeleteOrderResponse
 	11, // [11:15] is the sub-list for method output_type
