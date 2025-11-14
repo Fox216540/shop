@@ -27,7 +27,34 @@ func (c *GRPClient) mapOrder(o *pb.Order) (order.Order, error) {
 	}, nil
 }
 
-func (c *GRPClient) CreateOrder(userID uuid.UUID, items []order.ProductRequest) (order.Order, error) {
+func (c *GRPClient) mapOrderWithItems(o *pb.OrderWithItems) (order.OrderWithItems, error) {
+	items := make([]*order.Item, 0, len(o.Items))
+	for _, item := range o.Items {
+		productID, err := uuid.Parse(item.Product.Id)
+		if err != nil {
+			return order.OrderWithItems{}, err
+		}
+		items = append(items, &order.Item{
+			Product: &order.Product{
+				ID:    productID,
+				Name:  item.Product.Name,
+				Img:   item.Product.Img,
+				Price: item.Product.Price,
+			},
+			Quantity: item.Quantity,
+		})
+	}
+	orderWithoutItems, err := c.mapOrder(o.Order)
+	if err != nil {
+
+	}
+	return order.OrderWithItems{
+		Order: &orderWithoutItems,
+		Items: items,
+	}, nil
+}
+
+func (c *GRPClient) Create(userID uuid.UUID, items []order.ProductRequest) (order.Order, error) {
 	ctx := c.conn.Context()
 	ctx = metadata.AppendToOutgoingContext(ctx, "user_id", userID.String())
 	dtoReq := make([]*pb.ItemRequest, 0, len(items))
@@ -47,14 +74,14 @@ func (c *GRPClient) CreateOrder(userID uuid.UUID, items []order.ProductRequest) 
 	return c.mapOrder(o)
 }
 
-func (c *GRPClient) GetOrder(userID uuid.UUID, orderID uuid.UUID) (order order.Order, err error) {
+func (c *GRPClient) Get(userID uuid.UUID, orderID uuid.UUID) (order order.OrderWithItems, err error) {
 	ctx := c.conn.Context()
 	ctx = metadata.AppendToOutgoingContext(ctx, "user_id", userID.String())
 	req := &pb.OrderId{
 		Id: orderID.String(),
 	}
 	o, err := c.pbClient.GetOrderById(ctx, req)
-	return c.mapOrder(o)
+	return c.mapOrderWithItems(o)
 }
 
 func (c *GRPClient) GetOrders(userID uuid.UUID) ([]order.Order, error) {
@@ -76,7 +103,7 @@ func (c *GRPClient) GetOrders(userID uuid.UUID) ([]order.Order, error) {
 	return orders, nil
 }
 
-func (c *GRPClient) DeleteOrder(userID uuid.UUID, orderID uuid.UUID) (ID uuid.UUID, msg string, status string, err error) {
+func (c *GRPClient) Delete(userID uuid.UUID, orderID uuid.UUID) (ID uuid.UUID, msg string, status string, err error) {
 	ctx := c.conn.Context()
 	ctx = metadata.AppendToOutgoingContext(ctx, "user_id", userID.String())
 	req := &pb.OrderId{
