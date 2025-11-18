@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/Fox216540/shop/auth-service/app/auth"
 	"github.com/Fox216540/shop/auth-service/app/user"
+	"github.com/Fox216540/shop/auth-service/core/mapError"
 	pbApi "github.com/Fox216540/shop/proto/auth-service/gen/api"
 	pbInterservice "github.com/Fox216540/shop/proto/auth-service/gen/interservice"
 	types "github.com/Fox216540/shop/proto/common/gen"
@@ -23,11 +24,11 @@ func (h *GRPCHandler) LogIn(
 ) (*types.UserWithTokensResponse, error) {
 	name, id, err := h.user.VerifyUser(req.PhoneOrEmail, req.Password)
 	if err != nil {
-		return nil, err
+		return nil, mapError.MapError(err)
 	}
 	tokens, err := h.auth.GenerateTokens(id)
 	if err != nil {
-		return nil, err
+		return nil, mapError.MapError(err)
 	}
 	return &types.UserWithTokensResponse{
 		Tokens: &types.TokensResponse{
@@ -38,7 +39,7 @@ func (h *GRPCHandler) LogIn(
 			Name: name,
 		},
 		Message: &types.MessageResponse{
-			Message: "User logged in successfully",
+			Message: NewMessages().LogInSuccess,
 		},
 	}, nil
 }
@@ -48,11 +49,10 @@ func (h *GRPCHandler) LogOut(
 	req *types.DecodeTokenRequest,
 ) (*types.MessageResponse, error) {
 	if err := h.auth.DeleteRefreshToken(req.Token); err != nil {
-		return nil, err
+		return nil, mapError.MapError(err)
 	}
 	return &types.MessageResponse{
-		//TODO: Вынести в константы
-		Message: "Token deleted successfully",
+		Message: NewMessages().LogOutSuccess,
 	}, nil
 }
 
@@ -61,11 +61,10 @@ func (h *GRPCHandler) LogOutAll(
 	req *types.DecodeTokenRequest,
 ) (*types.MessageResponse, error) {
 	if err := h.auth.DeleteAllTokensByToken(req.Token); err != nil {
-		return nil, err
+		return nil, mapError.MapError(err)
 	}
 	return &types.MessageResponse{
-		//TODO: Вынести в константы
-		Message: "All tokens deleted successfully",
+		Message: NewMessages().LogOutAllSuccess,
 	}, nil
 }
 
@@ -75,7 +74,7 @@ func (h *GRPCHandler) RefreshTokens(
 ) (*types.TokensResponse, error) {
 	tokens, err := h.auth.RefreshTokens(req.Token)
 	if err != nil {
-		return nil, err
+		return nil, mapError.MapError(err)
 	}
 	return &types.TokensResponse{
 		AccessToken:  tokens.AccessToken,
@@ -89,7 +88,7 @@ func (h *GRPCHandler) DecodeAccessToken(
 ) (*types.UserId, error) {
 	userJWT, err := h.auth.DecodeAccessToken(req.Token)
 	if err != nil {
-		return nil, err
+		return nil, mapError.MapError(err)
 	}
 	return &types.UserId{
 		Id: userJWT.UserID.String(),
@@ -102,11 +101,11 @@ func (h *GRPCHandler) GenerateTokens(
 ) (*types.TokensResponse, error) {
 	userID, err := uuid.Parse(req.Id)
 	if err != nil {
-		return nil, err
+		return nil, mapError.MapError(err)
 	}
 	tokens, err := h.auth.GenerateTokens(userID)
 	if err != nil {
-		return nil, err
+		return nil, mapError.MapError(err)
 	}
 	return &types.TokensResponse{
 		AccessToken:  tokens.AccessToken,
@@ -120,15 +119,14 @@ func (h *GRPCHandler) DeleteAllRefreshTokens(
 ) (*types.MessageResponse, error) {
 	userID, err := uuid.Parse(req.Id)
 	if err != nil {
-		return nil, err
+		return nil, mapError.MapError(err)
 	}
 
 	if err := h.auth.DeleteAllTokensByUserID(userID); err != nil {
 		return nil, err
 	}
 	return &types.MessageResponse{
-		//TODO: Вынести в константы
-		Message: "All tokens deleted successfully",
+		Message: NewMessages().DeleteAllRefreshTokensSuccess,
 	}, nil
 }
 
