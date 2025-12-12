@@ -10,7 +10,7 @@ import (
 	"log"
 )
 
-// Init инициализирует глобальный объект Database
+// InitPostgres инициализирует глобальный объект Database
 func InitPostgres(config *config.Config) *gorm.DB {
 	user := config.PostgresUser
 	password := config.PostgresPassword
@@ -19,7 +19,7 @@ func InitPostgres(config *config.Config) *gorm.DB {
 	databaseName := config.PostgresDatabase
 	fmt.Println(user, password, host, port, databaseName)
 	dsn := fmt.Sprintf(
-		"host=%s user=%s password=%s dbname=%s port=%s sslmode=disable",
+		"host=%s user=%s password=%s dbname=%s port=%d sslmode=disable",
 		host, user, password, databaseName, port,
 	)
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
@@ -33,7 +33,7 @@ func InitPostgres(config *config.Config) *gorm.DB {
 	return db
 }
 
-// Close завершает подключение к базе
+// ClosePostgres завершает подключение к базе
 func ClosePostgres(database *core.Database) {
 	if database == nil || database.DB == nil {
 		return
@@ -43,5 +43,7 @@ func ClosePostgres(database *core.Database) {
 		log.Printf("failed to get raw DB: %v", err)
 		return
 	}
-	sqlDB.Close()
+	if err = sqlDB.Close(); err != nil {
+		return
+	}
 }
