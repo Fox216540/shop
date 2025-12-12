@@ -15,6 +15,7 @@ type GRPCHandler struct {
 	catalogUC catalog.UseCase
 	pbInterservice.UnimplementedInterserviceServiceServer
 	pbApi.UnimplementedApiServiceServer
+	mapper *ErrorMapper
 }
 
 func productToPbWithSupplement(
@@ -66,7 +67,7 @@ func (h *GRPCHandler) GetCategories(
 ) (*pbApi.GetCategoriesResponse, error) {
 	categories, err := h.catalogUC.GetCategories()
 	if err != nil {
-		return nil, err
+		return nil, h.mapper.MapError(err)
 	}
 
 	categoriesResp := make([]*pbApi.Category, 0, len(categories))
@@ -88,7 +89,7 @@ func (h *GRPCHandler) GetAllProducts(
 ) (*pbApi.GetProductsResponse, error) {
 	products, err := h.catalogUC.GetAllProducts()
 	if err != nil {
-		return nil, err
+		return nil, h.mapper.MapError(err)
 	}
 
 	return h.productsToPbWithSupplement(products), nil
@@ -100,12 +101,12 @@ func (h *GRPCHandler) GetProductsOfCategoryId(
 ) (*pbApi.GetProductsResponse, error) {
 	categoryID, err := uuid.Parse(req.CategoryId)
 	if err != nil {
-		return nil, err
+		return nil, h.mapper.MapError(err)
 	}
 
 	products, err := h.catalogUC.GetProductsOfCategoryID(categoryID)
 	if err != nil {
-		return nil, err
+		return nil, h.mapper.MapError(err)
 	}
 	return h.productsToPbWithSupplement(products), nil
 }
@@ -116,12 +117,12 @@ func (h *GRPCHandler) GetProductById(
 ) (*pbApi.ProductWithSupplement, error) {
 	productID, err := uuid.Parse(req.ProductId)
 	if err != nil {
-		return nil, err
+		return nil, h.mapper.MapError(err)
 	}
 
 	product, err := h.catalogUC.GetProductByID(productID)
 	if err != nil {
-		return nil, err
+		return nil, h.mapper.MapError(err)
 	}
 	return productToPbWithSupplement(product), nil
 }
@@ -134,14 +135,14 @@ func (h *GRPCHandler) GetProductsByIds(
 	for _, productID := range req.ProductIds {
 		id, err := uuid.Parse(productID)
 		if err != nil {
-			return nil, err
+			return nil, h.mapper.MapError(err)
 		}
 		productIDs = append(productIDs, id)
 	}
 
 	products, err := h.catalogUC.GetProductsByIDs(productIDs)
 	if err != nil {
-		return nil, err
+		return nil, h.mapper.MapError(err)
 	}
 	return &pbInterservice.GetProductsByIdsResponse{
 		Products: h.productsToPb(products),
