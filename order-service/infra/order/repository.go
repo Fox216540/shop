@@ -2,7 +2,6 @@ package order
 
 import (
 	"errors"
-	"fmt"
 	"github.com/Fox216540/shop/order-service/domain/order"
 	db "github.com/Fox216540/shop/order-service/infra/db/core"
 	"github.com/Fox216540/shop/order-service/infra/order/models"
@@ -110,9 +109,7 @@ func (r *repository) CheckOrderNum(orderNum string) error {
 	err := r.db.WithSession(func(tx *gorm.DB) error {
 		err := tx.Where("order_num = ?", orderNum).First(&models.OrderORM{}).Error
 		if err == nil {
-			//TODO: доменная ошибка
-			// Если заказ с таким номером найден, возвращаем ошибку
-			return NewInvalidCheckOrderNum(fmt.Errorf("order number %s already exists", orderNum)) // Если заказ с таким номером найден, возвращаем nil
+			return order.NewOrderNumberAlreadyExistsError(nil) // Если заказ с таким номером найден, возвращаем nil
 		}
 		if !errors.Is(err, gorm.ErrRecordNotFound) {
 			return NewInvalidCheckOrderNum(err)
