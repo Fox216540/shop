@@ -6,6 +6,7 @@ import (
 	"github.com/Fox216540/shop/user-service/domain/auth"
 	"github.com/Fox216540/shop/user-service/infra/client"
 	"github.com/google/uuid"
+	"google.golang.org/grpc/status"
 )
 
 type GRPCClient struct {
@@ -20,7 +21,13 @@ func (c *GRPCClient) GenerateTokens(userID uuid.UUID) (auth.Tokens, error) {
 	}
 	resp, err := c.pb.GenerateTokens(ctx, req)
 	if err != nil {
-		return auth.Tokens{}, err
+		if _, ok := status.FromError(err); ok {
+			// это gRPC-ошибка — вернуть как есть
+			return auth.Tokens{}, err
+		}
+
+		// не gRPC — завернуть
+		return auth.Tokens{}, NewGRPCError(err)
 	}
 	return auth.Tokens{
 		AccessToken:  resp.AccessToken,
@@ -34,7 +41,13 @@ func (c *GRPCClient) DeleteAllRefreshTokens(userID uuid.UUID) error {
 		Id: userID.String(),
 	}
 	_, err := c.pb.DeleteAllRefreshTokens(ctx, req)
-	return err
+	if _, ok := status.FromError(err); ok {
+		// это gRPC-ошибка — вернуть как есть
+		return err
+	}
+
+	// не gRPC — завернуть
+	return NewGRPCError(err)
 }
 
 func NewGRPCClient(client *client.GRPCClient) *GRPCClient {
