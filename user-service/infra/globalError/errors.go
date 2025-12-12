@@ -23,3 +23,21 @@ func NewInfraServerError(msg, domain string, err error) *InfraServerError {
 		ServerError: exception.NewServerError(msg, domain, layer, err),
 	}
 }
+
+type GRPCErrors struct {
+	*InfraServerError
+}
+
+func (e *GRPCErrors) Error() string {
+	return e.InfraServerError.Error()
+}
+
+func (e *GRPCErrors) Unwrap() error {
+	return e.InfraServerError
+}
+
+func NewGRPCErrors(domain string, err error) *GRPCErrors {
+	return &GRPCErrors{
+		InfraServerError: NewInfraServerError("Problems with GRPC", domain, err),
+	}
+}
