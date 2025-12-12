@@ -6,7 +6,7 @@ type Database struct {
 	DB *gorm.DB
 }
 
-// Глобальный объект Database
+// NewDatabase Глобальный объект Database
 func NewDatabase(db *gorm.DB) *Database {
 	if db == nil {
 		panic("NewDatabase: db is nil")
@@ -14,7 +14,7 @@ func NewDatabase(db *gorm.DB) *Database {
 	return &Database{DB: db}
 }
 
-// Транзакция
+// WithSession - Транзакция
 func (d *Database) WithSession(fn func(tx *gorm.DB) error) error {
 	return d.DB.Transaction(fn)
 }
