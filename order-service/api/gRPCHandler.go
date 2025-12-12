@@ -16,6 +16,7 @@ import (
 type GRPCHandler struct {
 	orderUC order.UseCase
 	pb      pbApi.UnimplementedApiServiceServer
+	mapper  *ErrorMapper
 }
 
 func (h *GRPCHandler) mapOrderWithItems(
@@ -79,7 +80,7 @@ func (h *GRPCHandler) CreteOrder(
 ) (*pbApi.OrderWithItems, error) {
 	userID, err := h.getUserIDFromMetadata(ctx)
 	if err != nil {
-		return nil, err
+		return nil, h.mapper.MapError(err)
 	}
 
 	productsIDs := make([]dto.OrderItems, 0, len(req.Items))
@@ -92,7 +93,7 @@ func (h *GRPCHandler) CreteOrder(
 
 	o, err := h.orderUC.PlaceOrder(userID, productsIDs)
 	if err != nil {
-		return nil, err
+		return nil, h.mapper.MapError(err)
 	}
 	return h.mapOrderWithItems(o), nil
 }
@@ -103,16 +104,16 @@ func (h *GRPCHandler) GetOrderById(
 ) (*pbApi.OrderWithItems, error) {
 	userID, err := h.getUserIDFromMetadata(ctx)
 	if err != nil {
-		return nil, err
+		return nil, h.mapper.MapError(err)
 	}
 	orderID, err := uuid.Parse(req.Id)
 	if err != nil {
-		return nil, err
+		return nil, h.mapper.MapError(err)
 	}
 	o, err := h.orderUC.GetOrderByIDAndUserID(orderID, userID)
 
 	if err != nil {
-		return nil, err
+		return nil, h.mapper.MapError(err)
 	}
 
 	return h.mapOrderWithItems(o), nil
@@ -124,11 +125,11 @@ func (h *GRPCHandler) GetOrdersByUserId(
 ) (*pbApi.GetOrdersByUserIdResponse, error) {
 	userID, err := h.getUserIDFromMetadata(ctx)
 	if err != nil {
-		return nil, err
+		return nil, h.mapper.MapError(err)
 	}
 	orders, err := h.orderUC.GetOrdersByUserID(userID)
 	if err != nil {
-		return nil, err
+		return nil, h.mapper.MapError(err)
 	}
 	return &pbApi.GetOrdersByUserIdResponse{
 		Orders: h.mapOrderToResponse(orders),
@@ -141,11 +142,11 @@ func (h *GRPCHandler) DeleteOrder(
 ) (*pbApi.DeleteOrderResponse, error) {
 	userID, err := h.getUserIDFromMetadata(ctx)
 	if err != nil {
-		return nil, err
+		return nil, h.mapper.MapError(err)
 	}
 	orderID, err := uuid.Parse(req.Id)
 	if err != nil {
-		return nil, err
+		return nil, h.mapper.MapError(err)
 	}
 	if err = h.orderUC.DeleteOrder(orderID, userID); err != nil {
 		return nil, err
