@@ -1,7 +1,7 @@
 package di
 
 import (
-	"github.com/Fox216540/shop/user-service/app/user"
+	user "github.com/Fox216540/shop/user-service/app"
 	"github.com/Fox216540/shop/user-service/infra/auth"
 	"github.com/Fox216540/shop/user-service/infra/client"
 	"github.com/Fox216540/shop/user-service/infra/db/core"
