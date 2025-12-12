@@ -1,7 +1,7 @@
 package hasher
 
 import (
-	"github.com/Fox216540/shop/auth-service/infra/globalError"
+	"github.com/Fox216540/shop/user-service/infra/globalError"
 )
 
 const domain = "Hasher"
