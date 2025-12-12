@@ -1,8 +1,8 @@
 package models
 
 import (
+	"github.com/Fox216540/shop/order-service/domain/catalog"
 	"github.com/Fox216540/shop/order-service/domain/order"
-	"github.com/Fox216540/shop/order-service/domain/product"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
@@ -47,7 +47,7 @@ func FromORM(orm OrderORM) order.Order {
 	}
 	for _, item := range orm.OrderItems {
 		o.OrderItems = append(o.OrderItems, order.Item{
-			Product: product.Product{
+			Product: catalog.Product{
 				ID:    item.ProductID,
 				Name:  item.ProductName,
 				Img:   item.ProductImg,
