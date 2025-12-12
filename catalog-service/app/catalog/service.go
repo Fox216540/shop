@@ -22,27 +22,15 @@ func (s service) GetAllProducts() ([]productDomain.Product, error) {
 }
 
 func (s service) GetProductsOfCategoryID(category uuid.UUID) ([]productDomain.Product, error) {
-	products, err := s.productUC.GetProductsOfCategoryID(category)
-	if err != nil {
-		return nil, err
-	}
-	return products, nil
+	return s.productUC.GetProductsOfCategoryID(category)
 }
 
 func (s service) GetProductByID(productId uuid.UUID) (productDomain.Product, error) {
-	prod, err := s.productUC.GetProductByID(productId)
-	if err != nil {
-		return productDomain.Product{}, err
-	}
-	return prod, nil
+	return s.productUC.GetProductByID(productId)
 }
 
 func (s service) GetProductsByIDs(IDs []uuid.UUID) ([]productDomain.Product, error) {
-	products, err := s.productUC.GetProductsByIDs(IDs)
-	if err != nil {
-		return nil, err
-	}
-	return products, nil
+	return s.productUC.GetProductsByIDs(IDs)
 }
 
 func NewService(categoryUC category.UseCase, productUC product.UseCase) UseCase {
