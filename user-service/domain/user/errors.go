@@ -115,3 +115,39 @@ func NewExistingPasswordError(err error) error {
 		DomainBadRequestError: NewDomainBadRequestError("Existing password", err),
 	}
 }
+
+type NameCannotBeEmptyError struct {
+	*DomainBadRequestError
+}
+
+func (e *NameCannotBeEmptyError) Error() string {
+	return e.DomainBadRequestError.Error()
+}
+
+func (e *NameCannotBeEmptyError) Unwrap() error {
+	return e.DomainBadRequestError
+}
+
+func NewNameCannotBeEmptyError(err error) error {
+	return &NameCannotBeEmptyError{
+		DomainBadRequestError: NewDomainBadRequestError("Name cannot be empty", err),
+	}
+}
+
+type AddressCannotBeEmptyError struct {
+	*DomainBadRequestError
+}
+
+func (e *AddressCannotBeEmptyError) Error() string {
+	return e.DomainBadRequestError.Error()
+}
+
+func (e *AddressCannotBeEmptyError) Unwrap() error {
+	return e.DomainBadRequestError
+}
+
+func NewAddressCannotBeEmptyError(err error) error {
+	return &AddressCannotBeEmptyError{
+		DomainBadRequestError: NewDomainBadRequestError("Address cannot be empty", err),
+	}
+}
