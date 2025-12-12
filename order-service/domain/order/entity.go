@@ -1,12 +1,12 @@
 package order
 
 import (
-	"github.com/Fox216540/shop/order-service/domain/product"
+	"github.com/Fox216540/shop/order-service/domain/catalog"
 	"github.com/google/uuid"
 )
 
 type Item struct {
-	Product  product.Product
+	Product  catalog.Product
 	Quantity uint64
 }
 
