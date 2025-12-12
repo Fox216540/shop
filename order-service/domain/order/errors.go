@@ -43,3 +43,39 @@ func NewNotFoundOrderError(err error) error {
 		DomainNotFoundError: NewDomainNotFoundError("Order not found", err),
 	}
 }
+
+type OrderNumberAlreadyExistsError struct {
+	*exception.BadRequestError
+}
+
+func (e *OrderNumberAlreadyExistsError) Error() string {
+	return e.BadRequestError.Error()
+}
+
+func (e *OrderNumberAlreadyExistsError) Unwrap() error {
+	return e.BadRequestError
+}
+
+func NewOrderNumberAlreadyExistsError(err error) error {
+	return &OrderNumberAlreadyExistsError{
+		BadRequestError: exception.NewBadRequestError("Order number already exists", domain, err),
+	}
+}
+
+type ProductOfOrderNotFoundError struct {
+	*DomainNotFoundError
+}
+
+func (e *ProductOfOrderNotFoundError) Error() string {
+	return e.NotFoundError.Error()
+}
+
+func (e *ProductOfOrderNotFoundError) Unwrap() error {
+	return e.NotFoundError
+}
+
+func NewProductOfOrderNotFoundError(err error) error {
+	return &ProductOfOrderNotFoundError{
+		DomainNotFoundError: NewDomainNotFoundError("Product of order not found", err),
+	}
+}
