@@ -1,10 +1,11 @@
 package user
 
 import (
-	"github.com/Fox216540/shop/apigateway-service/infra/client"
+	"github.com/Fox216540/shop/auth-service/infra/client"
 	types "github.com/Fox216540/shop/proto/common/gen"
 	pb "github.com/Fox216540/shop/proto/user-service/gen/interservice"
 	"github.com/google/uuid"
+	"google.golang.org/grpc/status"
 )
 
 type GRPCClient struct {
@@ -20,11 +21,17 @@ func (c *GRPCClient) VerifyCredentialsOfUser(phoneOrEmail, password string) (nam
 	}
 	resp, err := c.pb.VerifyCredentials(ctx, req)
 	if err != nil {
-		return "", uuid.Nil, err
+		if _, ok := status.FromError(err); ok {
+			// это gRPC-ошибка — вернуть как есть
+			return "", uuid.Nil, err
+		}
+
+		// не gRPC — завернуть
+		return "", uuid.Nil, NewGRPCError(err)
 	}
 	userID, err := uuid.Parse(resp.Id)
 	if err != nil {
-		return "", uuid.Nil, err
+		return "", uuid.Nil, NewInvalidUUID(err)
 	}
 	return resp.Name, userID, nil
 }
