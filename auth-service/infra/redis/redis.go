@@ -8,13 +8,13 @@ import (
 	"log"
 )
 
-// Init инициализирует Redis клиента
+// InitRedis инициализирует Redis клиента
 func InitRedis(conf *config.Config) *redis.Client {
 	host := conf.RedisHost
 	port := conf.RedisPort
 	password := conf.RedisPassword // может быть пустым
 
-	addr := fmt.Sprintf("%s:%s", host, port)
+	addr := fmt.Sprintf("%s:%d", host, port)
 
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     addr,
@@ -31,7 +31,7 @@ func InitRedis(conf *config.Config) *redis.Client {
 	return rdb
 }
 
-// Close закрывает Redis соединение
+// CloseRedis закрывает Redis соединение
 func CloseRedis(rdb *redis.Client) {
 	if rdb == nil {
 		return
