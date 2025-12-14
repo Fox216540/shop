@@ -78,7 +78,7 @@ func (s *service) RefreshTokens(token string) (tokens jwtDomain.Tokens, err erro
 	if err != nil {
 		return tokens, err
 	}
-	if err := s.tokenStorage.Delete(userJWT.JTI, userJWT.UserID); err != nil {
+	if err = s.tokenStorage.Delete(userJWT.JTI, userJWT.UserID); err != nil {
 		return tokens, err
 	}
 	return s.GenerateTokens(userJWT.UserID)
