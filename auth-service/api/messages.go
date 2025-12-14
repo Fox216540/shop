@@ -5,6 +5,10 @@ type Messages struct {
 	LogOutSuccess                 string
 	LogOutAllSuccess              string
 	DeleteAllRefreshTokensSuccess string
+	InvalidArgument               string
+	NotFound                      string
+	Unauthorized                  string
+	ServerError                   string
 }
 
 func NewMessages() Messages {
@@ -13,5 +17,9 @@ func NewMessages() Messages {
 		LogOutSuccess:                 "Log out success",
 		LogOutAllSuccess:              "Log out all success",
 		DeleteAllRefreshTokensSuccess: "Delete all refresh tokens success",
+		InvalidArgument:               "Invalid argument",
+		NotFound:                      "Not found",
+		Unauthorized:                  "Unauthorized",
+		ServerError:                   "Server error",
 	}
 }
