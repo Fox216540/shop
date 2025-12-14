@@ -13,6 +13,10 @@ func NewService() *Service {
 	return &Service{}
 }
 
-func (s *Service) VerifyUser(phoneOrEmail, password string) (name string, id uuid.UUID, err error) {
-	return s.u.VerifyCredentialsOfUser(phoneOrEmail, password)
+func (s *Service) VerifyUser(phoneOrEmail, password string) (string, uuid.UUID, error) {
+	name, id, err := s.u.VerifyCredentialsOfUser(phoneOrEmail, password)
+	if err != nil {
+		return "", uuid.Nil, err
+	}
+	return name, id, nil
 }
