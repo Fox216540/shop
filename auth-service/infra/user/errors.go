@@ -2,40 +2,40 @@ package user
 
 import "github.com/Fox216540/shop/auth-service/infra/globalError"
 
-const domain = "User"
+const domain = "Auth"
 
-type UserServerError struct {
-	*globalError.InfraServerError
+type GRPCError struct {
+	*globalError.GRPCErrors
 }
 
-func (e *UserServerError) Error() string {
-	return e.InfraServerError.Error()
+func (e *GRPCError) Error() string {
+	return e.GRPCErrors.Error()
 }
 
-func (e *UserServerError) Unwrap() error {
-	return e.InfraServerError.Unwrap()
+func (e *GRPCError) Unwrap() error {
+	return e.GRPCErrors
 }
 
-func NewUserServerError(msg string, err error) *UserServerError {
-	return &UserServerError{
-		InfraServerError: globalError.NewInfraServerError(msg, domain, err),
+func NewGRPCError(err error) *GRPCError {
+	return &GRPCError{
+		GRPCErrors: globalError.NewGRPCErrors(domain, err),
 	}
 }
 
-type InvalidVerifyCredentialsOfUserError struct {
-	*UserServerError
+type InvalidUUID struct {
+	*globalError.InfraServerError
 }
 
-func (e *InvalidVerifyCredentialsOfUserError) Error() string {
-	return e.UserServerError.Error()
+func (e *InvalidUUID) Error() string {
+	return e.InfraServerError.Error()
 }
 
-func (e *InvalidVerifyCredentialsOfUserError) Unwrap() error {
-	return e.UserServerError.Unwrap()
+func (e *InvalidUUID) Unwrap() error {
+	return e.InfraServerError
 }
 
-func NewInvalidVerifyCredentialsOfUserError(err error) *InvalidVerifyCredentialsOfUserError {
-	return &InvalidVerifyCredentialsOfUserError{
-		UserServerError: NewUserServerError("Invalid verify credentials of user", err),
+func NewInvalidUUID(err error) *InvalidUUID {
+	return &InvalidUUID{
+		InfraServerError: globalError.NewInfraServerError("Invalid UUID", domain, err),
 	}
 }
