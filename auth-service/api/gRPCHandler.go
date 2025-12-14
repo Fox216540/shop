@@ -4,7 +4,6 @@ import (
 	"context"
 	"github.com/Fox216540/shop/auth-service/app/auth"
 	"github.com/Fox216540/shop/auth-service/app/user"
-	"github.com/Fox216540/shop/auth-service/core/mapError"
 	pbApi "github.com/Fox216540/shop/proto/auth-service/gen/api"
 	pbInterservice "github.com/Fox216540/shop/proto/auth-service/gen/interservice"
 	types "github.com/Fox216540/shop/proto/common/gen"
@@ -16,6 +15,7 @@ type GRPCHandler struct {
 	user user.UseCase
 	pbApi.UnimplementedApiServiceServer
 	pbInterservice.UnimplementedInterserviceServiceServer
+	mapper *ErrorMapper
 }
 
 func (h *GRPCHandler) LogIn(
@@ -24,11 +24,11 @@ func (h *GRPCHandler) LogIn(
 ) (*types.UserWithTokensResponse, error) {
 	name, id, err := h.user.VerifyUser(req.PhoneOrEmail, req.Password)
 	if err != nil {
-		return nil, mapError.MapError(err)
+		return nil, h.mapper.MapError(err)
 	}
 	tokens, err := h.auth.GenerateTokens(id)
 	if err != nil {
-		return nil, mapError.MapError(err)
+		return nil, h.mapper.MapError(err)
 	}
 	return &types.UserWithTokensResponse{
 		Tokens: &types.TokensResponse{
@@ -49,7 +49,7 @@ func (h *GRPCHandler) LogOut(
 	req *types.DecodeTokenRequest,
 ) (*types.MessageResponse, error) {
 	if err := h.auth.DeleteRefreshToken(req.Token); err != nil {
-		return nil, mapError.MapError(err)
+		return nil, h.mapper.MapError(err)
 	}
 	return &types.MessageResponse{
 		Message: NewMessages().LogOutSuccess,
@@ -61,7 +61,7 @@ func (h *GRPCHandler) LogOutAll(
 	req *types.DecodeTokenRequest,
 ) (*types.MessageResponse, error) {
 	if err := h.auth.DeleteAllTokensByToken(req.Token); err != nil {
-		return nil, mapError.MapError(err)
+		return nil, h.mapper.MapError(err)
 	}
 	return &types.MessageResponse{
 		Message: NewMessages().LogOutAllSuccess,
@@ -74,7 +74,7 @@ func (h *GRPCHandler) RefreshTokens(
 ) (*types.TokensResponse, error) {
 	tokens, err := h.auth.RefreshTokens(req.Token)
 	if err != nil {
-		return nil, mapError.MapError(err)
+		return nil, h.mapper.MapError(err)
 	}
 	return &types.TokensResponse{
 		AccessToken:  tokens.AccessToken,
@@ -88,7 +88,7 @@ func (h *GRPCHandler) DecodeAccessToken(
 ) (*types.UserId, error) {
 	userJWT, err := h.auth.DecodeAccessToken(req.Token)
 	if err != nil {
-		return nil, mapError.MapError(err)
+		return nil, h.mapper.MapError(err)
 	}
 	return &types.UserId{
 		Id: userJWT.UserID.String(),
@@ -101,11 +101,11 @@ func (h *GRPCHandler) GenerateTokens(
 ) (*types.TokensResponse, error) {
 	userID, err := uuid.Parse(req.Id)
 	if err != nil {
-		return nil, mapError.MapError(err)
+		return nil, h.mapper.MapError(err)
 	}
 	tokens, err := h.auth.GenerateTokens(userID)
 	if err != nil {
-		return nil, mapError.MapError(err)
+		return nil, h.mapper.MapError(err)
 	}
 	return &types.TokensResponse{
 		AccessToken:  tokens.AccessToken,
@@ -119,10 +119,10 @@ func (h *GRPCHandler) DeleteAllRefreshTokens(
 ) (*types.MessageResponse, error) {
 	userID, err := uuid.Parse(req.Id)
 	if err != nil {
-		return nil, mapError.MapError(err)
+		return nil, h.mapper.MapError(err)
 	}
 
-	if err := h.auth.DeleteAllTokensByUserID(userID); err != nil {
+	if err = h.auth.DeleteAllTokensByUserID(userID); err != nil {
 		return nil, err
 	}
 	return &types.MessageResponse{
