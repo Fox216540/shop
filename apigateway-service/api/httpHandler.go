@@ -22,6 +22,7 @@ type HTTPHandler struct {
 	catalogUseCase cUseCase.UseCase
 	userUseCase    uUseCase.UseCase
 	orderUseCase   oUseCase.UseCase
+	m              HTTPMapper
 }
 
 func (h *HTTPHandler) userWithTokenResponse(name string, tokens domainAuth.Tokens, message string) shopApiGen.UserWithTokenResponse {
@@ -41,8 +42,7 @@ func (h *HTTPHandler) PostAuthLogin(c *gin.Context) {
 	}
 	name, tokens, message, err := h.authUseCase.LogIn(req.PhoneOrEmail, req.Password)
 	if err != nil {
-		//TODO: Придумать ошибку
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(h.m.MapError(err))
 		return
 	}
 	resp := h.userWithTokenResponse(name, tokens, message)
@@ -57,8 +57,7 @@ func (h *HTTPHandler) PostAuthLogout(c *gin.Context) {
 	}
 	msg, err := h.authUseCase.LogOut(refresh)
 	if err != nil {
-		//TODO: Придумать ошибку
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(h.m.MapError(err))
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"message": msg})
@@ -72,8 +71,7 @@ func (h *HTTPHandler) PostAuthLogoutAll(c *gin.Context) {
 	}
 	msg, err := h.authUseCase.LogOutAll(refresh)
 	if err != nil {
-		//TODO: Придумать ошибку
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(h.m.MapError(err))
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"message": msg})
@@ -87,8 +85,7 @@ func (h *HTTPHandler) PostAuthRefresh(c *gin.Context) {
 	}
 	msg, err := h.authUseCase.RefreshTokens(refresh)
 	if err != nil {
-		//TODO: Придумать ошибку
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(h.m.MapError(err))
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"message": msg})
@@ -97,9 +94,7 @@ func (h *HTTPHandler) PostAuthRefresh(c *gin.Context) {
 func (h *HTTPHandler) GetCategories(c *gin.Context) {
 	categories, err := h.catalogUseCase.GetCategories()
 	if err != nil {
-		//TODO: Придумать ошибку
-		return
-
+		c.JSON(h.m.MapError(err))
 	}
 	resp := make([]shopApiGen.CategoryResponse, 0, len(categories))
 	for _, category := range categories {
@@ -174,6 +169,9 @@ func (h *HTTPHandler) GetOrders(c *gin.Context) {
 		return
 	}
 	orders, err := h.orderUseCase.GetOrders(userID)
+	if err != nil {
+		c.JSON(h.m.MapError(err))
+	}
 	c.JSON(http.StatusOK, h.ordersToResponse(orders))
 }
 
@@ -199,7 +197,7 @@ func (h *HTTPHandler) PostOrders(c *gin.Context) {
 
 	o, err := h.orderUseCase.CreateOrder(userID, items)
 	if err != nil {
-		return
+		c.JSON(h.m.MapError(err))
 	}
 	c.JSON(http.StatusCreated, shopApiGen.OrderResponse{
 		Id:          o.ID,
@@ -217,8 +215,7 @@ func (h *HTTPHandler) DeleteOrdersId(c *gin.Context, id openapiTypes.UUID) {
 	}
 	deletedID, msg, status, err := h.orderUseCase.DeleteOrder(userID, id)
 	if err != nil {
-		//TODO: Придумать ошибку
-		return
+		c.JSON(h.m.MapError(err))
 	}
 	c.JSON(http.StatusOK, shopApiGen.OrderDeletedResponse{
 		Id:      deletedID,
@@ -235,8 +232,7 @@ func (h *HTTPHandler) GetOrdersId(c *gin.Context, id openapiTypes.UUID) {
 	}
 	o, err := h.orderUseCase.GetOrder(userID, id)
 	if err != nil {
-		//TODO: Придумать ошибку
-		return
+		c.JSON(h.m.MapError(err))
 	}
 	c.JSON(http.StatusOK, h.orderWithItemsResponse(o))
 }
@@ -268,8 +264,7 @@ func (h *HTTPHandler) GetProducts(c *gin.Context, params shopApiGen.GetProductsP
 		products, err = h.catalogUseCase.GetProducts()
 	}
 	if err != nil {
-		//TODO:
-		return
+		c.JSON(h.m.MapError(err))
 	}
 	c.JSON(http.StatusOK, h.productsToResponse(products))
 }
@@ -277,8 +272,7 @@ func (h *HTTPHandler) GetProducts(c *gin.Context, params shopApiGen.GetProductsP
 func (h *HTTPHandler) GetProductById(c *gin.Context, id openapiTypes.UUID) {
 	products, err := h.catalogUseCase.GetProductsOfCategoryID(id)
 	if err != nil {
-		//TODO: Придумать ошибку
-		return
+		c.JSON(h.m.MapError(err))
 	}
 	c.JSON(http.StatusOK, h.productsToResponse(products))
 }
@@ -298,8 +292,7 @@ func (h *HTTPHandler) CreateUser(c *gin.Context) {
 	}
 	name, tokens, msg, err := h.userUseCase.RegisterUser(userDTO)
 	if err != nil {
-		//TODO: Придумать ошибку
-		return
+		c.JSON(h.m.MapError(err))
 	}
 	resp := h.userWithTokenResponse(name, tokens, msg)
 
@@ -315,8 +308,7 @@ func (h *HTTPHandler) DeleteUser(c *gin.Context) {
 	}
 	msg, err := h.userUseCase.DeleteUser(userID)
 	if err != nil {
-		//TODO: Придумать ошибку
-		return
+		c.JSON(h.m.MapError(err))
 	}
 	c.JSON(http.StatusOK, shopApiGen.MessageResponse{
 		Message: msg,
@@ -336,6 +328,9 @@ func (h *HTTPHandler) PatchUsersMeEmail(c *gin.Context) {
 	}
 
 	msg, err := h.userUseCase.UpdateEmailOfUser(userID, string(req.Email))
+	if err != nil {
+		c.JSON(h.m.MapError(err))
+	}
 	c.JSON(http.StatusOK, shopApiGen.MessageResponse{
 		Message: msg,
 	})
@@ -354,6 +349,9 @@ func (h *HTTPHandler) PatchUsersMePassword(c *gin.Context) {
 	}
 
 	msg, err := h.userUseCase.UpdatePasswordOfUser(userID, req.Password)
+	if err != nil {
+		c.JSON(h.m.MapError(err))
+	}
 	c.JSON(http.StatusOK, shopApiGen.MessageResponse{
 		Message: msg,
 	})
@@ -371,6 +369,9 @@ func (h *HTTPHandler) PatchUsersMePhone(c *gin.Context) {
 		return
 	}
 	msg, err := h.userUseCase.UpdatePhoneOfUser(userID, req.Phone)
+	if err != nil {
+		c.JSON(h.m.MapError(err))
+	}
 	c.JSON(http.StatusOK, shopApiGen.MessageResponse{
 		Message: msg,
 	})
@@ -389,8 +390,7 @@ func (h *HTTPHandler) PatchUsersMeProfile(c *gin.Context) {
 	}
 	msg, name, err := h.userUseCase.UpdateProfileOfUser(userID, req.Name, req.Address)
 	if err != nil {
-		//TODO: Придумать ошибку
-		return
+		c.JSON(h.m.MapError(err))
 	}
 	c.JSON(http.StatusOK, shopApiGen.UserResponse{
 		Name:    name,
