@@ -13,6 +13,10 @@ type HTTPMapper struct {
 	log logger.Logger
 }
 
+func NewHTTPMapper(log logger.Logger) *HTTPMapper {
+	return &HTTPMapper{log: log}
+}
+
 func (m *HTTPMapper) MapError(e error) (statusCode int, message string) {
 	var (
 		ue *exception.UnauthorizedError
