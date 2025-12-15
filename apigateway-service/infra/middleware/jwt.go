@@ -3,7 +3,6 @@ package middleware
 import (
 	"github.com/Fox216540/shop/apigateway-service/domain/auth"
 	"github.com/gin-gonic/gin"
-	"log"
 	"net/http"
 	"strings"
 )
@@ -16,13 +15,11 @@ func (jwt *JWTMiddleware) DecodeAccessToken() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var token string
 		authHeader := c.Request.Header.Get("Authorization")
-		log.Println(authHeader)
 		if strings.HasPrefix(authHeader, "Bearer ") {
 			token = strings.TrimPrefix(authHeader, "Bearer ")
 		}
-		log.Println(token)
 		if token == "" {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized 1"})
+			c.JSON(http.StatusUnauthorized, NewMiddlewareError(nil))
 			c.Abort()
 			return
 		}
