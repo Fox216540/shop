@@ -36,14 +36,18 @@ func (s *service) generateToken(userID uuid.UUID, ttl time.Duration, secret stri
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	tokenString, err := token.SignedString([]byte(secret))
 	if err != nil {
-		return "", uuid.Nil, NewInvalidGenerateRefreshToken(err)
+		return "", uuid.Nil, err
 	}
 
 	return tokenString, jti, nil
 }
 
 func (s *service) GenerateRefreshToken(userID uuid.UUID) (string, uuid.UUID, error) {
-	return s.generateToken(userID, s.ttlRefresh, s.secretRefresh, "refresh")
+	token, jti, err := s.generateToken(userID, s.ttlRefresh, s.secretRefresh, "refresh")
+	if err != nil {
+		return "", uuid.Nil, NewInvalidGenerateRefreshToken(err)
+	}
+	return token, jti, nil
 }
 
 func (s *service) GenerateAccessToken(userID uuid.UUID) (string, error) {
