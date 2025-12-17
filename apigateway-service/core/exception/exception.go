@@ -62,19 +62,3 @@ func NewUnauthorizedError(msg, domain string, err error) *UnauthorizedError {
 		DomainError: NewDomainException(msg, domain, err),
 	}
 }
-
-type ServerError struct {
-	*Exception
-}
-
-func (e *ServerError) Error() string {
-	return e.Exception.Error()
-}
-
-func (e *ServerError) Unwrap() error { return e.Exception }
-
-func NewServerError(msg, domain, layer string, err error) *ServerError {
-	return &ServerError{
-		Exception: NewException(msg, domain, layer, err),
-	}
-}
