@@ -6,6 +6,7 @@ require (
 	github.com/Fox216540/shop/proto v1.0.0
 	github.com/caarlos0/env/v10 v10.0.0
 	github.com/google/uuid v1.6.0
+	github.com/pkg/errors v0.9.1
 	golang.org/x/crypto v0.44.1-0.20251119192837-e79546e28b85
 	google.golang.org/grpc v1.77.0
 	google.golang.org/protobuf v1.36.10
