@@ -6,6 +6,7 @@ require (
 	github.com/Fox216540/shop/proto v1.0.0
 	github.com/caarlos0/env/v10 v10.0.0
 	github.com/google/uuid v1.6.0
+	github.com/pkg/errors v0.9.1
 	google.golang.org/grpc v1.77.0
 	google.golang.org/protobuf v1.36.10
 	gorm.io/driver/postgres v1.6.0
