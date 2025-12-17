@@ -20,7 +20,6 @@ func NewHTTPMapper(log logger.Logger) *HTTPMapper {
 func (m *HTTPMapper) MapError(e error) (statusCode int, message string) {
 	var (
 		ue *exception.UnauthorizedError
-		se *exception.ServerError
 	)
 
 	// --------------------------------
@@ -30,12 +29,6 @@ func (m *HTTPMapper) MapError(e error) (statusCode int, message string) {
 	if errors.As(e, &ue) {
 		m.log.Info(e.Error())
 		return http.StatusUnauthorized, NewMessages().Unauthorized
-	}
-
-	if errors.As(e, &se) {
-		m.log.Info(e.Error())
-		m.log.Error(e.Error())
-		return http.StatusInternalServerError, NewMessages().ServerError
 	}
 
 	// --------------------------------
