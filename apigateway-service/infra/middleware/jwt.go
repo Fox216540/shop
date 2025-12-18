@@ -1,35 +1,37 @@
 package middleware
 
 import (
-	"github.com/Fox216540/shop/apigateway-service/domain/auth"
+	"github.com/Fox216540/shop/apigateway-service/app/tokenDecoder"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strings"
 )
 
+const ContextUserID = "user_id"
+
 type JWTMiddleware struct {
-	authClient auth.Client
+	tokenDecoder tokenDecoder.UseCase
+}
+
+func (jwt *JWTMiddleware) unauthorized(c *gin.Context) {
+	c.JSON(http.StatusUnauthorized, NewMiddlewareError(nil))
+	c.Abort()
 }
 
 func (jwt *JWTMiddleware) DecodeAccessToken() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		var token string
-		authHeader := c.Request.Header.Get("Authorization")
-		if strings.HasPrefix(authHeader, "Bearer ") {
-			token = strings.TrimPrefix(authHeader, "Bearer ")
-		}
-		if token == "" {
-			c.JSON(http.StatusUnauthorized, NewMiddlewareError(nil))
-			c.Abort()
+		authHeader := c.GetHeader("Authorization")
+		if !strings.HasPrefix(authHeader, "Bearer ") {
+			jwt.unauthorized(c)
 			return
 		}
-		id, err := jwt.authClient.DecodeAccessTokenOfUser(token)
+		token := strings.TrimPrefix(authHeader, "Bearer ")
+		id, err := jwt.tokenDecoder.DecodeAccessToken(token)
 		if err != nil {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
-			c.Abort()
+			jwt.unauthorized(c)
 			return
 		}
-		c.Set("user_id", id)
+		c.Set(ContextUserID, id)
 		c.Next()
 	}
 }
