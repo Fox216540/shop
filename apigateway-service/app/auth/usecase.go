@@ -2,7 +2,6 @@ package auth
 
 import (
 	"github.com/Fox216540/shop/apigateway-service/domain/auth"
-	"github.com/google/uuid"
 )
 
 type UseCase interface {
@@ -10,5 +9,4 @@ type UseCase interface {
 	LogOut(token string) (message string, err error)
 	LogOutAll(token string) (message string, err error)
 	RefreshTokens(token string) (tokens auth.Tokens, err error)
-	DecodeAccessToken(token string) (userID uuid.UUID, err error)
 }

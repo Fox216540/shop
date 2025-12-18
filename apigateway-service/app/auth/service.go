@@ -2,7 +2,6 @@ package auth
 
 import (
 	"github.com/Fox216540/shop/apigateway-service/domain/auth"
-	"github.com/google/uuid"
 )
 
 type service struct {
@@ -45,12 +44,4 @@ func (s *service) RefreshTokens(token string) (auth.Tokens, error) {
 		return auth.Tokens{}, err
 	}
 	return tokens, nil
-}
-
-func (s *service) DecodeAccessToken(token string) (uuid.UUID, error) {
-	userID, err := s.authClient.DecodeAccessTokenOfUser(token)
-	if err != nil {
-		return uuid.Nil, err
-	}
-	return userID, nil
 }
