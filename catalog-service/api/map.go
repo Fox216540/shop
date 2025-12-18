@@ -17,9 +17,9 @@ func NewErrorMapper(log, errorLog logger.Logger) *ErrorMapper {
 	return &ErrorMapper{log: log, errorLog: errorLog}
 }
 func (m *ErrorMapper) MapError(e error) error {
-	var be *exception.BadRequestError
+	var bre *exception.BadRequestError
 	var ue *exception.UnauthorizedError
-	var ne *exception.NotFoundError
+	var nfe *exception.NotFoundError
 
 	// -------------------------------
 	// 1) gRPC ошибка → прокинуть вверх
@@ -31,22 +31,20 @@ func (m *ErrorMapper) MapError(e error) error {
 	// -------------------------------
 	// 2) Ваши ошибки → маппинг
 	// -------------------------------
+	var code codes.Code
 	switch {
-	case errors.As(e, &be):
-		m.log.Error(e.Error())
-		return status.Error(codes.InvalidArgument, NewMessages().InvalidArgument)
+	case errors.As(e, &bre):
+		code = codes.InvalidArgument
 
 	case errors.As(e, &ue):
-		m.log.Error(e.Error())
-		return status.Error(codes.Unauthenticated, NewMessages().Unauthorized)
+		code = codes.Unauthenticated
 
-	case errors.As(e, &ne):
-		m.log.Error(e.Error())
-		return status.Error(codes.NotFound, NewMessages().NotFound)
+	case errors.As(e, &nfe):
+		code = codes.NotFound
 
 	default:
-		m.log.Error("Server Error")
-		m.errorLog.Error(e.Error())
-		return status.Error(codes.Internal, NewMessages().ServerError)
+		code = codes.Internal
 	}
+
+	return status.Error(code, e.Error())
 }
