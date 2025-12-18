@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"errors"
 	"github.com/Fox216540/shop/auth-service/core/exception"
 	"github.com/Fox216540/shop/auth-service/core/logger"
@@ -9,18 +10,17 @@ import (
 )
 
 type ErrorMapper struct {
-	log      logger.Logger
 	errorLog logger.Logger
 }
 
-func NewErrorMapper(log, errorLog logger.Logger) *ErrorMapper {
-	return &ErrorMapper{log: log, errorLog: errorLog}
+func NewErrorMapper(errorLog logger.Logger) *ErrorMapper {
+	return &ErrorMapper{errorLog: errorLog}
 }
 
-func (m *ErrorMapper) MapError(e error) error {
-	var be *exception.BadRequestError
+func (m *ErrorMapper) MapError(ctx context.Context, e error) error {
+	var bre *exception.BadRequestError
 	var ue *exception.UnauthorizedError
-	var ne *exception.NotFoundError
+	var nfe *exception.NotFoundError
 
 	// -------------------------------
 	// 1) gRPC ошибка → прокинуть вверх
@@ -32,22 +32,21 @@ func (m *ErrorMapper) MapError(e error) error {
 	// -------------------------------
 	// 2) Ваши ошибки → маппинг
 	// -------------------------------
+	var code codes.Code
 	switch {
-	case errors.As(e, &be):
-		m.log.Error(e.Error())
-		return status.Error(codes.InvalidArgument, NewMessages().InvalidArgument)
+	case errors.As(e, &bre):
+		code = codes.InvalidArgument
 
 	case errors.As(e, &ue):
-		m.log.Error(e.Error())
-		return status.Error(codes.Unauthenticated, NewMessages().Unauthorized)
+		code = codes.Unauthenticated
 
-	case errors.As(e, &ne):
-		m.log.Error(e.Error())
-		return status.Error(codes.NotFound, NewMessages().NotFound)
+	case errors.As(e, &nfe):
+		code = codes.NotFound
 
 	default:
-		m.log.Error("Server Error")
-		m.errorLog.Error(e.Error())
-		return status.Error(codes.Internal, NewMessages().ServerError)
+		m.errorLog.Error(ctx, e)
+		code = codes.Internal
 	}
+
+	return status.Error(code, e.Error())
 }
