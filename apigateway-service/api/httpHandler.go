@@ -8,6 +8,7 @@ import (
 	DTO "github.com/Fox216540/shop/apigateway-service/app/dto"
 	oUseCase "github.com/Fox216540/shop/apigateway-service/app/order"
 	uUseCase "github.com/Fox216540/shop/apigateway-service/app/user"
+	"github.com/Fox216540/shop/apigateway-service/core/metrics"
 	domainAuth "github.com/Fox216540/shop/apigateway-service/domain/auth"
 	domainCatalog "github.com/Fox216540/shop/apigateway-service/domain/catalog"
 	domainOrder "github.com/Fox216540/shop/apigateway-service/domain/order"
@@ -15,6 +16,7 @@ import (
 	"github.com/google/uuid"
 	openapiTypes "github.com/oapi-codegen/runtime/types"
 	"net/http"
+	"time"
 )
 
 type HTTPHandler struct {
@@ -23,6 +25,7 @@ type HTTPHandler struct {
 	userUseCase    uUseCase.UseCase
 	orderUseCase   oUseCase.UseCase
 	m              HTTPMapper
+	metrics        metrics.Metrics
 }
 
 func (h *HTTPHandler) userWithTokenResponse(name string, tokens domainAuth.Tokens, message string) shopApiGen.UserWithTokenResponse {
@@ -42,6 +45,7 @@ func (h *HTTPHandler) PostAuthLogin(c *gin.Context) {
 	}
 	name, tokens, message, err := h.authUseCase.LogIn(req.PhoneOrEmail, req.Password)
 	if err != nil {
+		h.metrics.IncLoginFailure()
 		c.JSON(h.m.MapError(err))
 		return
 	}
@@ -54,6 +58,7 @@ func (h *HTTPHandler) PostAuthLogout(c *gin.Context) {
 	if err != nil {
 		//TODO: Придумать ошибку
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Decode refresh token"})
+		return
 	}
 	msg, err := h.authUseCase.LogOut(refresh)
 	if err != nil {
@@ -68,6 +73,7 @@ func (h *HTTPHandler) PostAuthLogoutAll(c *gin.Context) {
 	if err != nil {
 		//TODO: Придумать ошибку
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Decode refresh token"})
+		return
 	}
 	msg, err := h.authUseCase.LogOutAll(refresh)
 	if err != nil {
@@ -82,6 +88,7 @@ func (h *HTTPHandler) PostAuthRefresh(c *gin.Context) {
 	if err != nil {
 		//TODO: Придумать ошибку
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Decode refresh token"})
+		return
 	}
 	msg, err := h.authUseCase.RefreshTokens(refresh)
 	if err != nil {
@@ -95,6 +102,7 @@ func (h *HTTPHandler) GetCategories(c *gin.Context) {
 	categories, err := h.catalogUseCase.GetCategories()
 	if err != nil {
 		c.JSON(h.m.MapError(err))
+		return
 	}
 	resp := make([]shopApiGen.CategoryResponse, 0, len(categories))
 	for _, category := range categories {
@@ -171,6 +179,7 @@ func (h *HTTPHandler) GetOrders(c *gin.Context) {
 	orders, err := h.orderUseCase.GetOrders(userID)
 	if err != nil {
 		c.JSON(h.m.MapError(err))
+		return
 	}
 	c.JSON(http.StatusOK, h.ordersToResponse(orders))
 }
@@ -194,11 +203,14 @@ func (h *HTTPHandler) PostOrders(c *gin.Context) {
 			Quantity: item.Quantity,
 		})
 	}
-
+	start := time.Now()
 	o, err := h.orderUseCase.CreateOrder(userID, items)
+	h.metrics.ObserveOrderProcessing(time.Since(start).Seconds())
 	if err != nil {
 		c.JSON(h.m.MapError(err))
+		return
 	}
+	h.metrics.IncOrder()
 	c.JSON(http.StatusCreated, shopApiGen.OrderResponse{
 		Id:          o.ID,
 		OrderNumber: o.OrderNum,
@@ -216,6 +228,7 @@ func (h *HTTPHandler) DeleteOrdersId(c *gin.Context, id openapiTypes.UUID) {
 	deletedID, msg, status, err := h.orderUseCase.DeleteOrder(userID, id)
 	if err != nil {
 		c.JSON(h.m.MapError(err))
+		return
 	}
 	c.JSON(http.StatusOK, shopApiGen.OrderDeletedResponse{
 		Id:      deletedID,
@@ -233,6 +246,7 @@ func (h *HTTPHandler) GetOrdersId(c *gin.Context, id openapiTypes.UUID) {
 	o, err := h.orderUseCase.GetOrder(userID, id)
 	if err != nil {
 		c.JSON(h.m.MapError(err))
+		return
 	}
 	c.JSON(http.StatusOK, h.orderWithItemsResponse(o))
 }
@@ -265,6 +279,7 @@ func (h *HTTPHandler) GetProducts(c *gin.Context, params shopApiGen.GetProductsP
 	}
 	if err != nil {
 		c.JSON(h.m.MapError(err))
+		return
 	}
 	c.JSON(http.StatusOK, h.productsToResponse(products))
 }
@@ -273,6 +288,7 @@ func (h *HTTPHandler) GetProductById(c *gin.Context, id openapiTypes.UUID) {
 	products, err := h.catalogUseCase.GetProductsOfCategoryID(id)
 	if err != nil {
 		c.JSON(h.m.MapError(err))
+		return
 	}
 	c.JSON(http.StatusOK, h.productsToResponse(products))
 }
@@ -293,9 +309,10 @@ func (h *HTTPHandler) CreateUser(c *gin.Context) {
 	name, tokens, msg, err := h.userUseCase.RegisterUser(userDTO)
 	if err != nil {
 		c.JSON(h.m.MapError(err))
+		return
 	}
 	resp := h.userWithTokenResponse(name, tokens, msg)
-
+	h.metrics.IncRegistration()
 	c.JSON(http.StatusCreated, resp)
 
 }
@@ -309,6 +326,7 @@ func (h *HTTPHandler) DeleteUser(c *gin.Context) {
 	msg, err := h.userUseCase.DeleteUser(userID)
 	if err != nil {
 		c.JSON(h.m.MapError(err))
+		return
 	}
 	c.JSON(http.StatusOK, shopApiGen.MessageResponse{
 		Message: msg,
@@ -330,6 +348,7 @@ func (h *HTTPHandler) PatchUsersMeEmail(c *gin.Context) {
 	msg, err := h.userUseCase.UpdateEmailOfUser(userID, string(req.Email))
 	if err != nil {
 		c.JSON(h.m.MapError(err))
+		return
 	}
 	c.JSON(http.StatusOK, shopApiGen.MessageResponse{
 		Message: msg,
@@ -351,6 +370,7 @@ func (h *HTTPHandler) PatchUsersMePassword(c *gin.Context) {
 	msg, err := h.userUseCase.UpdatePasswordOfUser(userID, req.Password)
 	if err != nil {
 		c.JSON(h.m.MapError(err))
+		return
 	}
 	c.JSON(http.StatusOK, shopApiGen.MessageResponse{
 		Message: msg,
@@ -371,6 +391,7 @@ func (h *HTTPHandler) PatchUsersMePhone(c *gin.Context) {
 	msg, err := h.userUseCase.UpdatePhoneOfUser(userID, req.Phone)
 	if err != nil {
 		c.JSON(h.m.MapError(err))
+		return
 	}
 	c.JSON(http.StatusOK, shopApiGen.MessageResponse{
 		Message: msg,
@@ -391,6 +412,7 @@ func (h *HTTPHandler) PatchUsersMeProfile(c *gin.Context) {
 	msg, name, err := h.userUseCase.UpdateProfileOfUser(userID, req.Name, req.Address)
 	if err != nil {
 		c.JSON(h.m.MapError(err))
+		return
 	}
 	c.JSON(http.StatusOK, shopApiGen.UserResponse{
 		Name:    name,
