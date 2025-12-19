@@ -1,42 +1,81 @@
 package logger
 
 import (
-	"io"
-	"log"
+	"context"
+	"os"
+
+	"github.com/rs/zerolog"
+	"google.golang.org/grpc/metadata"
 )
 
-type CustomLogger struct {
-	info  *log.Logger
-	warn  *log.Logger
-	error *log.Logger
+type ZeroLogger struct {
+	log zerolog.Logger
 }
 
-func InitLogger(out io.Writer) *CustomLogger {
-	Log := NewCustomLogger(out)
-	return Log
-}
+func NewZeroLogger() *ZeroLogger {
+	logger := zerolog.New(os.Stdout).
+		With().
+		Timestamp().
+		Str("service", "auth").
+		Logger()
 
-func InitErrorLogger(out io.Writer) *CustomLogger {
-	ErrorLog := NewCustomLogger(out)
-	return ErrorLog
-}
-
-func (l *CustomLogger) Error(s string) {
-	l.error.Println(s)
-}
-
-func (l *CustomLogger) Info(s string) {
-	l.info.Println(s)
-}
-
-func (l *CustomLogger) Warn(s string) {
-	l.warn.Println(s)
-}
-
-func NewCustomLogger(out io.Writer) *CustomLogger {
-	return &CustomLogger{
-		info:  log.New(out, "INFO: ", log.Ldate|log.Ltime),
-		warn:  log.New(out, "WARN: ", log.Ldate|log.Ltime),
-		error: log.New(out, "ERROR: ", log.Ldate|log.Ltime|log.Lshortfile),
+	return &ZeroLogger{
+		log: logger,
 	}
+}
+
+const requestIDKey = "x-request-id"
+
+func RequestIDFromContext(ctx context.Context) string {
+	if ctx == nil {
+		return ""
+	}
+
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok {
+		return ""
+	}
+
+	values := md.Get(requestIDKey)
+	if len(values) == 0 {
+		return ""
+	}
+
+	return values[0]
+}
+
+func (l *ZeroLogger) Info(ctx context.Context, msg string) {
+	requestID := RequestIDFromContext(ctx)
+
+	e := l.log.Info()
+	if requestID != "" {
+		e.Str("request_id", requestID)
+	}
+
+	e.Msg(msg)
+}
+
+func (l *ZeroLogger) Warn(ctx context.Context, msg string) {
+	requestID := RequestIDFromContext(ctx)
+
+	e := l.log.Warn()
+	if requestID != "" {
+		e.Str("request_id", requestID)
+	}
+
+	e.Msg(msg)
+}
+
+func (l *ZeroLogger) Error(ctx context.Context, err error) {
+	requestID := RequestIDFromContext(ctx)
+
+	e := l.log.Error().
+		Stack().
+		Err(err)
+
+	if requestID != "" {
+		e.Str("request_id", requestID)
+	}
+
+	e.Send()
 }
