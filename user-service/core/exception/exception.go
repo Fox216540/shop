@@ -111,10 +111,8 @@ func (e *ServerError) Unwrap() error { return e.Exception }
 func NewServerError(msg, domain, layer string, err error) *ServerError {
 	var wrappedErr error
 	if err != nil {
-		// Оборачиваем оригинальную ошибку, чтобы сохранить stack trace
 		wrappedErr = pkgerrors.Wrap(err, msg)
 	} else {
-		// Если ошибки нет, создаём новую с trace
 		wrappedErr = pkgerrors.New(msg)
 	}
 
