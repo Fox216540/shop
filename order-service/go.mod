@@ -8,6 +8,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/pkg/errors v0.9.1
 	github.com/rs/zerolog v1.34.0
+	github.com/shopspring/decimal v1.4.0
 	github.com/sony/sonyflake v1.3.0
 	google.golang.org/grpc v1.77.0
 	google.golang.org/protobuf v1.36.10
