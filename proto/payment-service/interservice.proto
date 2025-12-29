@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package payment.interservice;
+
+option go_package = "github.com/Fox216540/shop/proto/payment-service/gen/interservice;payment";
+
+service InterserviceService {
+    rpc CreatePayment (CreatePaymentRequest) returns (CreatePaymentResponse);
+}
+
+message CreatePaymentRequest {
+    string amount = 1;
+    string description = 2;
+    string return_url = 3;
+}
+
+message CreatePaymentResponse {
+    string payment_id = 1;
+    string confirmation_url = 2;
+    string status = 3;
+}
+
