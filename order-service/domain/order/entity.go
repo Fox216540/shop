@@ -3,6 +3,7 @@ package order
 import (
 	"github.com/Fox216540/shop/order-service/domain/catalog"
 	"github.com/google/uuid"
+	"github.com/shopspring/decimal"
 )
 
 type Item struct {
@@ -11,10 +12,11 @@ type Item struct {
 }
 
 type Order struct {
-	ID         uuid.UUID // Unique identifier for the order
-	OrderNum   string    // Unique order number
-	UserID     uuid.UUID // User ID who placed the order
-	OrderItems []Item    // List of products in the order
-	Total      float64   // Total order amount
-	Status     string    // Order status
+	ID         uuid.UUID       // Unique identifier for the order
+	OrderNum   string          // Unique order number
+	UserID     uuid.UUID       // User ID who placed the order
+	OrderItems []Item          // List of products in the order
+	Total      decimal.Decimal // Total order amount
+	Currency   string
+	Status     string // Order status
 }
