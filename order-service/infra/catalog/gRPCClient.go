@@ -5,6 +5,7 @@ import (
 	"github.com/Fox216540/shop/order-service/infra/client"
 	pb "github.com/Fox216540/shop/proto/catalog-service/gen/interservice"
 	"github.com/google/uuid"
+	"github.com/shopspring/decimal"
 	"google.golang.org/grpc/status"
 )
 
@@ -43,12 +44,16 @@ func (c *GRPCClient) GetProductsByIDs(ids []uuid.UUID) ([]catalog.Product, error
 		if err != nil {
 			return nil, NewInvalidUUID(err)
 		}
-
+		price, err := decimal.NewFromString(pbProduct.Price)
+		if err != nil {
+			return nil, err
+		}
 		domainProduct := catalog.Product{
-			ID:    productID,
-			Name:  pbProduct.Name,
-			Img:   pbProduct.Img,
-			Price: pbProduct.Price,
+			ID:       productID,
+			Name:     pbProduct.Name,
+			Img:      pbProduct.Img,
+			Price:    price,
+			Currency: pbProduct.Currency,
 		}
 		products = append(products, domainProduct)
 	}
