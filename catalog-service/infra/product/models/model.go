@@ -4,6 +4,7 @@ import (
 	"github.com/Fox216540/shop/catalog-service/domain/product"
 	categorymodels "github.com/Fox216540/shop/catalog-service/infra/category/models"
 	"github.com/google/uuid"
+	"github.com/shopspring/decimal"
 )
 
 type ProductORM struct {
@@ -11,11 +12,12 @@ type ProductORM struct {
 	ProductID   uuid.UUID                  `gorm:"type:uuid;not null;default:gen_random_uuid();uniqueIndex"`
 	Name        string                     `gorm:"not null;unique"`             // Unique product name
 	Img         string                     `gorm:"not null"`                    // Product image URL
-	Price       float64                    `gorm:"type:decimal(10,2);not null"` // Product price
-	CategoryID  uuid.UUID                  `gorm:"type:uuid;not null;index"`    // Product category
-	Category    categorymodels.CategoryORM `gorm:"references:CategoryID"`       // Product category
-	Description string                     `gorm:"not null"`                    // Product description
-	Stock       uint64                     `gorm:"not null"`                    // Product stock quantity
+	Price       decimal.Decimal            `gorm:"type:decimal(10,2);not null"` // Product price
+	Currency    string                     `gorm:"type:char(3);not null"`
+	CategoryID  uuid.UUID                  `gorm:"type:uuid;not null;index"` // Product category
+	Category    categorymodels.CategoryORM `gorm:"references:CategoryID"`    // Product category
+	Description string                     `gorm:"not null"`                 // Product description
+	Stock       uint64                     `gorm:"not null"`                 // Product stock quantity
 }
 
 func (ProductORM) TableName() string {
@@ -28,6 +30,7 @@ func FromORM(orm ProductORM) product.Product {
 		Name:        orm.Name,
 		Img:         orm.Img,
 		Price:       orm.Price,
+		Currency:    orm.Currency,
 		CategoryID:  orm.Category.CategoryID,
 		Description: orm.Description,
 		Stock:       orm.Stock,

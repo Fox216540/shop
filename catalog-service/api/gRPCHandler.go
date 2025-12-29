@@ -23,10 +23,11 @@ func productToPbWithSupplement(
 ) *pbApi.ProductWithSupplement {
 	return &pbApi.ProductWithSupplement{
 		Product: &types.Product{
-			Id:    p.ID.String(),
-			Name:  p.Name,
-			Img:   p.Img,
-			Price: p.Price,
+			Id:       p.ID.String(),
+			Name:     p.Name,
+			Img:      p.Img,
+			Price:    p.Price.StringFixed(2),
+			Currency: p.Currency,
 		},
 		CategoryId:  p.CategoryID.String(),
 		Description: p.Description,
@@ -52,10 +53,11 @@ func (h *GRPCHandler) productsToPb(
 	productsResp := make([]*types.Product, 0, len(products))
 	for _, product := range products {
 		productsResp = append(productsResp, &types.Product{
-			Id:    product.ID.String(),
-			Name:  product.Name,
-			Img:   product.Img,
-			Price: product.Price,
+			Id:       product.ID.String(),
+			Name:     product.Name,
+			Img:      product.Img,
+			Price:    product.Price.StringFixed(2),
+			Currency: product.Currency,
 		})
 	}
 	return productsResp
