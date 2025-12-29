@@ -13,7 +13,8 @@ message Product {
     string id = 1;
     string name = 2;
     string img = 3;
-    double price = 4;
+    string price = 4;
+    string currency = 5;
 }
 
 //Auth-service:

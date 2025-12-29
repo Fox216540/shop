@@ -175,6 +175,8 @@ type ItemRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	ProductId     string                 `protobuf:"bytes,1,opt,name=product_id,json=productId,proto3" json:"product_id,omitempty"`
 	Quantity      uint64                 `protobuf:"varint,2,opt,name=quantity,proto3" json:"quantity,omitempty"`
+	Value         string                 `protobuf:"bytes,3,opt,name=value,proto3" json:"value,omitempty"`
+	Currency      string                 `protobuf:"bytes,4,opt,name=currency,proto3" json:"currency,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -221,6 +223,20 @@ func (x *ItemRequest) GetQuantity() uint64 {
 		return x.Quantity
 	}
 	return 0
+}
+
+func (x *ItemRequest) GetValue() string {
+	if x != nil {
+		return x.Value
+	}
+	return ""
+}
+
+func (x *ItemRequest) GetCurrency() string {
+	if x != nil {
+		return x.Currency
+	}
+	return ""
 }
 
 type CreateOrderRequest struct {
@@ -271,8 +287,9 @@ type Order struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	OrderNum      string                 `protobuf:"bytes,2,opt,name=order_num,json=orderNum,proto3" json:"order_num,omitempty"`
-	Total         float64                `protobuf:"fixed64,3,opt,name=total,proto3" json:"total,omitempty"`
-	Status        string                 `protobuf:"bytes,4,opt,name=status,proto3" json:"status,omitempty"`
+	Total         string                 `protobuf:"bytes,3,opt,name=total,proto3" json:"total,omitempty"`
+	Currency      string                 `protobuf:"bytes,4,opt,name=currency,proto3" json:"currency,omitempty"`
+	Status        string                 `protobuf:"bytes,5,opt,name=status,proto3" json:"status,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -321,11 +338,18 @@ func (x *Order) GetOrderNum() string {
 	return ""
 }
 
-func (x *Order) GetTotal() float64 {
+func (x *Order) GetTotal() string {
 	if x != nil {
 		return x.Total
 	}
-	return 0
+	return ""
+}
+
+func (x *Order) GetCurrency() string {
+	if x != nil {
+		return x.Currency
+	}
+	return ""
 }
 
 func (x *Order) GetStatus() string {
@@ -451,18 +475,21 @@ const file_order_service_api_proto_rawDesc = "" +
 	"\x02id\x18\x01 \x01(\tR\x02id\"_\n" +
 	"\x0eOrderWithItems\x12&\n" +
 	"\x05order\x18\x01 \x01(\v2\x10.order.api.OrderR\x05order\x12%\n" +
-	"\x05items\x18\x02 \x03(\v2\x0f.order.api.ItemR\x05items\"H\n" +
+	"\x05items\x18\x02 \x03(\v2\x0f.order.api.ItemR\x05items\"z\n" +
 	"\vItemRequest\x12\x1d\n" +
 	"\n" +
 	"product_id\x18\x01 \x01(\tR\tproductId\x12\x1a\n" +
-	"\bquantity\x18\x02 \x01(\x04R\bquantity\"B\n" +
+	"\bquantity\x18\x02 \x01(\x04R\bquantity\x12\x14\n" +
+	"\x05value\x18\x03 \x01(\tR\x05value\x12\x1a\n" +
+	"\bcurrency\x18\x04 \x01(\tR\bcurrency\"B\n" +
 	"\x12CreateOrderRequest\x12,\n" +
-	"\x05items\x18\x01 \x03(\v2\x16.order.api.ItemRequestR\x05items\"b\n" +
+	"\x05items\x18\x01 \x03(\v2\x16.order.api.ItemRequestR\x05items\"~\n" +
 	"\x05Order\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1b\n" +
 	"\torder_num\x18\x02 \x01(\tR\borderNum\x12\x14\n" +
-	"\x05total\x18\x03 \x01(\x01R\x05total\x12\x16\n" +
-	"\x06status\x18\x04 \x01(\tR\x06status\"E\n" +
+	"\x05total\x18\x03 \x01(\tR\x05total\x12\x1a\n" +
+	"\bcurrency\x18\x04 \x01(\tR\bcurrency\x12\x16\n" +
+	"\x06status\x18\x05 \x01(\tR\x06status\"E\n" +
 	"\x19GetOrdersByUserIdResponse\x12(\n" +
 	"\x06orders\x18\x01 \x03(\v2\x10.order.api.OrderR\x06orders\"\x8f\x01\n" +
 	"\x13DeleteOrderResponse\x12-\n" +
