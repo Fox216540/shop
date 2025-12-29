@@ -1,12 +1,14 @@
 package order
 
 import (
+	"fmt"
 	"github.com/Fox216540/shop/order-service/app/dto"
 	"github.com/Fox216540/shop/order-service/app/mapError"
 	c "github.com/Fox216540/shop/order-service/domain/catalog"
 	"github.com/Fox216540/shop/order-service/domain/idgenerator"
 	"github.com/Fox216540/shop/order-service/domain/order"
 	"github.com/google/uuid"
+	"github.com/shopspring/decimal"
 )
 
 type service struct {
@@ -32,7 +34,8 @@ func (s *service) createNewOrder(userID uuid.UUID, items []order.Item) order.Ord
 }
 
 func (s *service) enrichProducts(items []order.Item) error {
-	productsOrder := make([]uuid.UUID, len(items))
+	productsOrder := make([]uuid.UUID, 0, len(items))
+
 	for _, item := range items {
 		productsOrder = append(productsOrder, item.Product.ID)
 	}
@@ -47,12 +50,17 @@ func (s *service) enrichProducts(items []order.Item) error {
 		productMapDb[prod.ID] = prod
 	}
 
-	for _, item := range items {
-		if prod, ok := productMapDb[item.Product.ID]; ok {
-			item.Product = prod
-		} else {
+	for i := range items {
+		prod, ok := productMapDb[items[i].Product.ID]
+		if !ok {
 			return order.NewProductOfOrderNotFoundError(nil)
 		}
+
+		if !prod.Price.Equal(items[i].Product.Price) {
+			return fmt.Errorf("product %v does not have the same price", items[i].Product.ID)
+		}
+
+		items[i].Product = prod
 	}
 
 	return nil
@@ -72,28 +80,47 @@ func (s *service) generateOrderNum(o order.Order) (order.Order, error) {
 }
 
 func (s *service) calculateOrderTotal(o order.Order) (order.Order, error) {
-	var total float64
+	total := decimal.Zero
+
 	for _, item := range o.OrderItems {
-		total += item.Product.Price * float64(item.Quantity)
+		lineTotal := item.Product.Price.
+			Mul(decimal.NewFromInt(int64(item.Quantity)))
+
+		total = total.Add(lineTotal)
 	}
+
 	o.Total = total
 	return o, nil
 }
 
 func (s *service) createOrderItems(orderItems []dto.OrderItems) ([]order.Item, error) {
-	oI := make([]order.Item, len(orderItems))
+	oI := make([]order.Item, 0, len(orderItems))
+
 	for _, item := range orderItems {
 		id, err := uuid.Parse(item.ProductID)
 		if err != nil {
 			return nil, err
 		}
+
+		price, err := decimal.NewFromString(item.Value)
+		if err != nil {
+			return nil, fmt.Errorf("invalid price %q: %w", item.Value, err)
+		}
+
+		if price.LessThan(decimal.Zero) {
+			return nil, fmt.Errorf("price must be >= 0")
+		}
+
 		oI = append(oI, order.Item{
 			Product: c.Product{
-				ID: id,
+				ID:       id,
+				Price:    price,
+				Currency: item.Currency,
 			},
 			Quantity: item.Quantity,
 		})
 	}
+
 	return oI, nil
 }
 
