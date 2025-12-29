@@ -271,6 +271,8 @@ paths:
               product_items:
                 - product_id: "3f7100f5-b21b-454e-8fbc-a7f1ef5b5b7b"
                   quantity: 10
+                  value: "100.00"
+                  currency: "RUB"
       responses:
         '201':
           $ref: '#/components/responses/OrderCreated'
@@ -579,14 +581,26 @@ components:
       required:
         - product_id
         - quantity
+        - value
+        - currency
       properties:
         product_id:
           type: string
           format: uuid
+
         quantity:
           type: integer
           format: uint64
           minimum: 1
+
+        value:
+          type: string
+          example: "199.90"
+
+        currency:
+          type: string
+          description: "Валюта цены"
+          example: "RUB"
 
     # Orders and products: shared building blocks
     ProductShort:
@@ -596,6 +610,7 @@ components:
         - name
         - img
         - price
+        - currency
       properties:
         id:
           type: string
@@ -606,8 +621,11 @@ components:
           type: string
           format: uri
         price:
-          type: number
-          format: double
+          type: string
+          example: "155.99"
+        currency:
+          type: string
+          example: "RUB"
 
     ProductResponse:
       allOf:
@@ -638,6 +656,7 @@ components:
         - order_number
         - total
         - status
+        - currency
       properties:
         id:
           type: string
@@ -646,12 +665,14 @@ components:
           type: string
           example: ORD-123456789
         total:
-          type: number
-          format: double
+          type: string
           example: 1599.98
         status:
           type: string
           example: pending
+        currency:
+          type: string
+          example: RUB
 
     OrderItem:
       type: object

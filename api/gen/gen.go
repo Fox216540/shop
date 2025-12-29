@@ -53,44 +53,51 @@ type OrderItem struct {
 
 // OrderResponse defines model for OrderResponse.
 type OrderResponse struct {
+	Currency    string             `json:"currency"`
 	Id          openapi_types.UUID `json:"id"`
 	OrderNumber string             `json:"order_number"`
 	Status      string             `json:"status"`
-	Total       float64            `json:"total"`
+	Total       string             `json:"total"`
 }
 
 // OrderWithItemsResponse defines model for OrderWithItemsResponse.
 type OrderWithItemsResponse struct {
+	Currency    string             `json:"currency"`
 	Id          openapi_types.UUID `json:"id"`
 	OrderItems  []OrderItem        `json:"order_items"`
 	OrderNumber string             `json:"order_number"`
 	Status      string             `json:"status"`
-	Total       float64            `json:"total"`
+	Total       string             `json:"total"`
 }
 
 // ProductItemRequest defines model for ProductItemRequest.
 type ProductItemRequest struct {
+	// Currency Валюта цены
+	Currency  string             `json:"currency"`
 	ProductId openapi_types.UUID `json:"product_id"`
 	Quantity  uint64             `json:"quantity"`
+	Value     string             `json:"value"`
 }
 
 // ProductResponse defines model for ProductResponse.
 type ProductResponse struct {
 	CategoryId  openapi_types.UUID `json:"category_id"`
+	Currency    string             `json:"currency"`
 	Description string             `json:"description"`
 	Id          openapi_types.UUID `json:"id"`
 	Img         string             `json:"img"`
 	Name        string             `json:"name"`
-	Price       float64            `json:"price"`
+	Price       string             `json:"price"`
 	Stock       uint64             `json:"stock"`
 }
 
 // ProductShort defines model for ProductShort.
 type ProductShort struct {
-	Id    openapi_types.UUID `json:"id"`
-	Img   string             `json:"img"`
-	Name  string             `json:"name"`
-	Price float64            `json:"price"`
+	Currency string             `json:"currency"`
+	Id       openapi_types.UUID `json:"id"`
+	Img      string             `json:"img"`
+	Name     string             `json:"name"`
+	Price    string             `json:"price"`
 }
 
 // RegisterRequest defines model for RegisterRequest.
