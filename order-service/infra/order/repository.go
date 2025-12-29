@@ -24,6 +24,7 @@ func (r *repository) Save(o order.Order) (order.Order, error) {
 		Status:     o.Status,
 		UserID:     o.UserID,
 		Total:      o.Total,
+		Currency:   o.Currency,
 		OrderItems: []models.OrderProductORM{},
 	}
 
