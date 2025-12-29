@@ -2,54 +2,35 @@ package payment
 
 import (
 	domain "github.com/Fox216540/shop/payment-service/domain/payment"
-	yo "github.com/rvinnie/yookassa-sdk-go/yookassa"
-	cm "github.com/rvinnie/yookassa-sdk-go/yookassa/common"
-	"github.com/rvinnie/yookassa-sdk-go/yookassa/payment"
-	"strconv"
+	db "github.com/Fox216540/shop/payment-service/infra/db/core"
+	orm "github.com/Fox216540/shop/payment-service/infra/payment/models"
+	"gorm.io/gorm"
 )
 
 type repository struct {
-	client    yo.Client
-	handler   yo.PaymentHandler
-	returnURL string
+	db *db.Database
 }
 
-func NewRepository(client yo.Client, returnUrl string, paymentHand yo.PaymentHandler) payment.Repository {
-	return &repository{
-		client:    client,
-		returnURL: returnUrl,
-		handler:   paymentHand,
-	}
+func NewRepository(db *db.Database) domain.Repository {
+	return &repository{db: db}
 }
 
-func (r *repository) CreatePayment(value, currency, description string) (domain.Payment, error) {
-	test := &yoopayment.Payment{
-		Amount: &cm.Amount{
-			Value:    value,
-			Currency: currency,
-		},
-		Confirmation: yoopayment.Redirect{
-			Type:      "redirect",
-			ReturnURL: r.returnURL,
-		},
-		Description: description,
+func (r *repository) Save(p domain.Payment) error {
+	newPayment := &orm.PaymentORM{
+		IDYuKassa:   p.ID,
+		OrderID:     p.OrderID,
+		Value:       p.Amount.Value,
+		Currency:    p.Amount.Currency,
+		Method:      p.Method,
+		Description: p.Description,
+		Status:      p.Status,
 	}
-	newPayment, err := r.handler.CreatePayment(test)
-	if err != nil {
-		return domain.Payment{}, err
-	}
-	val, err := strconv.Atoi(newPayment.Amount.Value)
-	if err != nil {
-		return domain.Payment{}, err
-	}
-	return domain.Payment{
-		Amount: domain.Amount{
-			Value:    val,
-			Currency: newPayment.Amount.Currency,
-		},
-		Method: newPayment.PaymentMethodID,
-		//TODO: Разобраться
-		ReturnURL: newPayment.Confirmation,
-		Status:    newPayment.Status,
-	}, nil
+
+	err := r.db.WithSession(func(tx *gorm.DB) error {
+		if err := tx.Create(newPayment).Error; err != nil {
+			return err
+		}
+		return nil
+	})
+	return err
 }
