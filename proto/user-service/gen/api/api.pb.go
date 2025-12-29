@@ -153,7 +153,7 @@ func (x *UserWithMessageResponse) GetMessage() *gen.MessageResponse {
 
 type UpdateEmailRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Email         string                 `protobuf:"bytes,2,opt,name=email,proto3" json:"email,omitempty"`
+	Email         string                 `protobuf:"bytes,1,opt,name=email,proto3" json:"email,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -197,7 +197,7 @@ func (x *UpdateEmailRequest) GetEmail() string {
 
 type UpdatePasswordRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Password      string                 `protobuf:"bytes,2,opt,name=password,proto3" json:"password,omitempty"`
+	Password      string                 `protobuf:"bytes,1,opt,name=password,proto3" json:"password,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -241,7 +241,7 @@ func (x *UpdatePasswordRequest) GetPassword() string {
 
 type UpdatePhoneRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Phone         string                 `protobuf:"bytes,2,opt,name=phone,proto3" json:"phone,omitempty"`
+	Phone         string                 `protobuf:"bytes,1,opt,name=phone,proto3" json:"phone,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -285,8 +285,8 @@ func (x *UpdatePhoneRequest) GetPhone() string {
 
 type UpdateProfileRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Name          *string                `protobuf:"bytes,2,opt,name=name,proto3,oneof" json:"name,omitempty"`
-	Address       *string                `protobuf:"bytes,3,opt,name=address,proto3,oneof" json:"address,omitempty"`
+	Name          *string                `protobuf:"bytes,1,opt,name=name,proto3,oneof" json:"name,omitempty"`
+	Address       *string                `protobuf:"bytes,2,opt,name=address,proto3,oneof" json:"address,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -350,14 +350,14 @@ const file_user_service_api_proto_rawDesc = "" +
 	"\x04name\x18\x01 \x01(\v2\x18.common.UserNameResponseR\x04name\x121\n" +
 	"\amessage\x18\x02 \x01(\v2\x17.common.MessageResponseR\amessage\"*\n" +
 	"\x12UpdateEmailRequest\x12\x14\n" +
-	"\x05email\x18\x02 \x01(\tR\x05email\"3\n" +
+	"\x05email\x18\x01 \x01(\tR\x05email\"3\n" +
 	"\x15UpdatePasswordRequest\x12\x1a\n" +
-	"\bpassword\x18\x02 \x01(\tR\bpassword\"*\n" +
+	"\bpassword\x18\x01 \x01(\tR\bpassword\"*\n" +
 	"\x12UpdatePhoneRequest\x12\x14\n" +
-	"\x05phone\x18\x02 \x01(\tR\x05phone\"c\n" +
+	"\x05phone\x18\x01 \x01(\tR\x05phone\"c\n" +
 	"\x14UpdateProfileRequest\x12\x17\n" +
-	"\x04name\x18\x02 \x01(\tH\x00R\x04name\x88\x01\x01\x12\x1d\n" +
-	"\aaddress\x18\x03 \x01(\tH\x01R\aaddress\x88\x01\x01B\a\n" +
+	"\x04name\x18\x01 \x01(\tH\x00R\x04name\x88\x01\x01\x12\x1d\n" +
+	"\aaddress\x18\x02 \x01(\tH\x01R\aaddress\x88\x01\x01B\a\n" +
 	"\x05_nameB\n" +
 	"\n" +
 	"\b_address2\xe4\x03\n" +
