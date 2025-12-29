@@ -1,13 +1,19 @@
 package payment
 
-import pay "github.com/rvinnie/yookassa-sdk-go/yookassa/payment"
+import (
+	"github.com/google/uuid"
+	pay "github.com/rvinnie/yookassa-sdk-go/yookassa/payment"
+	"github.com/shopspring/decimal"
+)
 
 type Amount struct {
-	Value    int
+	Value    decimal.Decimal
 	Currency string
 }
 
 type Payment struct {
+	ID          string
+	OrderID     uuid.UUID
 	Amount      Amount
 	Method      string
 	ReturnURL   string
