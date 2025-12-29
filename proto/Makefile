@@ -98,5 +98,15 @@ gen-user:
 	@make gen-user-api gen-user-interservice
 	@echo "✅ User generated"
 
+gen-pay:
+	@make gen-common
+	@mkdir -p payment-service/gen
+	protoc -I=. \
+			--go_out=payment-service/ \
+			--go_opt=module=github.com/Fox216540/shop/proto/payment-service \
+			--go-grpc_out=payment-service/ \
+			--go-grpc_opt=module=github.com/Fox216540/shop/proto/payment-service \
+		payment-service/interservice.proto
+	@echo "✅ Payment Interservice proto generated"
 
-gen-all: gen-catalog gen-auth gen-order gen-user
+gen-all: gen-catalog gen-auth gen-order gen-user gen-pay
