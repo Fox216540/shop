@@ -139,16 +139,18 @@ func (h *HTTPHandler) orderWithItemsResponse(order domainOrder.OrderWithItems) s
 	for _, item := range order.Items {
 		items = append(items, shopApiGen.OrderItem{
 			Product: shopApiGen.ProductShort{
-				Id:    item.Product.ID,
-				Img:   item.Product.Img,
-				Name:  item.Product.Name,
-				Price: item.Product.Price,
+				Currency: item.Product.Currency,
+				Id:       item.Product.ID,
+				Img:      item.Product.Img,
+				Name:     item.Product.Name,
+				Price:    item.Product.Price,
 			},
 			Quantity: item.Quantity,
 		})
 
 	}
 	return shopApiGen.OrderWithItemsResponse{
+		Currency:    order.Order.Currency,
 		Id:          order.Order.ID,
 		OrderNumber: order.Order.OrderNum,
 		Status:      order.Order.Status,
@@ -161,6 +163,7 @@ func (h *HTTPHandler) ordersToResponse(orders []domainOrder.Order) []shopApiGen.
 	resp := make([]shopApiGen.OrderResponse, 0, len(orders))
 	for _, order := range orders {
 		resp = append(resp, shopApiGen.OrderResponse{
+			Currency:    order.Currency,
 			Id:          order.ID,
 			OrderNumber: order.OrderNum,
 			Status:      order.Status,
@@ -200,7 +203,9 @@ func (h *HTTPHandler) PostOrders(c *gin.Context) {
 	for _, item := range req.ProductItems {
 		items = append(items, domainOrder.ProductRequest{
 			ID:       item.ProductId,
+			Price:    item.Value,
 			Quantity: item.Quantity,
+			Currency: item.Currency,
 		})
 	}
 	start := time.Now()
@@ -212,6 +217,7 @@ func (h *HTTPHandler) PostOrders(c *gin.Context) {
 	}
 	h.metrics.IncOrder()
 	c.JSON(http.StatusCreated, shopApiGen.OrderResponse{
+		Currency:    o.Currency,
 		Id:          o.ID,
 		OrderNumber: o.OrderNum,
 		Status:      o.Status,
@@ -262,6 +268,7 @@ func (h *HTTPHandler) productsToResponse(products []domainCatalog.Product) []sho
 			CategoryId:  product.CategoryID,
 			Description: product.Description,
 			Stock:       product.Stock,
+			Currency:    product.Currency,
 		})
 	}
 	return resp

@@ -11,7 +11,8 @@ type Product struct {
 	ID          uuid.UUID
 	Name        string
 	Img         string
-	Price       float64
+	Price       string
+	Currency    string
 	CategoryID  uuid.UUID
 	Description string
 	Stock       uint64
