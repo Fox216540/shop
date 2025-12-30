@@ -9,7 +9,7 @@ import (
 
 type PaymentORM struct {
 	ID          int `gorm:"primaryKey;autoIncrement"`
-	IDYuKassa   string
+	IDYoKassa   string
 	OrderID     uuid.UUID
 	Value       decimal.Decimal
 	Currency    string
@@ -24,7 +24,7 @@ func (PaymentORM) TableName() string {
 
 func FromORM(orm PaymentORM) dom.Payment {
 	o := dom.Payment{
-		ID:      orm.IDYuKassa,
+		ID:      orm.IDYoKassa,
 		OrderID: orm.OrderID,
 		Amount: dom.Amount{
 			Value:    orm.Value,
