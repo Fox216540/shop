@@ -17,7 +17,7 @@ func NewRepository(db *db.Database) domain.Repository {
 
 func (r *repository) Save(p domain.Payment) error {
 	newPayment := &orm.PaymentORM{
-		IDYuKassa:   p.ID,
+		IDYoKassa:   p.ID,
 		OrderID:     p.OrderID,
 		Value:       p.Amount.Value,
 		Currency:    p.Amount.Currency,
