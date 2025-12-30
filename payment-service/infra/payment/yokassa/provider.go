@@ -1,4 +1,4 @@
-package payment
+package yokassa
 
 import (
 	domain "github.com/Fox216540/shop/payment-service/domain/payment"
