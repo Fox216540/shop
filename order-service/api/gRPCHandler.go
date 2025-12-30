@@ -9,7 +9,6 @@ import (
 	types "github.com/Fox216540/shop/proto/common/gen"
 	pbApi "github.com/Fox216540/shop/proto/order-service/gen/api"
 	"github.com/google/uuid"
-	"github.com/shopspring/decimal"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
@@ -89,14 +88,10 @@ func (h *GRPCHandler) CreteOrder(
 
 	productsIDs := make([]dto.OrderItems, 0, len(req.Items))
 	for _, item := range req.Items {
-		price, err := decimal.NewFromString(item.Value)
-		if err != nil {
-			return nil, err
-		}
 		productsIDs = append(productsIDs, dto.OrderItems{
 			ProductID: item.ProductId,
 			Quantity:  item.Quantity,
-			Value:     price,
+			Value:     item.Value,
 			Currency:  item.Currency,
 		})
 	}
