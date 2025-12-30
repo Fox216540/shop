@@ -3,8 +3,8 @@ package api
 import (
 	"context"
 	"errors"
-	"github.com/Fox216540/shop/catalog-service/core/exception"
-	"github.com/Fox216540/shop/catalog-service/core/logger"
+	"github.com/Fox216540/shop/payment-service/core/exception"
+	"github.com/Fox216540/shop/payment-service/core/logger"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )

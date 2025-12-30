@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"errors"
 	"github.com/Fox216540/shop/user-service/core/exception"
 	"github.com/Fox216540/shop/user-service/core/logger"
@@ -9,15 +10,14 @@ import (
 )
 
 type ErrorMapper struct {
-	log      logger.Logger
 	errorLog logger.Logger
 }
 
-func NewErrorMapper(log, errorLog logger.Logger) *ErrorMapper {
-	return &ErrorMapper{log: log, errorLog: errorLog}
+func NewErrorMapper(errorLog logger.Logger) *ErrorMapper {
+	return &ErrorMapper{errorLog: errorLog}
 }
 
-func (m *ErrorMapper) MapError(e error) error {
+func (m *ErrorMapper) MapError(ctx context.Context, e error) error {
 	var bre *exception.BadRequestError
 	var ue *exception.UnauthorizedError
 	var nfe *exception.NotFoundError
@@ -44,6 +44,7 @@ func (m *ErrorMapper) MapError(e error) error {
 		code = codes.NotFound
 
 	default:
+		m.errorLog.Error(ctx, e)
 		code = codes.Internal
 	}
 
