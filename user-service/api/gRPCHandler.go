@@ -79,7 +79,7 @@ func (h *GRPCHandler) RegisterUser(
 	}
 	u, tokens, err := h.userUS.Register(uDomain)
 	if err != nil {
-		return nil, h.mapper.MapError(err)
+		return nil, h.mapper.MapError(ctx, err)
 	}
 	return h.returnUserWithTokensResponse(
 		u,
@@ -94,10 +94,10 @@ func (h *GRPCHandler) DeleteUser(
 ) (*types.MessageResponse, error) {
 	userID, err := h.getUserIDFromMetadata(ctx)
 	if err != nil {
-		return nil, h.mapper.MapError(err)
+		return nil, h.mapper.MapError(ctx, err)
 	}
 	if err = h.userUS.DeleteUser(userID); err != nil {
-		return nil, h.mapper.MapError(err)
+		return nil, h.mapper.MapError(ctx, err)
 	}
 	return &types.MessageResponse{
 		Message: "User deleted successfully",
@@ -110,7 +110,7 @@ func (h *GRPCHandler) VerifyCredentials(
 ) (*pbInterservice.VerifyCredentialsResponse, error) {
 	name, id, err := h.userUS.VerifyCredentials(req.PhoneOrEmail, req.Password)
 	if err != nil {
-		return nil, h.mapper.MapError(err)
+		return nil, h.mapper.MapError(ctx, err)
 	}
 	return &pbInterservice.VerifyCredentialsResponse{
 		Id:   id.String(),
@@ -124,11 +124,11 @@ func (h *GRPCHandler) UpdateEmail(
 ) (*pbApi.UserWithMessageResponse, error) {
 	userID, err := h.getUserIDFromMetadata(ctx)
 	if err != nil {
-		return nil, h.mapper.MapError(err)
+		return nil, h.mapper.MapError(ctx, err)
 	}
 	u, err := h.userUS.UpdateEmail(userID, req.Email)
 	if err != nil {
-		return nil, h.mapper.MapError(err)
+		return nil, h.mapper.MapError(ctx, err)
 	}
 	return h.returnUserWithMessageResponse(
 		u,
@@ -142,11 +142,11 @@ func (h *GRPCHandler) UpdatePassword(
 ) (*pbApi.UserWithMessageResponse, error) {
 	userID, err := h.getUserIDFromMetadata(ctx)
 	if err != nil {
-		return nil, h.mapper.MapError(err)
+		return nil, h.mapper.MapError(ctx, err)
 	}
 	u, err := h.userUS.UpdatePassword(userID, req.Password)
 	if err != nil {
-		return nil, h.mapper.MapError(err)
+		return nil, h.mapper.MapError(ctx, err)
 	}
 	return h.returnUserWithMessageResponse(
 		u,
@@ -160,11 +160,11 @@ func (h *GRPCHandler) UpdatePhone(
 ) (*pbApi.UserWithMessageResponse, error) {
 	userID, err := h.getUserIDFromMetadata(ctx)
 	if err != nil {
-		return nil, h.mapper.MapError(err)
+		return nil, h.mapper.MapError(ctx, err)
 	}
 	u, err := h.userUS.UpdatePhone(userID, req.Phone)
 	if err != nil {
-		return nil, h.mapper.MapError(err)
+		return nil, h.mapper.MapError(ctx, err)
 	}
 	return h.returnUserWithMessageResponse(
 		u,
@@ -178,7 +178,7 @@ func (h *GRPCHandler) UpdateProfile(
 ) (*pbApi.UserWithMessageResponse, error) {
 	userID, err := h.getUserIDFromMetadata(ctx)
 	if err != nil {
-		return nil, h.mapper.MapError(err)
+		return nil, h.mapper.MapError(ctx, err)
 	}
 	dtoUS := dto.ProfileUpdate{
 		Name:    req.Name,
@@ -186,7 +186,7 @@ func (h *GRPCHandler) UpdateProfile(
 	}
 	u, err := h.userUS.UpdateProfile(userID, dtoUS)
 	if err != nil {
-		return nil, h.mapper.MapError(err)
+		return nil, h.mapper.MapError(ctx, err)
 	}
 	return h.returnUserWithMessageResponse(
 		u,
