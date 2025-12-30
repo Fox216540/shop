@@ -9,9 +9,11 @@ service InterserviceService {
 }
 
 message CreatePaymentRequest {
-    string amount = 1;
-    string description = 2;
-    string return_url = 3;
+    string order_id = 1;
+    string value = 2;
+    string currency = 3;
+    string description = 4;
+    string return_url = 5;
 }
 
 message CreatePaymentResponse {

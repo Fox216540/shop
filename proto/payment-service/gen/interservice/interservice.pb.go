@@ -23,9 +23,11 @@ const (
 
 type CreatePaymentRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Amount        string                 `protobuf:"bytes,1,opt,name=amount,proto3" json:"amount,omitempty"`
-	Description   string                 `protobuf:"bytes,2,opt,name=description,proto3" json:"description,omitempty"`
-	ReturnUrl     string                 `protobuf:"bytes,3,opt,name=return_url,json=returnUrl,proto3" json:"return_url,omitempty"`
+	OrderId       string                 `protobuf:"bytes,1,opt,name=order_id,json=orderId,proto3" json:"order_id,omitempty"`
+	Value         string                 `protobuf:"bytes,2,opt,name=value,proto3" json:"value,omitempty"`
+	Currency      string                 `protobuf:"bytes,3,opt,name=currency,proto3" json:"currency,omitempty"`
+	Description   string                 `protobuf:"bytes,4,opt,name=description,proto3" json:"description,omitempty"`
+	ReturnUrl     string                 `protobuf:"bytes,5,opt,name=return_url,json=returnUrl,proto3" json:"return_url,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -60,9 +62,23 @@ func (*CreatePaymentRequest) Descriptor() ([]byte, []int) {
 	return file_payment_service_interservice_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *CreatePaymentRequest) GetAmount() string {
+func (x *CreatePaymentRequest) GetOrderId() string {
 	if x != nil {
-		return x.Amount
+		return x.OrderId
+	}
+	return ""
+}
+
+func (x *CreatePaymentRequest) GetValue() string {
+	if x != nil {
+		return x.Value
+	}
+	return ""
+}
+
+func (x *CreatePaymentRequest) GetCurrency() string {
+	if x != nil {
+		return x.Currency
 	}
 	return ""
 }
@@ -145,12 +161,14 @@ var File_payment_service_interservice_proto protoreflect.FileDescriptor
 
 const file_payment_service_interservice_proto_rawDesc = "" +
 	"\n" +
-	"\"payment-service/interservice.proto\x12\x14payment.interservice\"o\n" +
-	"\x14CreatePaymentRequest\x12\x16\n" +
-	"\x06amount\x18\x01 \x01(\tR\x06amount\x12 \n" +
-	"\vdescription\x18\x02 \x01(\tR\vdescription\x12\x1d\n" +
+	"\"payment-service/interservice.proto\x12\x14payment.interservice\"\xa4\x01\n" +
+	"\x14CreatePaymentRequest\x12\x19\n" +
+	"\border_id\x18\x01 \x01(\tR\aorderId\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value\x12\x1a\n" +
+	"\bcurrency\x18\x03 \x01(\tR\bcurrency\x12 \n" +
+	"\vdescription\x18\x04 \x01(\tR\vdescription\x12\x1d\n" +
 	"\n" +
-	"return_url\x18\x03 \x01(\tR\treturnUrl\"y\n" +
+	"return_url\x18\x05 \x01(\tR\treturnUrl\"y\n" +
 	"\x15CreatePaymentResponse\x12\x1d\n" +
 	"\n" +
 	"payment_id\x18\x01 \x01(\tR\tpaymentId\x12)\n" +
