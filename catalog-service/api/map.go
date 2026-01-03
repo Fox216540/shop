@@ -18,8 +18,6 @@ func NewErrorMapper(errorLog logger.Logger) *ErrorMapper {
 }
 
 func (m *ErrorMapper) MapError(ctx context.Context, e error) error {
-	var bre *exception.BadRequestError
-	var ue *exception.UnauthorizedError
 	var nfe *exception.NotFoundError
 
 	// -------------------------------
@@ -34,11 +32,6 @@ func (m *ErrorMapper) MapError(ctx context.Context, e error) error {
 	// -------------------------------
 	var code codes.Code
 	switch {
-	case errors.As(e, &bre):
-		code = codes.InvalidArgument
-
-	case errors.As(e, &ue):
-		code = codes.Unauthenticated
 
 	case errors.As(e, &nfe):
 		code = codes.NotFound
