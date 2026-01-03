@@ -68,11 +68,25 @@ func (l *ZeroLogger) Warn(ctx context.Context, msg string) {
 
 func (l *ZeroLogger) Error(ctx context.Context, err error) {
 	requestID := RequestIDFromContext(ctx)
-
 	e := l.log.Error().
-		Stack().
-		Err(err)
+		Caller().
+		Stack(). // infra/category/errors.go:41
+		Err(err) // реальная ошибка + контекст
 
+	if requestID != "" {
+		e.Str("request_id", requestID)
+	}
+
+	e.Send() // ← БЕЗ message
+}
+
+func (l *ZeroLogger) Panic(ctx context.Context, r interface{}) {
+	e := l.log.Error().
+		Caller().
+		Stack().
+		Interface("panic", r)
+
+	requestID := RequestIDFromContext(ctx)
 	if requestID != "" {
 		e.Str("request_id", requestID)
 	}
