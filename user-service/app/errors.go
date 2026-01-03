@@ -12,6 +12,10 @@ func (e *UserServerError) Error() string {
 	return e.AppServerError.Error()
 }
 
+func (e *UserServerError) Unwrap() error {
+	return e.AppServerError
+}
+
 func NewCategoryServerError(msg string, err error) *UserServerError {
 	return &UserServerError{
 		AppServerError: globalError.NewAppServerError(msg, domain, err),
@@ -24,6 +28,10 @@ type InvalidRegister struct {
 
 func (e *InvalidRegister) Error() string {
 	return e.UserServerError.Error()
+}
+
+func (e *InvalidRegister) Unwrap() error {
+	return e.UserServerError
 }
 
 func NewInvalidRegister(err error) error {
@@ -40,6 +48,10 @@ func (e *InvalidLogin) Error() string {
 	return e.UserServerError.Error()
 }
 
+func (e *InvalidLogin) Unwrap() error {
+	return e.UserServerError
+}
+
 func NewInvalidLogin(err error) error {
 	return &InvalidLogin{
 		UserServerError: NewCategoryServerError("Invalid Login", err),
@@ -52,6 +64,10 @@ type InvalidLogout struct {
 
 func (e *InvalidLogout) Error() string {
 	return e.UserServerError.Error()
+}
+
+func (e *InvalidLogout) Unwrap() error {
+	return e.UserServerError
 }
 
 func NewInvalidLogout(err error) error {
@@ -68,6 +84,10 @@ func (e *InvalidLogoutAll) Error() string {
 	return e.UserServerError.Error()
 }
 
+func (e *InvalidLogoutAll) Unwrap() error {
+	return e.UserServerError
+}
+
 func NewInvalidLogoutAll(err error) error {
 	return &InvalidLogoutAll{
 		UserServerError: NewCategoryServerError("Invalid Logout All", err),
@@ -80,6 +100,10 @@ type InvalidUpdateEmail struct {
 
 func (e *InvalidUpdateEmail) Error() string {
 	return e.UserServerError.Error()
+}
+
+func (e *InvalidUpdateEmail) Unwrap() error {
+	return e.UserServerError
 }
 
 func NewInvalidUpdateEmail(err error) error {
@@ -96,6 +120,10 @@ func (e *InvalidUpdatePassword) Error() string {
 	return e.UserServerError.Error()
 }
 
+func (e *InvalidUpdatePassword) Unwrap() error {
+	return e.UserServerError
+}
+
 func NewInvalidUpdatePassword(err error) error {
 	return &InvalidUpdatePassword{
 		UserServerError: NewCategoryServerError("Invalid Update Password", err),
@@ -108,6 +136,10 @@ type InvalidUpdatePhone struct {
 
 func (e *InvalidUpdatePhone) Error() string {
 	return e.UserServerError.Error()
+}
+
+func (e *InvalidUpdatePhone) Unwrap() error {
+	return e.UserServerError
 }
 
 func NewInvalidUpdatePhone(err error) error {
@@ -124,6 +156,10 @@ func (e *InvalidUpdateProfile) Error() string {
 	return e.UserServerError.Error()
 }
 
+func (e *InvalidUpdateProfile) Unwrap() error {
+	return e.UserServerError
+}
+
 func NewInvalidUpdateProfile(err error) error {
 	return &InvalidUpdateProfile{
 		UserServerError: NewCategoryServerError("Invalid Update Profile", err),
@@ -136,6 +172,10 @@ type InvalidRefreshToken struct {
 
 func (e *InvalidRefreshToken) Error() string {
 	return e.UserServerError.Error()
+}
+
+func (e *InvalidRefreshToken) Unwrap() error {
+	return e.UserServerError
 }
 
 func NewInvalidRefreshToken(err error) error {
@@ -152,6 +192,10 @@ func (e *InvalidDelete) Error() string {
 	return e.UserServerError.Error()
 }
 
+func (e *InvalidDelete) Unwrap() error {
+	return e.UserServerError
+}
+
 func NewInvalidDelete(err error) error {
 	return &InvalidDelete{
 		UserServerError: NewCategoryServerError("Invalid Delete", err),
@@ -164,6 +208,10 @@ type InvalidOrders struct {
 
 func (e *InvalidOrders) Error() string {
 	return e.UserServerError.Error()
+}
+
+func (e *InvalidOrders) Unwrap() error {
+	return e.UserServerError
 }
 
 func NewInvalidOrders(err error) error {
@@ -180,6 +228,10 @@ func (e *InvalidDeleteOrder) Error() string {
 	return e.UserServerError.Error()
 }
 
+func (e *InvalidDeleteOrder) Unwrap() error {
+	return e.UserServerError
+}
+
 func NewInvalidDeleteOrder(err error) error {
 	return &InvalidDeleteOrder{
 		UserServerError: NewCategoryServerError("Invalid Delete Order", err),
@@ -192,6 +244,10 @@ type InvalidCreateOrder struct {
 
 func (e *InvalidCreateOrder) Error() string {
 	return e.UserServerError.Error()
+}
+
+func (e *InvalidCreateOrder) Unwrap() error {
+	return e.UserServerError
 }
 
 func NewInvalidCreateOrder(err error) error {

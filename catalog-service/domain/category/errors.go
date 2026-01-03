@@ -17,7 +17,7 @@ func (e *DomainNotFoundError) Error() string {
 }
 
 func (e *DomainNotFoundError) Unwrap() error {
-	return e.NotFoundError.Unwrap()
+	return e.NotFoundError
 }
 
 func NewDomainNotFoundError(msg string, err error) *DomainNotFoundError {
