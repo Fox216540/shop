@@ -2,7 +2,6 @@ package exception
 
 import (
 	"fmt"
-	pkgerrors "github.com/pkg/errors"
 )
 
 type Exception struct {
@@ -13,8 +12,17 @@ type Exception struct {
 }
 
 func (e Exception) Error() string {
-	return fmt.Sprintf("Domain: %s\nLayer: %s\nMessage: %s\nCause: %v",
-		e.Domain, e.Layer, e.Message, e.Err)
+	if e.Err != nil {
+		return fmt.Sprintf(
+			"Domain: %s\nLayer: %s\nMessage: %s\nError: %s",
+			e.Domain, e.Layer, e.Message, e.Err,
+		)
+	}
+
+	return fmt.Sprintf(
+		"Domain: %s\nLayer: %s\nMessage: %s",
+		e.Domain, e.Layer, e.Message,
+	)
 }
 
 func (e Exception) Unwrap() error {
@@ -66,34 +74,18 @@ func NewNotFoundError(msg, domain string, err error) *NotFoundError {
 	}
 }
 
-type BadRequestError struct {
+type ConflictError struct {
 	*DomainError
 }
 
-func (e *BadRequestError) Error() string {
+func (e *ConflictError) Error() string {
 	return e.DomainError.Error()
 }
 
-func (e *BadRequestError) Unwrap() error { return e.DomainError }
+func (e *ConflictError) Unwrap() error { return e.DomainError }
 
-func NewBadRequestError(msg, domain string, err error) *BadRequestError {
-	return &BadRequestError{
-		DomainError: NewDomainException(msg, domain, err),
-	}
-}
-
-type UnauthorizedError struct {
-	*DomainError
-}
-
-func (e *UnauthorizedError) Error() string {
-	return e.DomainError.Error()
-}
-
-func (e *UnauthorizedError) Unwrap() error { return e.DomainError }
-
-func NewUnauthorizedError(msg, domain string, err error) *UnauthorizedError {
-	return &UnauthorizedError{
+func NewConflictError(msg, domain string, err error) *ConflictError {
+	return &ConflictError{
 		DomainError: NewDomainException(msg, domain, err),
 	}
 }
@@ -109,19 +101,12 @@ func (e *ServerError) Error() string {
 func (e *ServerError) Unwrap() error { return e.Exception }
 
 func NewServerError(msg, domain, layer string, err error) *ServerError {
-	var wrappedErr error
-	if err != nil {
-		wrappedErr = pkgerrors.Wrap(err, msg)
-	} else {
-		wrappedErr = pkgerrors.New(msg)
-	}
-
 	return &ServerError{
 		Exception: &Exception{
 			Message: msg,
 			Domain:  domain,
 			Layer:   layer,
-			Err:     wrappedErr,
+			Err:     err,
 		},
 	}
 }
