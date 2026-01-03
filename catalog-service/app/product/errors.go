@@ -12,6 +12,10 @@ func (e *CatalogServerError) Error() string {
 	return e.AppServerError.Error()
 }
 
+func (e *CatalogServerError) Unwrap() error {
+	return e.AppServerError
+}
+
 func NewCategoryServerError(msg string, err error) *CatalogServerError {
 	return &CatalogServerError{
 		AppServerError: globalError.NewAppServerError(msg, domain, err),
@@ -24,6 +28,10 @@ type InvalidGetAll struct {
 
 func (e *InvalidGetAll) Error() string {
 	return e.CatalogServerError.Error()
+}
+
+func (e *InvalidGetAll) Unwrap() error {
+	return e.CatalogServerError
 }
 
 func NewInvalidGetAll(err error) error {
@@ -40,6 +48,10 @@ func (e *InvalidGetProductsOfCategoryID) Error() string {
 	return e.CatalogServerError.Error()
 }
 
+func (e *InvalidGetProductsOfCategoryID) Unwrap() error {
+	return e.CatalogServerError
+}
+
 func NewInvalidGetProductsOfCategoryID(err error) error {
 	return &InvalidGetProductsOfCategoryID{
 		CatalogServerError: NewCategoryServerError("Invalid Products Of Category ID", err),
@@ -54,6 +66,10 @@ func (e *InvalidGetProductByID) Error() string {
 	return e.CatalogServerError.Error()
 }
 
+func (e *InvalidGetProductByID) Unwrap() error {
+	return e.CatalogServerError
+}
+
 func NewInvalidGetProductByID(err error) error {
 	return &InvalidGetProductByID{
 		CatalogServerError: NewCategoryServerError("Invalid Product By ID", err),
@@ -66,6 +82,10 @@ type InvalidGetProductsByIDs struct {
 
 func (e *InvalidGetProductsByIDs) Error() string {
 	return e.CatalogServerError.Error()
+}
+
+func (e *InvalidGetProductsByIDs) Unwrap() error {
+	return e.CatalogServerError
 }
 
 func NewInvalidGetProductsByIDs(err error) error {
