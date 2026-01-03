@@ -1,15 +1,23 @@
 package logger
 
 import (
+	"errors"
 	"fmt"
+	pkgerrors "github.com/pkg/errors"
 	"github.com/rs/zerolog"
-	"time"
 )
 
 func InitLogger() {
-	zerolog.TimeFieldFormat = time.RFC3339Nano
-
+	zerolog.CallerSkipFrameCount = 3
 	zerolog.ErrorStackMarshaler = func(err error) interface{} {
-		return fmt.Sprintf("%+v", err)
+		for e := err; e != nil; e = errors.Unwrap(e) {
+			if st, ok := e.(interface{ StackTrace() pkgerrors.StackTrace }); ok {
+				trace := st.StackTrace()
+				if len(trace) > 0 {
+					return fmt.Sprintf("%+v", trace[0]) // repo.go:42
+				}
+			}
+		}
+		return nil
 	}
 }
