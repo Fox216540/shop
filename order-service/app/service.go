@@ -56,6 +56,7 @@ func (s *service) enrichProducts(items []order.Item) error {
 			return order.NewProductOfOrderNotFoundError(nil)
 		}
 
+		//TODO: Поменять ошибку
 		if !prod.Price.Equal(items[i].Product.Price) {
 			return fmt.Errorf("product %v does not have the same price", items[i].Product.ID)
 		}
@@ -104,10 +105,12 @@ func (s *service) createOrderItems(orderItems []dto.OrderItems) ([]order.Item, e
 
 		price, err := decimal.NewFromString(item.Value)
 		if err != nil {
+			//TODO: Поменять ошибку 404
 			return nil, fmt.Errorf("invalid price %q: %w", item.Value, err)
 		}
 
 		if price.LessThan(decimal.Zero) {
+			//TODO: Поменять ошибку 404
 			return nil, fmt.Errorf("price must be >= 0")
 		}
 
