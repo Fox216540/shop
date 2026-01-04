@@ -80,15 +80,14 @@ func (l *ZeroLogger) Error(ctx context.Context, err error) {
 	e.Send() // ← БЕЗ message
 }
 
-func (l *ZeroLogger) Panic(ctx context.Context, r interface{}) {
-	e := l.log.Error().
+func (l *ZeroLogger) Fatal(ctx context.Context, err error) {
+	e := l.log.Fatal().
 		Caller().
 		Stack().
-		Interface("panic", r)
+		Err(err)
 
-	requestID := RequestIDFromContext(ctx)
-	if requestID != "" {
-		e.Str("request_id", requestID)
+	if rid := RequestIDFromContext(ctx); rid != "" {
+		e.Str("request_id", rid)
 	}
 
 	e.Send()

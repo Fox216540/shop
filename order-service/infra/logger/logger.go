@@ -93,3 +93,16 @@ func (l *ZeroLogger) Panic(ctx context.Context, r interface{}) {
 
 	e.Send()
 }
+
+func (l *ZeroLogger) Fatal(ctx context.Context, err error) {
+	e := l.log.Fatal().
+		Caller().
+		Stack().
+		Err(err)
+
+	if rid := RequestIDFromContext(ctx); rid != "" {
+		e.Str("request_id", rid)
+	}
+
+	e.Send()
+}
