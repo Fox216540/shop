@@ -3,40 +3,44 @@ package redis
 import (
 	"context"
 	"fmt"
+	"github.com/Fox216540/shop/auth-service/core/logger"
 	"github.com/Fox216540/shop/auth-service/infra/config"
+	"github.com/Fox216540/shop/auth-service/infra/redis/errors"
 	"github.com/redis/go-redis/v9"
-	"log"
+	"time"
 )
 
 // InitRedis инициализирует Redis клиента
-func InitRedis(conf *config.Config) *redis.Client {
-	host := conf.RedisHost
-	port := conf.RedisPort
-	password := conf.RedisPassword // может быть пустым
-
-	addr := fmt.Sprintf("%s:%d", host, port)
+func InitRedis(conf *config.Config) (*redis.Client, error) {
+	addr := fmt.Sprintf("%s:%d", conf.RedisHost, conf.RedisPort)
 
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     addr,
-		Password: password,
+		Password: conf.RedisPassword, // может быть пустым
 		DB:       0,
 	})
 
-	// Проверка соединения
-	err := rdb.Ping(context.Background()).Err()
-	if err != nil {
-		log.Fatalf("failed to connect to Redis: %v", err)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	if err := rdb.Ping(ctx).Err(); err != nil {
+		return nil, errors.NewRedisError(err)
 	}
 
-	return rdb
+	return rdb, nil
 }
 
 // CloseRedis закрывает Redis соединение
-func CloseRedis(rdb *redis.Client) {
+func CloseRedis(
+	ctx context.Context,
+	log logger.Logger,
+	rdb *redis.Client,
+) {
 	if rdb == nil {
 		return
 	}
+
 	if err := rdb.Close(); err != nil {
-		log.Printf("failed to close Redis: %v", err)
+		log.Error(ctx, errors.NewCloseError(err))
 	}
 }
