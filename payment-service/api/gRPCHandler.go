@@ -8,14 +8,14 @@ import (
 )
 
 type GRPCHandler struct {
-	paymentFacade *payment.Facade
+	paymentUS payment.UseCase
 	pbInterservice.UnimplementedInterserviceServiceServer
 	mapper *ErrorMapper
 }
 
-func NewGRPCHandler(facade *payment.Facade) *GRPCHandler {
+func NewGRPCHandler(useCase payment.UseCase) *GRPCHandler {
 	return &GRPCHandler{
-		paymentFacade: facade,
+		paymentUS: useCase,
 	}
 }
 
@@ -27,7 +27,7 @@ func (h *GRPCHandler) CreatePayment(
 	if err != nil {
 		return nil, h.mapper.MapError(ctx, err)
 	}
-	newPayment, err := h.paymentFacade.CreatePayment(
+	newPayment, err := h.paymentUS.CreatePayment(
 		orderID, req.Value,
 		req.Currency, req.Description,
 	)
