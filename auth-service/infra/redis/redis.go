@@ -11,7 +11,11 @@ import (
 )
 
 // InitRedis инициализирует Redis клиента
-func InitRedis(conf *config.Config) (*redis.Client, error) {
+func InitRedis(
+	ctx context.Context,
+	log logger.Logger,
+	conf *config.Config,
+) (*redis.Client, error) {
 	addr := fmt.Sprintf("%s:%d", conf.RedisHost, conf.RedisPort)
 
 	rdb := redis.NewClient(&redis.Options{
@@ -20,10 +24,11 @@ func InitRedis(conf *config.Config) (*redis.Client, error) {
 		DB:       0,
 	})
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctxRedis, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	if err := rdb.Ping(ctx).Err(); err != nil {
+	if err := rdb.Ping(ctxRedis).Err(); err != nil {
+		log.Error(ctx, errors.NewRedisError(err))
 		return nil, errors.NewRedisError(err)
 	}
 
