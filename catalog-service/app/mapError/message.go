@@ -3,6 +3,7 @@ package mapError
 import (
 	"errors"
 	"github.com/Fox216540/shop/catalog-service/core/exception"
+	pkgerrors "github.com/pkg/errors"
 )
 
 func MapError(err, anotherError error) error {
@@ -14,5 +15,5 @@ func MapError(err, anotherError error) error {
 	if errors.As(err, &serverError) {
 		return err
 	}
-	return anotherError
+	return pkgerrors.WithStack(anotherError)
 }

@@ -3,6 +3,7 @@ package mapError
 import (
 	"errors"
 	"github.com/Fox216540/shop/order-service/core/exception"
+	pkgerrors "github.com/pkg/errors"
 	"google.golang.org/grpc/status"
 )
 
@@ -22,5 +23,5 @@ func MapError(err, anotherError error) error {
 		return err
 	}
 
-	return anotherError
+	return pkgerrors.WithStack(anotherError)
 }
