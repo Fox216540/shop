@@ -253,6 +253,85 @@ paths:
         '500':
           $ref: '#/components/responses/ServerError'
 
+  /basket:
+    get:
+      summary: Get basket items
+      operationId: getBasket
+      tags:
+        - Basket
+      security:
+        - BearerAuth: [ ]
+      responses:
+        '200':
+          $ref: '#/components/responses/BasketItemsList'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+    post:
+      summary: Add item to basket
+      operationId: addItemToBasket
+      tags:
+        - Basket
+      security:
+        - BearerAuth: [ ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddBasketItemRequest'
+      responses:
+        '201':
+          $ref: '#/components/responses/BasketItemResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+    delete:
+      summary: Clear basket
+      operationId: clearBasket
+      tags:
+        - Basket
+      security:
+        - BearerAuth: [ ]
+      responses:
+        '204':
+          description: Basket cleared
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+
+  /basket/{productId}:
+    delete:
+      summary: Remove item from basket
+      operationId: removeItemFromBasket
+      tags:
+        - Basket
+      security:
+        - BearerAuth: [ ]
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/BasketItemDeleted'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
   /orders:
     post:
       summary: Create a new order
@@ -276,6 +355,8 @@ paths:
       responses:
         '201':
           $ref: '#/components/responses/OrderCreated'
+        '409':
+          $ref: '#/components/responses/PriceMismatch'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -373,6 +454,12 @@ components:
         format: uuid
 
   responses:
+    PriceMismatch:
+      description: Product price mismatch
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/PriceMismatchError'
     Unauthorized:
       description: Unauthorized - missing or invalid token
       content:
@@ -409,7 +496,7 @@ components:
           examples:
             invalidPayload:
               value:
-                message: Invalid email or missing required fields
+                message: Invalid missing required fields
 
     Conflict:
       description: Conflict - resource already exists
@@ -504,6 +591,28 @@ components:
               message:
                 type: string
                 example: Access and refresh tokens updated successfully
+    BasketItemsList:
+      description: Basket items retrieved successfully
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/BasketItem'
+
+    BasketItemResponse:
+      description: Basket item added successfully
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/BasketItem'
+
+    BasketItemDeleted:
+      description: Item removed from basket
+      content:
+        application/json:
+          example:
+            message: Item removed from basket
 
     OrderCreated:
       description: Order created successfully
@@ -540,6 +649,31 @@ components:
             message: "Order deleted successfully"
 
   schemas:
+    Money:
+      type: object
+      required: [ amount, currency ]
+      properties:
+        amount:
+          type: string
+          example: "12.99"
+        currency:
+          type: string
+          example: "EUR"
+
+    PriceMismatchError:
+      type: object
+      required: [ code, product_id, expected_price, received_price ]
+      properties:
+        code:
+          type: string
+          example: PRICE_MISMATCH
+        product_id:
+          type: string
+        expected_price:
+          $ref: '#/components/schemas/Money'
+        received_price:
+          $ref: '#/components/schemas/Money'
+
     # Reusable simple message
     MessageResponse:
       type: object
@@ -568,39 +702,23 @@ components:
     # Orders: requests
     CreateOrderRequest:
       type: object
-      required:
-        - product_items
+      required: [ items ]
       properties:
-        product_items:
+        items:
           type: array
           items:
-            $ref: '#/components/schemas/ProductItemRequest'
-
-    ProductItemRequest:
-      type: object
-      required:
-        - product_id
-        - quantity
-        - value
-        - currency
-      properties:
-        product_id:
-          type: string
-          format: uuid
-
-        quantity:
-          type: integer
-          format: uint64
-          minimum: 1
-
-        value:
-          type: string
-          example: "199.90"
-
-        currency:
-          type: string
-          description: "Валюта цены"
-          example: "RUB"
+            type: object
+            required: [ product_id, price, quantity ]
+            properties:
+              product_id:
+                type: string
+                format: uuid
+              price:
+                $ref: '#/components/schemas/Money'
+              quantity:
+                type: integer
+                format: uint64
+                minimum: 1
 
     # Orders and products: shared building blocks
     ProductShort:
@@ -610,7 +728,6 @@ components:
         - name
         - img
         - price
-        - currency
       properties:
         id:
           type: string
@@ -621,11 +738,7 @@ components:
           type: string
           format: uri
         price:
-          type: string
-          example: "155.99"
-        currency:
-          type: string
-          example: "RUB"
+          $ref: '#/components/schemas/Money'
 
     ProductResponse:
       allOf:
@@ -648,6 +761,26 @@ components:
               format: uint64
               minimum: 0
               example: 42
+    BasketItem:
+      type: object
+      required: [ product, quantity ]
+      properties:
+        product:
+          $ref: "#/components/schemas/ProductShort"
+        quantity:
+          type: integer
+
+    AddBasketItemRequest:
+      type: object
+      properties:
+        productId:
+          type: string
+        quantity:
+          type: integer
+          minimum: 1
+      required:
+        - productId
+        - quantity
 
     OrderResponse:
       type: object
@@ -664,15 +797,11 @@ components:
         order_number:
           type: string
           example: ORD-123456789
-        total:
-          type: string
-          example: 1599.98
+        price:
+          $ref: '#/components/schemas/Money'
         status:
           type: string
           example: pending
-        currency:
-          type: string
-          example: RUB
 
     OrderItem:
       type: object

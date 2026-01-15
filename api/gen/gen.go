@@ -13,8 +13,21 @@ import (
 )
 
 const (
+	BearerAuthScopes = "BearerAuth.Scopes"
 	BearerAuthScopes = "bearerAuth.Scopes"
 )
+
+// AddBasketItemRequest defines model for AddBasketItemRequest.
+type AddBasketItemRequest struct {
+	ProductId string `json:"productId"`
+	Quantity  int    `json:"quantity"`
+}
+
+// BasketItem defines model for BasketItem.
+type BasketItem struct {
+	Product  ProductShort `json:"product"`
+	Quantity int          `json:"quantity"`
+}
 
 // CategoryResponse defines model for CategoryResponse.
 type CategoryResponse struct {
@@ -24,7 +37,11 @@ type CategoryResponse struct {
 
 // CreateOrderRequest defines model for CreateOrderRequest.
 type CreateOrderRequest struct {
-	ProductItems []ProductItemRequest `json:"product_items"`
+	Items []struct {
+		Price     Money              `json:"price"`
+		ProductId openapi_types.UUID `json:"product_id"`
+		Quantity  uint64             `json:"quantity"`
+	} `json:"items"`
 }
 
 // LoginRequest defines model for LoginRequest.
@@ -36,6 +53,12 @@ type LoginRequest struct {
 // MessageResponse defines model for MessageResponse.
 type MessageResponse struct {
 	Message string `json:"message"`
+}
+
+// Money defines model for Money.
+type Money struct {
+	Amount   string `json:"amount"`
+	Currency string `json:"currency"`
 }
 
 // OrderDeletedResponse defines model for OrderDeletedResponse.
@@ -53,51 +76,46 @@ type OrderItem struct {
 
 // OrderResponse defines model for OrderResponse.
 type OrderResponse struct {
-	Currency    string             `json:"currency"`
 	Id          openapi_types.UUID `json:"id"`
 	OrderNumber string             `json:"order_number"`
+	Price       *Money             `json:"price,omitempty"`
 	Status      string             `json:"status"`
-	Total       string             `json:"total"`
 }
 
 // OrderWithItemsResponse defines model for OrderWithItemsResponse.
 type OrderWithItemsResponse struct {
-	Currency    string             `json:"currency"`
 	Id          openapi_types.UUID `json:"id"`
 	OrderItems  []OrderItem        `json:"order_items"`
 	OrderNumber string             `json:"order_number"`
+	Price       *Money             `json:"price,omitempty"`
 	Status      string             `json:"status"`
-	Total       string             `json:"total"`
 }
 
-// ProductItemRequest defines model for ProductItemRequest.
-type ProductItemRequest struct {
-	// Currency Валюта цены
-	Currency  string             `json:"currency"`
-	ProductId openapi_types.UUID `json:"product_id"`
-	Quantity  uint64             `json:"quantity"`
-	Value     string             `json:"value"`
+// PriceMismatchError defines model for PriceMismatchError.
+type PriceMismatchError struct {
+	Code          string `json:"code"`
+	ExpectedPrice Money  `json:"expected_price"`
+	ProductId     string `json:"product_id"`
+	ReceivedPrice Money  `json:"received_price"`
 }
 
 // ProductResponse defines model for ProductResponse.
 type ProductResponse struct {
 	CategoryId  openapi_types.UUID `json:"category_id"`
-	Currency    string             `json:"currency"`
 	Description string             `json:"description"`
 	Id          openapi_types.UUID `json:"id"`
 	Img         string             `json:"img"`
 	Name        string             `json:"name"`
-	Price       string             `json:"price"`
+	Price       Money              `json:"price"`
 	Stock       uint64             `json:"stock"`
 }
 
 // ProductShort defines model for ProductShort.
 type ProductShort struct {
-	Currency string             `json:"currency"`
-	Id       openapi_types.UUID `json:"id"`
-	Img      string             `json:"img"`
-	Name     string             `json:"name"`
-	Price    string             `json:"price"`
+	Id    openapi_types.UUID `json:"id"`
+	Img   string             `json:"img"`
+	Name  string             `json:"name"`
+	Price Money              `json:"price"`
 }
 
 // RegisterRequest defines model for RegisterRequest.
@@ -155,6 +173,15 @@ type ProductId = openapi_types.UUID
 // BadRequest defines model for BadRequest.
 type BadRequest = MessageResponse
 
+// BasketItemDeleted defines model for BasketItemDeleted.
+type BasketItemDeleted interface{}
+
+// BasketItemResponse defines model for BasketItemResponse.
+type BasketItemResponse = BasketItem
+
+// BasketItemsList defines model for BasketItemsList.
+type BasketItemsList = []BasketItem
+
 // CategoriesList defines model for CategoriesList.
 type CategoriesList = []CategoryResponse
 
@@ -178,6 +205,9 @@ type OrderDeleted = OrderDeletedResponse
 
 // OrdersList defines model for OrdersList.
 type OrdersList = []OrderResponse
+
+// PriceMismatch defines model for PriceMismatch.
+type PriceMismatch = PriceMismatchError
 
 // Product defines model for Product.
 type Product = ProductResponse
@@ -215,6 +245,9 @@ type GetProductsParams struct {
 // PostAuthLoginJSONRequestBody defines body for PostAuthLogin for application/json ContentType.
 type PostAuthLoginJSONRequestBody = LoginRequest
 
+// AddItemToBasketJSONRequestBody defines body for AddItemToBasket for application/json ContentType.
+type AddItemToBasketJSONRequestBody = AddBasketItemRequest
+
 // PostOrdersJSONRequestBody defines body for PostOrders for application/json ContentType.
 type PostOrdersJSONRequestBody = CreateOrderRequest
 
@@ -247,6 +280,18 @@ type ServerInterface interface {
 	// Refresh access token
 	// (POST /auth/refresh)
 	PostAuthRefresh(c *gin.Context)
+	// Clear basket
+	// (DELETE /basket)
+	ClearBasket(c *gin.Context)
+	// Get basket items
+	// (GET /basket)
+	GetBasket(c *gin.Context)
+	// Add item to basket
+	// (POST /basket)
+	AddItemToBasket(c *gin.Context)
+	// Remove item from basket
+	// (DELETE /basket/{productId})
+	RemoveItemFromBasket(c *gin.Context, productId string)
 	// Get all product categories
 	// (GET /categories)
 	GetCategories(c *gin.Context)
@@ -351,6 +396,77 @@ func (siw *ServerInterfaceWrapper) PostAuthRefresh(c *gin.Context) {
 	}
 
 	siw.Handler.PostAuthRefresh(c)
+}
+
+// ClearBasket operation middleware
+func (siw *ServerInterfaceWrapper) ClearBasket(c *gin.Context) {
+
+	c.Set(BearerAuthScopes, []string{})
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.ClearBasket(c)
+}
+
+// GetBasket operation middleware
+func (siw *ServerInterfaceWrapper) GetBasket(c *gin.Context) {
+
+	c.Set(BearerAuthScopes, []string{})
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.GetBasket(c)
+}
+
+// AddItemToBasket operation middleware
+func (siw *ServerInterfaceWrapper) AddItemToBasket(c *gin.Context) {
+
+	c.Set(BearerAuthScopes, []string{})
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.AddItemToBasket(c)
+}
+
+// RemoveItemFromBasket operation middleware
+func (siw *ServerInterfaceWrapper) RemoveItemFromBasket(c *gin.Context) {
+
+	var err error
+
+	// ------------- Path parameter "productId" -------------
+	var productId string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "productId", c.Param("productId"), &productId, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter productId: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	c.Set(BearerAuthScopes, []string{})
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.RemoveItemFromBasket(c, productId)
 }
 
 // GetCategories operation middleware
@@ -617,6 +733,10 @@ func RegisterHandlersWithOptions(router gin.IRouter, si ServerInterface, options
 	router.POST(options.BaseURL+"/auth/logout", wrapper.PostAuthLogout)
 	router.POST(options.BaseURL+"/auth/logout-all", wrapper.PostAuthLogoutAll)
 	router.POST(options.BaseURL+"/auth/refresh", wrapper.PostAuthRefresh)
+	router.DELETE(options.BaseURL+"/basket", wrapper.ClearBasket)
+	router.GET(options.BaseURL+"/basket", wrapper.GetBasket)
+	router.POST(options.BaseURL+"/basket", wrapper.AddItemToBasket)
+	router.DELETE(options.BaseURL+"/basket/:productId", wrapper.RemoveItemFromBasket)
 	router.GET(options.BaseURL+"/categories", wrapper.GetCategories)
 	router.GET(options.BaseURL+"/orders", wrapper.GetOrders)
 	router.POST(options.BaseURL+"/orders", wrapper.PostOrders)
