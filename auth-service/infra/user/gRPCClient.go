@@ -22,11 +22,9 @@ func (c *GRPCClient) VerifyCredentialsOfUser(phoneOrEmail, password string) (nam
 	resp, err := c.pb.VerifyCredentials(ctx, req)
 	if err != nil {
 		if _, ok := status.FromError(err); ok {
-			// это gRPC-ошибка — вернуть как есть
 			return "", uuid.Nil, err
 		}
 
-		// не gRPC — завернуть
 		return "", uuid.Nil, NewGRPCError(err)
 	}
 	userID, err := uuid.Parse(resp.Id)
