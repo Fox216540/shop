@@ -13,7 +13,11 @@ import (
 )
 
 // InitPostgres инициализирует глобальный объект Database
-func InitPostgres(conf *config.Config) (*gorm.DB, error) {
+func InitPostgres(
+	ctx context.Context,
+	log logger.Logger,
+	conf *config.Config,
+) (*gorm.DB, error) {
 	dsn := fmt.Sprintf(
 		"host=%s user=%s password=%s dbname=%s port=%d sslmode=disable",
 		conf.PostgresHost,
@@ -25,10 +29,12 @@ func InitPostgres(conf *config.Config) (*gorm.DB, error) {
 
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
+		log.Error(ctx, errors.NewConnectionError(err))
 		return nil, errors.NewConnectionError(err)
 	}
 
 	if err := mig.Migration(db); err != nil {
+		log.Error(ctx, errors.NewMigrationError(err))
 		return nil, errors.NewMigrationError(err)
 	}
 
