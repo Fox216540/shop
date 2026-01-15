@@ -6,6 +6,7 @@ import (
 	db "github.com/Fox216540/shop/user-service/infra/db/core"
 	"github.com/Fox216540/shop/user-service/infra/user/models"
 	"github.com/google/uuid"
+	pkgerrors "github.com/pkg/errors"
 	"gorm.io/gorm"
 )
 
@@ -30,7 +31,7 @@ func (r *repository) Create(u user.User) (user.User, error) {
 		return tx.Create(&newUser).Error
 	})
 	if err != nil {
-		return user.User{}, NewInvalidAdd(err) // Возвращаем ошибку, если не удалось сохранить пользователя
+		return user.User{}, NewInvalidAdd(pkgerrors.WithStack(err)) // Возвращаем ошибку, если не удалось сохранить пользователя
 	}
 	return models.FromORM(*newUser), nil
 }
@@ -41,7 +42,7 @@ func (r *repository) Delete(ID uuid.UUID) error {
 		if result.RowsAffected == 0 {
 			return user.NewNotFoundUserError(nil) // Возвращаем ошибку, если пользователь не найден
 		}
-		return NewInvalidDelete(result.Error) // Возвращаем ошибку, если не удалось удалить пользователя
+		return NewInvalidDelete(pkgerrors.WithStack(result.Error)) // Возвращаем ошибку, если не удалось удалить пользователя
 	})
 
 	if err != nil {
@@ -59,7 +60,7 @@ func (r *repository) GetByID(ID uuid.UUID) (user.User, error) {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return user.User{}, user.NewNotFoundUserError(err)
 		}
-		return user.User{}, NewInvalidGetByID(err) // Возвращаем ошибку, если не удалось найти пользователя
+		return user.User{}, NewInvalidGetByID(pkgerrors.WithStack(err)) // Возвращаем ошибку, если не удалось найти пользователя
 	}
 	return models.FromORM(u), nil
 }
@@ -73,7 +74,7 @@ func (r *repository) FindByPhoneOrEmail(phone, email string) (user.User, error) 
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return user.User{}, user.NewNotFoundUserError(err)
 		}
-		return user.User{}, NewInvalidFindByPhoneOrEmail(err) // Возвращаем ошибку, если не удалось найти пользователя
+		return user.User{}, NewInvalidFindByPhoneOrEmail(pkgerrors.WithStack(err)) // Возвращаем ошибку, если не удалось найти пользователя
 	}
 	return models.FromORM(u), nil
 }
@@ -103,7 +104,7 @@ func (r *repository) Update(u user.User) (user.User, error) {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return user.User{}, user.NewNotFoundUserError(err)
 		}
-		return user.User{}, NewInvalidUpdate(err) // Возвращаем ошибку, если не удалось обновить пользователя
+		return user.User{}, NewInvalidUpdate(pkgerrors.WithStack(err)) // Возвращаем ошибку, если не удалось обновить пользователя
 	}
 	return models.FromORM(*updateUser), nil
 }
@@ -117,7 +118,7 @@ func (r *repository) ExistsByPhone(phone string) error {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return user.NewExistingPhoneError(nil)
 		}
-		return NewInvalidExistsPhone(err) // Возвращаем ошибку, если не удалось найти пользователя
+		return NewInvalidExistsPhone(pkgerrors.WithStack(err)) // Возвращаем ошибку, если не удалось найти пользователя
 	}
 	return nil
 }
@@ -131,7 +132,7 @@ func (r *repository) ExistsByEmail(email string) error {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return user.NewExistingEmailError(nil)
 		}
-		return NewInvalidExistsEmail(err) // Возвращаем ошибку, если не удалось найти пользователя
+		return NewInvalidExistsEmail(pkgerrors.WithStack(err)) // Возвращаем ошибку, если не удалось найти пользователя
 	}
 	return nil
 }

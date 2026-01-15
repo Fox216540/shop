@@ -6,6 +6,7 @@ import (
 	db "github.com/Fox216540/shop/order-service/infra/db/core"
 	"github.com/Fox216540/shop/order-service/infra/order/models"
 	"github.com/google/uuid"
+	pkgerrors "github.com/pkg/errors"
 	"gorm.io/gorm"
 )
 
@@ -45,7 +46,7 @@ func (r *repository) Save(o order.Order) (order.Order, error) {
 			First(newOrder, "order_id = ?", newOrder.OrderID).Error
 	})
 	if err != nil {
-		return order.Order{}, NewInvalidSaveOrder(err)
+		return order.Order{}, NewInvalidSaveOrder(pkgerrors.WithStack(err))
 	}
 
 	return models.FromORM(*newOrder), nil
@@ -60,7 +61,7 @@ func (r *repository) Remove(ID, userID uuid.UUID) error {
 		if result.RowsAffected == 0 {
 			return order.NewNotFoundOrderError(nil)
 		}
-		return NewInvalidRemoveOrder(result.Error) // Возвращаем ошибку, если не удалось удалить заказ
+		return NewInvalidRemoveOrder(pkgerrors.WithStack(result.Error)) // Возвращаем ошибку, если не удалось удалить заказ
 	})
 
 	if err != nil {
@@ -81,7 +82,7 @@ func (r *repository) GetByIDAndUserID(ID, userID uuid.UUID) (order.Order, error)
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return order.Order{}, order.NewNotFoundOrderError(err)
 		}
-		return order.Order{}, NewInvalidGetOrderByID(err)
+		return order.Order{}, NewInvalidGetOrderByID(pkgerrors.WithStack(err))
 	}
 	return models.FromORM(o), nil
 }
@@ -97,7 +98,7 @@ func (r *repository) GetOrdersByUserID(userID uuid.UUID) ([]order.Order, error) 
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, order.NewNotFoundOrderError(err)
 		}
-		return nil, NewInvalidGetOrdersByUserID(err)
+		return nil, NewInvalidGetOrdersByUserID(pkgerrors.WithStack(err))
 	}
 	orders := make([]order.Order, 0, len(ordersORM))
 	for _, o := range ordersORM {
@@ -113,7 +114,7 @@ func (r *repository) CheckOrderNum(orderNum string) error {
 			return order.NewOrderNumberAlreadyExistsError(nil) // Если заказ с таким номером найден, возвращаем nil
 		}
 		if !errors.Is(err, gorm.ErrRecordNotFound) {
-			return NewInvalidCheckOrderNum(err)
+			return NewInvalidCheckOrderNum(pkgerrors.WithStack(err))
 		}
 		return nil
 	})

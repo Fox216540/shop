@@ -6,6 +6,7 @@ import (
 	db "github.com/Fox216540/shop/catalog-service/infra/db/core"
 	"github.com/Fox216540/shop/catalog-service/infra/product/models"
 	"github.com/google/uuid"
+	pkgerrors "github.com/pkg/errors"
 	"gorm.io/gorm"
 )
 
@@ -28,7 +29,7 @@ func (r *repository) FindAllProducts() ([]product.Product, error) {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return []product.Product{}, product.NewNotFoundProductError(err)
 		}
-		return []product.Product{}, NewInvalidFindAll(err) // Возвращаем ошибку, если не удалось найти продукты
+		return []product.Product{}, NewInvalidFindAll(pkgerrors.WithStack(err)) // Возвращаем ошибку, если не удалось найти продукты
 	}
 	products := make([]product.Product, 0, len(productsORM))
 	for _, p := range productsORM {
@@ -52,7 +53,7 @@ func (r *repository) FindProductsByCategoryID(ID uuid.UUID) ([]product.Product, 
 			return []product.Product{}, product.NewNotFoundProductError(err)
 		}
 
-		return []product.Product{}, NewInvalidFindProductsByCategoryID(err) // Возвращаем ошибку, если не удалось найти продукты
+		return []product.Product{}, NewInvalidFindProductsByCategoryID(pkgerrors.WithStack(err)) // Возвращаем ошибку, если не удалось найти продукты
 	}
 	products := make([]product.Product, 0, len(productsORM))
 	for _, p := range productsORM {
@@ -72,7 +73,7 @@ func (r *repository) FindProductByID(ID uuid.UUID) (product.Product, error) {
 		if result.RowsAffected == 0 {
 			return product.NewNotFoundProductError(result.Error)
 		}
-		return NewInvalidFindProductByID(result.Error) // Возвращаем ошибку, если не удалось найти продукт
+		return NewInvalidFindProductByID(pkgerrors.WithStack(result.Error)) // Возвращаем ошибку, если не удалось найти продукт
 	})
 
 	if err != nil {
@@ -92,7 +93,7 @@ func (r *repository) FindProductsByIDs(IDs []uuid.UUID) ([]product.Product, erro
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return []product.Product{}, product.NewNotFoundProductsError(err)
 		}
-		return []product.Product{}, NewInvalidFindProductsByIDs(err) // Возвращаем ошибку, если не удалось найти продукты
+		return []product.Product{}, NewInvalidFindProductsByIDs(pkgerrors.WithStack(err)) // Возвращаем ошибку, если не удалось найти продукты
 	}
 
 	products := make([]product.Product, 0, len(productsORM))
