@@ -8,14 +8,19 @@ option go_package = "github.com/Fox216540/shop/proto/common/gen;common";
 message MessageResponse {
     string message = 1;
 }
+message Money {
+    string amount = 1;
+    string currency = 2;
+}
+
 
 message Product {
     string id = 1;
     string name = 2;
     string img = 3;
-    string price = 4;
-    string currency = 5;
+    common.Money price = 4;
 }
+
 
 //Auth-service:
 message TokensResponse {
