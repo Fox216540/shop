@@ -19,8 +19,8 @@ const (
 
 // AddBasketItemRequest defines model for AddBasketItemRequest.
 type AddBasketItemRequest struct {
-	ProductId string `json:"productId"`
-	Quantity  int    `json:"quantity"`
+	ProductId openapi_types.UUID `json:"productId"`
+	Quantity  uint64             `json:"quantity"`
 }
 
 // BasketItem defines model for BasketItem.
@@ -161,8 +161,8 @@ type UserWithTokenResponse struct {
 	Name        string `json:"name"`
 }
 
-// CategoryQuery defines model for CategoryQuery.
-type CategoryQuery = openapi_types.UUID
+// CategoryId defines model for CategoryId.
+type CategoryId = openapi_types.UUID
 
 // OrderId defines model for OrderId.
 type OrderId = openapi_types.UUID
@@ -172,9 +172,6 @@ type ProductId = openapi_types.UUID
 
 // BadRequest defines model for BadRequest.
 type BadRequest = MessageResponse
-
-// BasketItemDeleted defines model for BasketItemDeleted.
-type BasketItemDeleted interface{}
 
 // BasketItemResponse defines model for BasketItemResponse.
 type BasketItemResponse = BasketItem
@@ -238,8 +235,8 @@ type UserWithToken = UserWithTokenResponse
 
 // GetProductsParams defines parameters for GetProducts.
 type GetProductsParams struct {
-	// Category Category UUID (optional — if omitted, returns all products)
-	Category *CategoryQuery `form:"category,omitempty" json:"category,omitempty"`
+	// CategoryId Category UUID (optional — if omitted, returns all products)
+	CategoryId *CategoryId `form:"categoryId,omitempty" json:"categoryId,omitempty"`
 }
 
 // PostAuthLoginJSONRequestBody defines body for PostAuthLogin for application/json ContentType.
@@ -291,7 +288,7 @@ type ServerInterface interface {
 	AddItemToBasket(c *gin.Context)
 	// Remove item from basket
 	// (DELETE /basket/{productId})
-	RemoveItemFromBasket(c *gin.Context, productId string)
+	RemoveItemFromBasket(c *gin.Context, productId ProductId)
 	// Get all product categories
 	// (GET /categories)
 	GetCategories(c *gin.Context)
@@ -302,17 +299,17 @@ type ServerInterface interface {
 	// (POST /orders)
 	PostOrders(c *gin.Context)
 	// Delete an order
-	// (DELETE /orders/{id})
-	DeleteOrdersId(c *gin.Context, id OrderId)
+	// (DELETE /orders/{orderId})
+	DeleteOrdersOrderId(c *gin.Context, orderId OrderId)
 	// Get an order by its ID
-	// (GET /orders/{id})
-	GetOrdersId(c *gin.Context, id OrderId)
+	// (GET /orders/{orderId})
+	GetOrdersOrderId(c *gin.Context, orderId OrderId)
 	// Get products (optionally filtered by category)
 	// (GET /products)
 	GetProducts(c *gin.Context, params GetProductsParams)
 	// Get a product by its ID
-	// (GET /products/{id})
-	GetProductById(c *gin.Context, id ProductId)
+	// (GET /products/{productId})
+	GetProductById(c *gin.Context, productId ProductId)
 	// Register a new user
 	// (POST /users)
 	CreateUser(c *gin.Context)
@@ -449,7 +446,7 @@ func (siw *ServerInterfaceWrapper) RemoveItemFromBasket(c *gin.Context) {
 	var err error
 
 	// ------------- Path parameter "productId" -------------
-	var productId string
+	var productId ProductId
 
 	err = runtime.BindStyledParameterWithOptions("simple", "productId", c.Param("productId"), &productId, runtime.BindStyledParameterOptions{Explode: false, Required: true})
 	if err != nil {
@@ -512,17 +509,17 @@ func (siw *ServerInterfaceWrapper) PostOrders(c *gin.Context) {
 	siw.Handler.PostOrders(c)
 }
 
-// DeleteOrdersId operation middleware
-func (siw *ServerInterfaceWrapper) DeleteOrdersId(c *gin.Context) {
+// DeleteOrdersOrderId operation middleware
+func (siw *ServerInterfaceWrapper) DeleteOrdersOrderId(c *gin.Context) {
 
 	var err error
 
-	// ------------- Path parameter "id" -------------
-	var id OrderId
+	// ------------- Path parameter "orderId" -------------
+	var orderId OrderId
 
-	err = runtime.BindStyledParameterWithOptions("simple", "id", c.Param("id"), &id, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	err = runtime.BindStyledParameterWithOptions("simple", "orderId", c.Param("orderId"), &orderId, runtime.BindStyledParameterOptions{Explode: false, Required: true})
 	if err != nil {
-		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter id: %w", err), http.StatusBadRequest)
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter orderId: %w", err), http.StatusBadRequest)
 		return
 	}
 
@@ -535,20 +532,20 @@ func (siw *ServerInterfaceWrapper) DeleteOrdersId(c *gin.Context) {
 		}
 	}
 
-	siw.Handler.DeleteOrdersId(c, id)
+	siw.Handler.DeleteOrdersOrderId(c, orderId)
 }
 
-// GetOrdersId operation middleware
-func (siw *ServerInterfaceWrapper) GetOrdersId(c *gin.Context) {
+// GetOrdersOrderId operation middleware
+func (siw *ServerInterfaceWrapper) GetOrdersOrderId(c *gin.Context) {
 
 	var err error
 
-	// ------------- Path parameter "id" -------------
-	var id OrderId
+	// ------------- Path parameter "orderId" -------------
+	var orderId OrderId
 
-	err = runtime.BindStyledParameterWithOptions("simple", "id", c.Param("id"), &id, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	err = runtime.BindStyledParameterWithOptions("simple", "orderId", c.Param("orderId"), &orderId, runtime.BindStyledParameterOptions{Explode: false, Required: true})
 	if err != nil {
-		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter id: %w", err), http.StatusBadRequest)
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter orderId: %w", err), http.StatusBadRequest)
 		return
 	}
 
@@ -561,7 +558,7 @@ func (siw *ServerInterfaceWrapper) GetOrdersId(c *gin.Context) {
 		}
 	}
 
-	siw.Handler.GetOrdersId(c, id)
+	siw.Handler.GetOrdersOrderId(c, orderId)
 }
 
 // GetProducts operation middleware
@@ -572,11 +569,11 @@ func (siw *ServerInterfaceWrapper) GetProducts(c *gin.Context) {
 	// Parameter object where we will unmarshal all parameters from the context
 	var params GetProductsParams
 
-	// ------------- Optional query parameter "category" -------------
+	// ------------- Optional query parameter "categoryId" -------------
 
-	err = runtime.BindQueryParameter("form", true, false, "category", c.Request.URL.Query(), &params.Category)
+	err = runtime.BindQueryParameter("form", true, false, "categoryId", c.Request.URL.Query(), &params.CategoryId)
 	if err != nil {
-		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter category: %w", err), http.StatusBadRequest)
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter categoryId: %w", err), http.StatusBadRequest)
 		return
 	}
 
@@ -595,12 +592,12 @@ func (siw *ServerInterfaceWrapper) GetProductById(c *gin.Context) {
 
 	var err error
 
-	// ------------- Path parameter "id" -------------
-	var id ProductId
+	// ------------- Path parameter "productId" -------------
+	var productId ProductId
 
-	err = runtime.BindStyledParameterWithOptions("simple", "id", c.Param("id"), &id, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	err = runtime.BindStyledParameterWithOptions("simple", "productId", c.Param("productId"), &productId, runtime.BindStyledParameterOptions{Explode: false, Required: true})
 	if err != nil {
-		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter id: %w", err), http.StatusBadRequest)
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter productId: %w", err), http.StatusBadRequest)
 		return
 	}
 
@@ -611,7 +608,7 @@ func (siw *ServerInterfaceWrapper) GetProductById(c *gin.Context) {
 		}
 	}
 
-	siw.Handler.GetProductById(c, id)
+	siw.Handler.GetProductById(c, productId)
 }
 
 // CreateUser operation middleware
@@ -740,10 +737,10 @@ func RegisterHandlersWithOptions(router gin.IRouter, si ServerInterface, options
 	router.GET(options.BaseURL+"/categories", wrapper.GetCategories)
 	router.GET(options.BaseURL+"/orders", wrapper.GetOrders)
 	router.POST(options.BaseURL+"/orders", wrapper.PostOrders)
-	router.DELETE(options.BaseURL+"/orders/:id", wrapper.DeleteOrdersId)
-	router.GET(options.BaseURL+"/orders/:id", wrapper.GetOrdersId)
+	router.DELETE(options.BaseURL+"/orders/:orderId", wrapper.DeleteOrdersOrderId)
+	router.GET(options.BaseURL+"/orders/:orderId", wrapper.GetOrdersOrderId)
 	router.GET(options.BaseURL+"/products", wrapper.GetProducts)
-	router.GET(options.BaseURL+"/products/:id", wrapper.GetProductById)
+	router.GET(options.BaseURL+"/products/:productId", wrapper.GetProductById)
 	router.POST(options.BaseURL+"/users", wrapper.CreateUser)
 	router.DELETE(options.BaseURL+"/users/me", wrapper.DeleteUser)
 	router.PATCH(options.BaseURL+"/users/me/email", wrapper.PatchUsersMeEmail)

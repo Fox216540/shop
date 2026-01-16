@@ -27,14 +27,14 @@ paths:
       tags:
         - Catalog
       parameters:
-        - $ref: '#/components/parameters/CategoryQuery'
+        - $ref: '#/components/parameters/CategoryId'
       responses:
         '200':
           $ref: '#/components/responses/ProductsList'
         '500':
           $ref: '#/components/responses/ServerError'
 
-  /products/{id}:
+  /products/{productId}:
     get:
       summary: Get a product by its ID
       operationId: getProductById
@@ -301,7 +301,7 @@ paths:
         - BearerAuth: [ ]
       responses:
         '204':
-          description: Basket cleared
+          $ref: "#/components/responses/MessageOK"
         '401':
           $ref: '#/components/responses/Unauthorized'
         '500':
@@ -317,14 +317,10 @@ paths:
       security:
         - BearerAuth: [ ]
       parameters:
-        - name: productId
-          in: path
-          required: true
-          schema:
-            type: string
+        - $ref: "#/components/parameters/ProductId"
       responses:
         '200':
-          $ref: '#/components/responses/BasketItemDeleted'
+          $ref: '#/components/responses/MessageOK'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '404':
@@ -379,7 +375,7 @@ paths:
         '500':
           $ref: '#/components/responses/ServerError'
 
-  /orders/{id}:
+  /orders/{orderId}:
     get:
       summary: Get an order by its ID
       description: Retrieves a specific order by ID. Requires Bearer token.
@@ -426,8 +422,8 @@ components:
       bearerFormat: JWT
 
   parameters:
-    CategoryQuery:
-      name: category
+    CategoryId:
+      name: categoryId
       in: query
       description: Category UUID (optional — if omitted, returns all products)
       required: false
@@ -436,7 +432,7 @@ components:
         format: uuid
 
     ProductId:
-      name: id
+      name: productId
       in: path
       required: true
       description: Product UUID
@@ -445,7 +441,7 @@ components:
         format: uuid
 
     OrderId:
-      name: id
+      name: orderId
       in: path
       required: true
       description: Order UUID
@@ -591,6 +587,7 @@ components:
               message:
                 type: string
                 example: Access and refresh tokens updated successfully
+
     BasketItemsList:
       description: Basket items retrieved successfully
       content:
@@ -606,13 +603,6 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/BasketItem'
-
-    BasketItemDeleted:
-      description: Item removed from basket
-      content:
-        application/json:
-          example:
-            message: Item removed from basket
 
     OrderCreated:
       description: Order created successfully
@@ -775,8 +765,10 @@ components:
       properties:
         productId:
           type: string
+          format: uuid
         quantity:
           type: integer
+          format: uint64
           minimum: 1
       required:
         - productId
