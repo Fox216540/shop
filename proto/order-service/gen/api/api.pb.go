@@ -287,9 +287,8 @@ type Order struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	OrderNum      string                 `protobuf:"bytes,2,opt,name=order_num,json=orderNum,proto3" json:"order_num,omitempty"`
-	Total         string                 `protobuf:"bytes,3,opt,name=total,proto3" json:"total,omitempty"`
-	Currency      string                 `protobuf:"bytes,4,opt,name=currency,proto3" json:"currency,omitempty"`
-	Status        string                 `protobuf:"bytes,5,opt,name=status,proto3" json:"status,omitempty"`
+	Price         *gen.Money             `protobuf:"bytes,3,opt,name=price,proto3" json:"price,omitempty"`
+	Status        string                 `protobuf:"bytes,4,opt,name=status,proto3" json:"status,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -338,18 +337,11 @@ func (x *Order) GetOrderNum() string {
 	return ""
 }
 
-func (x *Order) GetTotal() string {
+func (x *Order) GetPrice() *gen.Money {
 	if x != nil {
-		return x.Total
+		return x.Price
 	}
-	return ""
-}
-
-func (x *Order) GetCurrency() string {
-	if x != nil {
-		return x.Currency
-	}
-	return ""
+	return nil
 }
 
 func (x *Order) GetStatus() string {
@@ -483,13 +475,12 @@ const file_order_service_api_proto_rawDesc = "" +
 	"\x05value\x18\x03 \x01(\tR\x05value\x12\x1a\n" +
 	"\bcurrency\x18\x04 \x01(\tR\bcurrency\"B\n" +
 	"\x12CreateOrderRequest\x12,\n" +
-	"\x05items\x18\x01 \x03(\v2\x16.order.api.ItemRequestR\x05items\"~\n" +
+	"\x05items\x18\x01 \x03(\v2\x16.order.api.ItemRequestR\x05items\"q\n" +
 	"\x05Order\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1b\n" +
-	"\torder_num\x18\x02 \x01(\tR\borderNum\x12\x14\n" +
-	"\x05total\x18\x03 \x01(\tR\x05total\x12\x1a\n" +
-	"\bcurrency\x18\x04 \x01(\tR\bcurrency\x12\x16\n" +
-	"\x06status\x18\x05 \x01(\tR\x06status\"E\n" +
+	"\torder_num\x18\x02 \x01(\tR\borderNum\x12#\n" +
+	"\x05price\x18\x03 \x01(\v2\r.common.MoneyR\x05price\x12\x16\n" +
+	"\x06status\x18\x04 \x01(\tR\x06status\"E\n" +
 	"\x19GetOrdersByUserIdResponse\x12(\n" +
 	"\x06orders\x18\x01 \x03(\v2\x10.order.api.OrderR\x06orders\"\x8f\x01\n" +
 	"\x13DeleteOrderResponse\x12-\n" +
@@ -526,30 +517,32 @@ var file_order_service_api_proto_goTypes = []any{
 	(*GetOrdersByUserIdResponse)(nil), // 6: order.api.GetOrdersByUserIdResponse
 	(*DeleteOrderResponse)(nil),       // 7: order.api.DeleteOrderResponse
 	(*gen.Product)(nil),               // 8: common.Product
-	(*gen.MessageResponse)(nil),       // 9: common.MessageResponse
-	(*emptypb.Empty)(nil),             // 10: google.protobuf.Empty
+	(*gen.Money)(nil),                 // 9: common.Money
+	(*gen.MessageResponse)(nil),       // 10: common.MessageResponse
+	(*emptypb.Empty)(nil),             // 11: google.protobuf.Empty
 }
 var file_order_service_api_proto_depIdxs = []int32{
 	8,  // 0: order.api.Item.product:type_name -> common.Product
 	5,  // 1: order.api.OrderWithItems.order:type_name -> order.api.Order
 	0,  // 2: order.api.OrderWithItems.items:type_name -> order.api.Item
 	3,  // 3: order.api.CreateOrderRequest.items:type_name -> order.api.ItemRequest
-	5,  // 4: order.api.GetOrdersByUserIdResponse.orders:type_name -> order.api.Order
-	1,  // 5: order.api.DeleteOrderResponse.order_id:type_name -> order.api.OrderId
-	9,  // 6: order.api.DeleteOrderResponse.message:type_name -> common.MessageResponse
-	4,  // 7: order.api.ApiService.CreateOrder:input_type -> order.api.CreateOrderRequest
-	1,  // 8: order.api.ApiService.GetOrderById:input_type -> order.api.OrderId
-	10, // 9: order.api.ApiService.GetOrdersByUserId:input_type -> google.protobuf.Empty
-	1,  // 10: order.api.ApiService.DeleteOrder:input_type -> order.api.OrderId
-	5,  // 11: order.api.ApiService.CreateOrder:output_type -> order.api.Order
-	2,  // 12: order.api.ApiService.GetOrderById:output_type -> order.api.OrderWithItems
-	6,  // 13: order.api.ApiService.GetOrdersByUserId:output_type -> order.api.GetOrdersByUserIdResponse
-	7,  // 14: order.api.ApiService.DeleteOrder:output_type -> order.api.DeleteOrderResponse
-	11, // [11:15] is the sub-list for method output_type
-	7,  // [7:11] is the sub-list for method input_type
-	7,  // [7:7] is the sub-list for extension type_name
-	7,  // [7:7] is the sub-list for extension extendee
-	0,  // [0:7] is the sub-list for field type_name
+	9,  // 4: order.api.Order.price:type_name -> common.Money
+	5,  // 5: order.api.GetOrdersByUserIdResponse.orders:type_name -> order.api.Order
+	1,  // 6: order.api.DeleteOrderResponse.order_id:type_name -> order.api.OrderId
+	10, // 7: order.api.DeleteOrderResponse.message:type_name -> common.MessageResponse
+	4,  // 8: order.api.ApiService.CreateOrder:input_type -> order.api.CreateOrderRequest
+	1,  // 9: order.api.ApiService.GetOrderById:input_type -> order.api.OrderId
+	11, // 10: order.api.ApiService.GetOrdersByUserId:input_type -> google.protobuf.Empty
+	1,  // 11: order.api.ApiService.DeleteOrder:input_type -> order.api.OrderId
+	5,  // 12: order.api.ApiService.CreateOrder:output_type -> order.api.Order
+	2,  // 13: order.api.ApiService.GetOrderById:output_type -> order.api.OrderWithItems
+	6,  // 14: order.api.ApiService.GetOrdersByUserId:output_type -> order.api.GetOrdersByUserIdResponse
+	7,  // 15: order.api.ApiService.DeleteOrder:output_type -> order.api.DeleteOrderResponse
+	12, // [12:16] is the sub-list for method output_type
+	8,  // [8:12] is the sub-list for method input_type
+	8,  // [8:8] is the sub-list for extension type_name
+	8,  // [8:8] is the sub-list for extension extendee
+	0,  // [0:8] is the sub-list for field type_name
 }
 
 func init() { file_order_service_api_proto_init() }

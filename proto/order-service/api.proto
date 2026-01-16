@@ -46,9 +46,8 @@ message CreateOrderRequest {
 message Order {
     string id = 1;
     string order_num = 2;
-    string total = 3;
-    string currency = 4;
-    string status = 5;
+    common.Money price = 3;
+    string status = 4;
 }
 
 message GetOrdersByUserIdResponse {
