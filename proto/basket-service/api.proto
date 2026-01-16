@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+package basket.api;
+
+import "common/types.proto";
+import "google/protobuf/empty.proto";
+
+
+option go_package = "github.com/Fox216540/shop/proto/basket-service/gen/api;basket";
+
+service ApiService {
+    rpc GetBasket (google.protobuf.Empty) returns (GetBasketResponse);
+    rpc AddItemToBasket (AddItemToBasketRequest) returns (AddItemToBasketResponse);
+    rpc DeleteBasket (google.protobuf.Empty) returns (common.MessageResponse);
+    rpc RemoveItemFromBasket (RemoveItemFromBasketRequest) returns (common.MessageResponse);
+}
+
+
+message GetBasketResponse {
+    repeated common.Product products = 1;
+}
+
+message AddItemToBasketRequest {
+    string product_id = 1;
+    string quantity = 2;
+}
+
+message AddItemToBasketResponse {
+    common.Product product = 1;
+    string quantity = 2;
+}
+
+message RemoveItemFromBasketRequest {
+    string product_id = 1;
+}
+
