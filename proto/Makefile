@@ -61,6 +61,17 @@ gen-auth:
 	@make gen-auth-api gen-auth-interservice
 	@echo "✅ Auth generated"
 
+gen-basket:
+	@make gen-common
+	@mkdir -p basket-service/gen
+	protoc -I=. \
+			--go_out=basket-service/ \
+			--go_opt=module=github.com/Fox216540/shop/proto/basket-service \
+			--go-grpc_out=basket-service/ \
+			--go-grpc_opt=module=github.com/Fox216540/shop/proto/basket-service \
+		basket-service/api.proto
+	@echo "✅ Basket proto generated"
+
 gen-order:
 	@make gen-common
 	@mkdir -p order-service/gen
