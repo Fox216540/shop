@@ -29,6 +29,12 @@ type BasketItem struct {
 	Quantity int          `json:"quantity"`
 }
 
+// BasketItemList defines model for BasketItemList.
+type BasketItemList struct {
+	Items []BasketItem `json:"items"`
+	Price Money        `json:"price"`
+}
+
 // CategoryResponse defines model for CategoryResponse.
 type CategoryResponse struct {
 	Id   openapi_types.UUID `json:"id"`
@@ -37,10 +43,11 @@ type CategoryResponse struct {
 
 // CreateOrderRequest defines model for CreateOrderRequest.
 type CreateOrderRequest struct {
-	Items []struct {
-		Price     Money              `json:"price"`
-		ProductId openapi_types.UUID `json:"product_id"`
-		Quantity  uint64             `json:"quantity"`
+	Currency string `json:"currency"`
+	Items    []struct {
+		ExpectedUnitPrice string             `json:"expectedUnitPrice"`
+		ProductId         openapi_types.UUID `json:"product_id"`
+		Quantity          uint64             `json:"quantity"`
 	} `json:"items"`
 }
 
@@ -93,10 +100,12 @@ type OrderWithItemsResponse struct {
 
 // PriceMismatchError defines model for PriceMismatchError.
 type PriceMismatchError struct {
-	Code          string `json:"code"`
-	ExpectedPrice Money  `json:"expected_price"`
-	ProductId     string `json:"product_id"`
-	ReceivedPrice Money  `json:"received_price"`
+	Code       string `json:"code"`
+	ErrorItems []struct {
+		ActualPrice   Money              `json:"actual_price"`
+		ExpectedPrice Money              `json:"expected_price"`
+		ProductId     openapi_types.UUID `json:"product_id"`
+	} `json:"error_items"`
 }
 
 // ProductResponse defines model for ProductResponse.
@@ -164,6 +173,9 @@ type UserWithTokenResponse struct {
 // CategoryId defines model for CategoryId.
 type CategoryId = openapi_types.UUID
 
+// Currency defines model for Currency.
+type Currency = string
+
 // OrderId defines model for OrderId.
 type OrderId = openapi_types.UUID
 
@@ -173,11 +185,11 @@ type ProductId = openapi_types.UUID
 // BadRequest defines model for BadRequest.
 type BadRequest = MessageResponse
 
+// BasketItemListResponse defines model for BasketItemListResponse.
+type BasketItemListResponse = []BasketItemList
+
 // BasketItemResponse defines model for BasketItemResponse.
 type BasketItemResponse = BasketItem
-
-// BasketItemsList defines model for BasketItemsList.
-type BasketItemsList = []BasketItem
 
 // CategoriesList defines model for CategoriesList.
 type CategoriesList = []CategoryResponse
@@ -233,10 +245,25 @@ type UserDeleted = UserResponse
 // UserWithToken defines model for UserWithToken.
 type UserWithToken = UserWithTokenResponse
 
+// GetBasketParams defines parameters for GetBasket.
+type GetBasketParams struct {
+	// Currency Currency of user
+	Currency Currency `form:"currency" json:"currency"`
+}
+
 // GetProductsParams defines parameters for GetProducts.
 type GetProductsParams struct {
 	// CategoryId Category UUID (optional — if omitted, returns all products)
 	CategoryId *CategoryId `form:"categoryId,omitempty" json:"categoryId,omitempty"`
+
+	// Currency Currency of user
+	Currency Currency `form:"currency" json:"currency"`
+}
+
+// GetProductByIdParams defines parameters for GetProductById.
+type GetProductByIdParams struct {
+	// Currency Currency of user
+	Currency Currency `form:"currency" json:"currency"`
 }
 
 // PostAuthLoginJSONRequestBody defines body for PostAuthLogin for application/json ContentType.
@@ -282,7 +309,7 @@ type ServerInterface interface {
 	ClearBasket(c *gin.Context)
 	// Get basket items
 	// (GET /basket)
-	GetBasket(c *gin.Context)
+	GetBasket(c *gin.Context, params GetBasketParams)
 	// Add item to basket
 	// (POST /basket)
 	AddItemToBasket(c *gin.Context)
@@ -309,7 +336,7 @@ type ServerInterface interface {
 	GetProducts(c *gin.Context, params GetProductsParams)
 	// Get a product by its ID
 	// (GET /products/{productId})
-	GetProductById(c *gin.Context, productId ProductId)
+	GetProductById(c *gin.Context, productId ProductId, params GetProductByIdParams)
 	// Register a new user
 	// (POST /users)
 	CreateUser(c *gin.Context)
@@ -413,7 +440,27 @@ func (siw *ServerInterfaceWrapper) ClearBasket(c *gin.Context) {
 // GetBasket operation middleware
 func (siw *ServerInterfaceWrapper) GetBasket(c *gin.Context) {
 
+	var err error
+
 	c.Set(BearerAuthScopes, []string{})
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params GetBasketParams
+
+	// ------------- Required query parameter "currency" -------------
+
+	if paramValue := c.Query("currency"); paramValue != "" {
+
+	} else {
+		siw.ErrorHandler(c, fmt.Errorf("Query argument currency is required, but not found"), http.StatusBadRequest)
+		return
+	}
+
+	err = runtime.BindQueryParameter("form", true, true, "currency", c.Request.URL.Query(), &params.Currency)
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter currency: %w", err), http.StatusBadRequest)
+		return
+	}
 
 	for _, middleware := range siw.HandlerMiddlewares {
 		middleware(c)
@@ -422,7 +469,7 @@ func (siw *ServerInterfaceWrapper) GetBasket(c *gin.Context) {
 		}
 	}
 
-	siw.Handler.GetBasket(c)
+	siw.Handler.GetBasket(c, params)
 }
 
 // AddItemToBasket operation middleware
@@ -577,6 +624,21 @@ func (siw *ServerInterfaceWrapper) GetProducts(c *gin.Context) {
 		return
 	}
 
+	// ------------- Required query parameter "currency" -------------
+
+	if paramValue := c.Query("currency"); paramValue != "" {
+
+	} else {
+		siw.ErrorHandler(c, fmt.Errorf("Query argument currency is required, but not found"), http.StatusBadRequest)
+		return
+	}
+
+	err = runtime.BindQueryParameter("form", true, true, "currency", c.Request.URL.Query(), &params.Currency)
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter currency: %w", err), http.StatusBadRequest)
+		return
+	}
+
 	for _, middleware := range siw.HandlerMiddlewares {
 		middleware(c)
 		if c.IsAborted() {
@@ -601,6 +663,24 @@ func (siw *ServerInterfaceWrapper) GetProductById(c *gin.Context) {
 		return
 	}
 
+	// Parameter object where we will unmarshal all parameters from the context
+	var params GetProductByIdParams
+
+	// ------------- Required query parameter "currency" -------------
+
+	if paramValue := c.Query("currency"); paramValue != "" {
+
+	} else {
+		siw.ErrorHandler(c, fmt.Errorf("Query argument currency is required, but not found"), http.StatusBadRequest)
+		return
+	}
+
+	err = runtime.BindQueryParameter("form", true, true, "currency", c.Request.URL.Query(), &params.Currency)
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter currency: %w", err), http.StatusBadRequest)
+		return
+	}
+
 	for _, middleware := range siw.HandlerMiddlewares {
 		middleware(c)
 		if c.IsAborted() {
@@ -608,7 +688,7 @@ func (siw *ServerInterfaceWrapper) GetProductById(c *gin.Context) {
 		}
 	}
 
-	siw.Handler.GetProductById(c, productId)
+	siw.Handler.GetProductById(c, productId, params)
 }
 
 // CreateUser operation middleware

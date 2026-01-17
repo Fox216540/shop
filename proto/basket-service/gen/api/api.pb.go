@@ -26,6 +26,7 @@ const (
 type GetBasketResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Products      []*gen.Product         `protobuf:"bytes,1,rep,name=products,proto3" json:"products,omitempty"`
+	Price         *gen.Money             `protobuf:"bytes,2,opt,name=price,proto3" json:"price,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -63,6 +64,13 @@ func (*GetBasketResponse) Descriptor() ([]byte, []int) {
 func (x *GetBasketResponse) GetProducts() []*gen.Product {
 	if x != nil {
 		return x.Products
+	}
+	return nil
+}
+
+func (x *GetBasketResponse) GetPrice() *gen.Money {
+	if x != nil {
+		return x.Price
 	}
 	return nil
 }
@@ -220,9 +228,10 @@ var File_basket_service_api_proto protoreflect.FileDescriptor
 const file_basket_service_api_proto_rawDesc = "" +
 	"\n" +
 	"\x18basket-service/api.proto\x12\n" +
-	"basket.api\x1a\x12common/types.proto\x1a\x1bgoogle/protobuf/empty.proto\"@\n" +
+	"basket.api\x1a\x12common/types.proto\x1a\x1bgoogle/protobuf/empty.proto\"e\n" +
 	"\x11GetBasketResponse\x12+\n" +
-	"\bproducts\x18\x01 \x03(\v2\x0f.common.ProductR\bproducts\"S\n" +
+	"\bproducts\x18\x01 \x03(\v2\x0f.common.ProductR\bproducts\x12#\n" +
+	"\x05price\x18\x02 \x01(\v2\r.common.MoneyR\x05price\"S\n" +
 	"\x16AddItemToBasketRequest\x12\x1d\n" +
 	"\n" +
 	"product_id\x18\x01 \x01(\tR\tproductId\x12\x1a\n" +
@@ -259,25 +268,27 @@ var file_basket_service_api_proto_goTypes = []any{
 	(*AddItemToBasketResponse)(nil),     // 2: basket.api.AddItemToBasketResponse
 	(*RemoveItemFromBasketRequest)(nil), // 3: basket.api.RemoveItemFromBasketRequest
 	(*gen.Product)(nil),                 // 4: common.Product
-	(*emptypb.Empty)(nil),               // 5: google.protobuf.Empty
-	(*gen.MessageResponse)(nil),         // 6: common.MessageResponse
+	(*gen.Money)(nil),                   // 5: common.Money
+	(*emptypb.Empty)(nil),               // 6: google.protobuf.Empty
+	(*gen.MessageResponse)(nil),         // 7: common.MessageResponse
 }
 var file_basket_service_api_proto_depIdxs = []int32{
 	4, // 0: basket.api.GetBasketResponse.products:type_name -> common.Product
-	4, // 1: basket.api.AddItemToBasketResponse.product:type_name -> common.Product
-	5, // 2: basket.api.ApiService.GetBasket:input_type -> google.protobuf.Empty
-	1, // 3: basket.api.ApiService.AddItemToBasket:input_type -> basket.api.AddItemToBasketRequest
-	5, // 4: basket.api.ApiService.DeleteBasket:input_type -> google.protobuf.Empty
-	3, // 5: basket.api.ApiService.RemoveItemFromBasket:input_type -> basket.api.RemoveItemFromBasketRequest
-	0, // 6: basket.api.ApiService.GetBasket:output_type -> basket.api.GetBasketResponse
-	2, // 7: basket.api.ApiService.AddItemToBasket:output_type -> basket.api.AddItemToBasketResponse
-	6, // 8: basket.api.ApiService.DeleteBasket:output_type -> common.MessageResponse
-	6, // 9: basket.api.ApiService.RemoveItemFromBasket:output_type -> common.MessageResponse
-	6, // [6:10] is the sub-list for method output_type
-	2, // [2:6] is the sub-list for method input_type
-	2, // [2:2] is the sub-list for extension type_name
-	2, // [2:2] is the sub-list for extension extendee
-	0, // [0:2] is the sub-list for field type_name
+	5, // 1: basket.api.GetBasketResponse.price:type_name -> common.Money
+	4, // 2: basket.api.AddItemToBasketResponse.product:type_name -> common.Product
+	6, // 3: basket.api.ApiService.GetBasket:input_type -> google.protobuf.Empty
+	1, // 4: basket.api.ApiService.AddItemToBasket:input_type -> basket.api.AddItemToBasketRequest
+	6, // 5: basket.api.ApiService.DeleteBasket:input_type -> google.protobuf.Empty
+	3, // 6: basket.api.ApiService.RemoveItemFromBasket:input_type -> basket.api.RemoveItemFromBasketRequest
+	0, // 7: basket.api.ApiService.GetBasket:output_type -> basket.api.GetBasketResponse
+	2, // 8: basket.api.ApiService.AddItemToBasket:output_type -> basket.api.AddItemToBasketResponse
+	7, // 9: basket.api.ApiService.DeleteBasket:output_type -> common.MessageResponse
+	7, // 10: basket.api.ApiService.RemoveItemFromBasket:output_type -> common.MessageResponse
+	7, // [7:11] is the sub-list for method output_type
+	3, // [3:7] is the sub-list for method input_type
+	3, // [3:3] is the sub-list for extension type_name
+	3, // [3:3] is the sub-list for extension extendee
+	0, // [0:3] is the sub-list for field type_name
 }
 
 func init() { file_basket_service_api_proto_init() }

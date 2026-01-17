@@ -28,6 +28,7 @@ paths:
         - Catalog
       parameters:
         - $ref: '#/components/parameters/CategoryId'
+        - $ref: '#/components/parameters/Currency'
       responses:
         '200':
           $ref: '#/components/responses/ProductsList'
@@ -42,6 +43,7 @@ paths:
         - Catalog
       parameters:
         - $ref: '#/components/parameters/ProductId'
+        - $ref: '#/components/parameters/Currency'
       responses:
         '200':
           $ref: '#/components/responses/Product'
@@ -261,9 +263,11 @@ paths:
         - Basket
       security:
         - BearerAuth: [ ]
+      parameters:
+        - $ref: '#/components/parameters/Currency'
       responses:
         '200':
-          $ref: '#/components/responses/BasketItemsList'
+          $ref: '#/components/responses/BasketItemListResponse'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '500':
@@ -342,12 +346,6 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/CreateOrderRequest'
-            example:
-              product_items:
-                - product_id: "3f7100f5-b21b-454e-8fbc-a7f1ef5b5b7b"
-                  quantity: 10
-                  value: "100.00"
-                  currency: "RUB"
       responses:
         '201':
           $ref: '#/components/responses/OrderCreated'
@@ -448,6 +446,14 @@ components:
       schema:
         type: string
         format: uuid
+
+    Currency:
+      name: currency
+      in: query
+      required: true
+      description: Currency of user
+      schema:
+        type: string
 
   responses:
     PriceMismatch:
@@ -588,14 +594,14 @@ components:
                 type: string
                 example: Access and refresh tokens updated successfully
 
-    BasketItemsList:
+    BasketItemListResponse:
       description: Basket items retrieved successfully
       content:
         application/json:
           schema:
             type: array
             items:
-              $ref: '#/components/schemas/BasketItem'
+              $ref: '#/components/schemas/BasketItemList'
 
     BasketItemResponse:
       description: Basket item added successfully
@@ -652,17 +658,27 @@ components:
 
     PriceMismatchError:
       type: object
-      required: [ code, product_id, expected_price, received_price ]
+      required: [ code, error_items ]
       properties:
         code:
           type: string
           example: PRICE_MISMATCH
-        product_id:
-          type: string
-        expected_price:
-          $ref: '#/components/schemas/Money'
-        received_price:
-          $ref: '#/components/schemas/Money'
+        error_items:
+          type: array
+          items:
+            type: object
+            required:
+              - product_id
+              - expected_price
+              - actual_price
+            properties:
+              product_id:
+                type: string
+                format: uuid
+              expected_price:
+                $ref: '#/components/schemas/Money'
+              actual_price:
+                $ref: '#/components/schemas/Money'
 
     # Reusable simple message
     MessageResponse:
@@ -692,19 +708,21 @@ components:
     # Orders: requests
     CreateOrderRequest:
       type: object
-      required: [ items ]
+      required: [ items, currency ]
       properties:
+        currency:
+          type: string
         items:
           type: array
           items:
             type: object
-            required: [ product_id, price, quantity ]
+            required: [ product_id, expectedUnitPrice, quantity ]
             properties:
               product_id:
                 type: string
                 format: uuid
-              price:
-                $ref: '#/components/schemas/Money'
+              expectedUnitPrice:
+                type: string
               quantity:
                 type: integer
                 format: uint64
@@ -751,6 +769,20 @@ components:
               format: uint64
               minimum: 0
               example: 42
+
+    BasketItemList:
+      type: object
+      required:
+        - items
+        - price
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/BasketItem"
+        price:
+          $ref: "#/components/schemas/Money"
+
     BasketItem:
       type: object
       required: [ product, quantity ]
