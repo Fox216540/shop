@@ -9,7 +9,7 @@ type Product struct {
 	ID          uuid.UUID       // Product ID
 	Name        string          // Product name
 	Img         string          // Product image URL
-	Price       decimal.Decimal // Product price
+	Amount      decimal.Decimal // Product amount
 	Currency    string          // Product currency
 	CategoryID  uuid.UUID       // Product category
 	Description string          // Product description
