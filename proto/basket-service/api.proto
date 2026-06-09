@@ -9,9 +9,13 @@ import "google/protobuf/empty.proto";
 option go_package = "github.com/Fox216540/shop/proto/basket-service/gen/api;basket";
 
 service ApiService {
+    //В metadata передавать userID ↓
     rpc GetBasket (google.protobuf.Empty) returns (GetBasketResponse);
+    //В metadata передавать userID ↓
     rpc AddItemToBasket (AddItemToBasketRequest) returns (AddItemToBasketResponse);
+    //В metadata передавать userID ↓
     rpc DeleteBasket (google.protobuf.Empty) returns (common.MessageResponse);
+    //В metadata передавать userID ↓
     rpc RemoveItemFromBasket (RemoveItemFromBasketRequest) returns (common.MessageResponse);
 }
 
