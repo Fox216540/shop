@@ -93,3 +93,21 @@ func NewInvalidGetOrdersByUserID(err error) error {
 		OrderServerError: NewCategoryServerError("Invalid Get Orders By User ID", err),
 	}
 }
+
+type InvalidGenerateOrderNum struct {
+	*OrderServerError
+}
+
+func (e *InvalidGenerateOrderNum) Error() string {
+	return e.OrderServerError.Error()
+}
+
+func (e *InvalidGenerateOrderNum) Unwrap() error {
+	return e.OrderServerError
+}
+
+func NewInvalidGenerateOrderNum(err error) error {
+	return &InvalidGenerateOrderNum{
+		OrderServerError: NewCategoryServerError("Invalid Generate Order Number", err),
+	}
+}
