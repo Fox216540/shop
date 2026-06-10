@@ -1,7 +1,6 @@
 package order
 
 import (
-	"fmt"
 	"github.com/Fox216540/shop/order-service/app/dto"
 	"github.com/Fox216540/shop/order-service/app/mapError"
 	c "github.com/Fox216540/shop/order-service/domain/catalog"
@@ -29,6 +28,7 @@ func (s *service) createNewOrder(userID uuid.UUID, items []order.Item) order.Ord
 	return order.Order{
 		ID:         uuid.New(),
 		UserID:     userID,
+		Status:     order.CreatedStatus,
 		OrderItems: items,
 	}
 }
@@ -56,9 +56,9 @@ func (s *service) enrichProducts(items []order.Item) error {
 			return order.NewProductOfOrderNotFoundError(nil)
 		}
 
-		//TODO: Поменять ошибку
-		if !prod.Price.Equal(items[i].Product.Price) {
-			return fmt.Errorf("product %v does not have the same price", items[i].Product.ID)
+		if !prod.Price.Amount.Equal(items[i].Product.Price.Amount) ||
+			prod.Price.Currency != items[i].Product.Price.Currency {
+			return order.NewProductPriceMismatch(nil)
 		}
 
 		items[i].Product = prod
@@ -70,7 +70,7 @@ func (s *service) enrichProducts(items []order.Item) error {
 func (s *service) generateOrderNum(o order.Order) (order.Order, error) {
 	orderNum, err := s.idGen.NewID()
 	if err != nil {
-		return order.Order{}, err
+		return order.Order{}, NewInvalidGenerateOrderNum(err)
 	}
 	if err = s.r.CheckOrderNum(orderNum); err != nil {
 		return order.Order{}, err
@@ -84,13 +84,16 @@ func (s *service) calculateOrderTotal(o order.Order) (order.Order, error) {
 	total := decimal.Zero
 
 	for _, item := range o.OrderItems {
-		lineTotal := item.Product.Price.
+		lineTotal := item.Product.Price.Amount.
 			Mul(decimal.NewFromInt(int64(item.Quantity)))
 
 		total = total.Add(lineTotal)
 	}
 
 	o.Total = total
+	if len(o.OrderItems) > 0 {
+		o.Currency = o.OrderItems[0].Product.Price.Currency
+	}
 	return o, nil
 }
 
@@ -100,25 +103,25 @@ func (s *service) createOrderItems(orderItems []dto.OrderItems) ([]order.Item, e
 	for _, item := range orderItems {
 		id, err := uuid.Parse(item.ProductID)
 		if err != nil {
-			return nil, err
+			return nil, order.NewInvalidOrderItemPrice(err)
 		}
 
 		price, err := decimal.NewFromString(item.Value)
 		if err != nil {
-			//TODO: Поменять ошибку 404
-			return nil, fmt.Errorf("invalid price %q: %w", item.Value, err)
+			return nil, order.NewInvalidOrderItemPrice(err)
 		}
 
 		if price.LessThan(decimal.Zero) {
-			//TODO: Поменять ошибку 404
-			return nil, fmt.Errorf("price must be >= 0")
+			return nil, order.NewInvalidOrderItemPriceValue(nil)
 		}
 
 		oI = append(oI, order.Item{
 			Product: c.Product{
-				ID:       id,
-				Price:    price,
-				Currency: item.Currency,
+				ID: id,
+				Price: c.Money{
+					Amount:   price,
+					Currency: item.Currency,
+				},
 			},
 			Quantity: item.Quantity,
 		})
@@ -159,7 +162,7 @@ func (s *service) PlaceOrder(userID uuid.UUID, orderItems []dto.OrderItems) (ord
 
 func (s *service) DeleteOrder(ID, userID uuid.UUID) error {
 	if err := s.r.Remove(ID, userID); err != nil {
-		return mapError.MapError(err, NewInvalidCancel(err)) // Возвращаем ошибку, если не удалось удалить заказ
+		return mapError.MapError(err, NewInvalidCancel(err))
 	}
 	return nil
 }
@@ -167,7 +170,7 @@ func (s *service) DeleteOrder(ID, userID uuid.UUID) error {
 func (s *service) GetOrderByIDAndUserID(id, userID uuid.UUID) (order.Order, error) {
 	o, err := s.r.GetByIDAndUserID(id, userID)
 	if err != nil {
-		return o, mapError.MapError(err, NewInvalidGetByID(err)) // Возвращаем ошибку, если не удалось найти заказ
+		return o, mapError.MapError(err, NewInvalidGetByID(err))
 	}
 	return o, nil
 }
@@ -175,7 +178,7 @@ func (s *service) GetOrderByIDAndUserID(id, userID uuid.UUID) (order.Order, erro
 func (s *service) GetOrdersByUserID(userID uuid.UUID) ([]order.Order, error) {
 	orders, err := s.r.GetOrdersByUserID(userID)
 	if err != nil {
-		return nil, mapError.MapError(err, NewInvalidGetOrdersByUserID(err)) // Возвращаем ошибку, если не удалось найти заказы пользователя
+		return nil, mapError.MapError(err, NewInvalidGetOrdersByUserID(err))
 	}
 	return orders, nil
 }
