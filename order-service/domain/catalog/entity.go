@@ -6,9 +6,13 @@ import (
 )
 
 type Product struct {
-	ID       uuid.UUID       // Product ID
-	Name     string          // Product name
-	Img      string          // Product image URL
-	Price    decimal.Decimal // Product price
+	ID    uuid.UUID
+	Name  string
+	Img   string
+	Price Money
+}
+
+type Money struct {
+	Amount   decimal.Decimal
 	Currency string
 }
