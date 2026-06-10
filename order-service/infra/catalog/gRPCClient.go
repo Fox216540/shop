@@ -44,16 +44,19 @@ func (c *GRPCClient) GetProductsByIDs(ids []uuid.UUID) ([]catalog.Product, error
 		if err != nil {
 			return nil, NewInvalidUUID(err)
 		}
-		price, err := decimal.NewFromString(pbProduct.Price)
+		pbPrice := pbProduct.GetPrice()
+		price, err := decimal.NewFromString(pbPrice.GetAmount())
 		if err != nil {
 			return nil, err
 		}
 		domainProduct := catalog.Product{
-			ID:       productID,
-			Name:     pbProduct.Name,
-			Img:      pbProduct.Img,
-			Price:    price,
-			Currency: pbProduct.Currency,
+			ID:   productID,
+			Name: pbProduct.Name,
+			Img:  pbProduct.Img,
+			Price: catalog.Money{
+				Amount:   price,
+				Currency: pbPrice.GetCurrency(),
+			},
 		}
 		products = append(products, domainProduct)
 	}
