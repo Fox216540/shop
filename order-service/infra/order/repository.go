@@ -31,9 +31,13 @@ func (r *repository) Save(o order.Order) (order.Order, error) {
 
 	for _, item := range o.OrderItems {
 		newOrder.OrderItems = append(newOrder.OrderItems, models.OrderProductORM{
-			ProductID: item.Product.ID,
-			Quantity:  item.Quantity,
-			OrderID:   o.ID,
+			ProductID:       item.Product.ID,
+			ProductName:     item.Product.Name,
+			ProductPrice:    item.Product.Price.Amount,
+			ProductCurrency: item.Product.Price.Currency,
+			ProductImg:      item.Product.Img,
+			Quantity:        item.Quantity,
+			OrderID:         o.ID,
 		})
 	}
 
@@ -41,8 +45,8 @@ func (r *repository) Save(o order.Order) (order.Order, error) {
 		if err := tx.Create(newOrder).Error; err != nil {
 			return err
 		}
-		// Загрузим обратно с подгруженными продуктами
 		return tx.
+			Preload("OrderItems").
 			First(newOrder, "order_id = ?", newOrder.OrderID).Error
 	})
 	if err != nil {
@@ -58,10 +62,13 @@ func (r *repository) Remove(ID, userID uuid.UUID) error {
 			Unscoped().
 			Where("order_id = ? AND user_id = ?", ID, userID).
 			Delete(&models.OrderORM{})
+		if result.Error != nil {
+			return NewInvalidRemoveOrder(pkgerrors.WithStack(result.Error))
+		}
 		if result.RowsAffected == 0 {
 			return order.NewNotFoundOrderError(nil)
 		}
-		return NewInvalidRemoveOrder(pkgerrors.WithStack(result.Error)) // Возвращаем ошибку, если не удалось удалить заказ
+		return nil
 	})
 
 	if err != nil {
@@ -74,6 +81,7 @@ func (r *repository) GetByIDAndUserID(ID, userID uuid.UUID) (order.Order, error)
 	var o models.OrderORM
 	err := r.db.WithSession(func(tx *gorm.DB) error {
 		return tx.
+			Preload("OrderItems").
 			Where("order_id = ?", ID).
 			Where("user_id = ?", userID).
 			First(&o).Error
