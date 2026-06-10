@@ -12,11 +12,11 @@ type Item struct {
 }
 
 type Order struct {
-	ID         uuid.UUID       // Unique identifier for the order
-	OrderNum   string          // Unique order number
-	UserID     uuid.UUID       // User ID who placed the order
-	OrderItems []Item          // List of products in the order
-	Total      decimal.Decimal // Total order amount
+	ID         uuid.UUID
+	OrderNum   string
+	UserID     uuid.UUID
+	OrderItems []Item
+	Total      decimal.Decimal
+	Status     string
 	Currency   string
-	Status     string // Order status
 }
