@@ -16,7 +16,7 @@ func NewZeroLogger() *ZeroLogger {
 	logger := zerolog.New(os.Stdout).
 		With().
 		Timestamp().
-		Str("service", "auth").
+		Str("service", "order-service").
 		Logger()
 
 	return &ZeroLogger{
