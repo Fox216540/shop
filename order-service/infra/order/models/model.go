@@ -50,11 +50,13 @@ func FromORM(orm OrderORM) order.Order {
 	for _, item := range orm.OrderItems {
 		o.OrderItems = append(o.OrderItems, order.Item{
 			Product: catalog.Product{
-				ID:       item.ProductID,
-				Name:     item.ProductName,
-				Img:      item.ProductImg,
-				Price:    item.ProductPrice,
-				Currency: item.ProductCurrency,
+				ID:   item.ProductID,
+				Name: item.ProductName,
+				Img:  item.ProductImg,
+				Price: catalog.Money{
+					Amount:   item.ProductPrice,
+					Currency: item.ProductCurrency,
+				},
 			},
 			Quantity: item.Quantity,
 		})
