@@ -1,7 +1,7 @@
 package errors
 
 import (
-	"github.com/Fox216540/shop/catalog-service/infra/globalError"
+	"github.com/Fox216540/shop/payment-service/infra/globalError"
 )
 
 const domain = "DB"
