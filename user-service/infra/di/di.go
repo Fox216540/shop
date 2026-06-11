@@ -13,5 +13,5 @@ func GetUserService(db *core.Database, client *client.GRPCClient) user.UseCase {
 	repo := r.NewRepository(db)
 	a := auth.NewGRPCClient(client)
 	hRepo := h.NewHasher()
-	return user.NewUserService(repo, a, hRepo)
+	return user.NewService(repo, a, hRepo)
 }
