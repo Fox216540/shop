@@ -1,7 +1,7 @@
 package migration
 
 import (
-	payment "github.com/Fox216540/shop/payment-service/infra/payment/models"
+	payment "github.com/Fox216540/shop/payment-service/infra/payment/repository/models"
 	"gorm.io/gorm"
 )
 
