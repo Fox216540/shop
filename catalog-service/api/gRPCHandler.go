@@ -2,20 +2,30 @@ package api
 
 import (
 	"context"
-	"github.com/Fox216540/shop/catalog-service/app/catalog"
+
+	"github.com/Fox216540/shop/catalog-service/app"
 	productDomain "github.com/Fox216540/shop/catalog-service/domain/product"
 	pbApi "github.com/Fox216540/shop/proto/catalog-service/gen/api"
 	pbInterservice "github.com/Fox216540/shop/proto/catalog-service/gen/interservice"
 	types "github.com/Fox216540/shop/proto/common/gen"
 	"github.com/google/uuid"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 type GRPCHandler struct {
-	catalogUC catalog.UseCase
+	catalogUC app.UseCase
 	pbInterservice.UnimplementedInterserviceServiceServer
 	pbApi.UnimplementedApiServiceServer
 	mapper *ErrorMapper
+}
+
+func mapMoney(amount, currency string) *types.Money {
+	return &types.Money{
+		Amount:   amount,
+		Currency: currency,
+	}
 }
 
 func productToPbWithSupplement(
@@ -23,11 +33,10 @@ func productToPbWithSupplement(
 ) *pbApi.ProductWithSupplement {
 	return &pbApi.ProductWithSupplement{
 		Product: &types.Product{
-			Id:       p.ID.String(),
-			Name:     p.Name,
-			Img:      p.Img,
-			Price:    p.Price.StringFixed(2),
-			Currency: p.Currency,
+			Id:    p.ID.String(),
+			Name:  p.Name,
+			Img:   p.Img,
+			Price: mapMoney(p.Amount.StringFixed(2), p.Currency),
 		},
 		CategoryId:  p.CategoryID.String(),
 		Description: p.Description,
@@ -53,11 +62,10 @@ func (h *GRPCHandler) productsToPb(
 	productsResp := make([]*types.Product, 0, len(products))
 	for _, product := range products {
 		productsResp = append(productsResp, &types.Product{
-			Id:       product.ID.String(),
-			Name:     product.Name,
-			Img:      product.Img,
-			Price:    product.Price.StringFixed(2),
-			Currency: product.Currency,
+			Id:    product.ID.String(),
+			Name:  product.Name,
+			Img:   product.Img,
+			Price: mapMoney(product.Amount.StringFixed(2), product.Currency),
 		})
 	}
 	return productsResp
@@ -67,6 +75,10 @@ func (h *GRPCHandler) GetCategories(
 	ctx context.Context,
 	req *emptypb.Empty,
 ) (*pbApi.GetCategoriesResponse, error) {
+	if req == nil {
+		return nil, status.Error(codes.InvalidArgument, messages.InvalidArgument)
+	}
+
 	categories, err := h.catalogUC.GetCategories()
 	if err != nil {
 		return nil, h.mapper.MapError(ctx, err)
@@ -89,6 +101,10 @@ func (h *GRPCHandler) GetAllProducts(
 	ctx context.Context,
 	req *emptypb.Empty,
 ) (*pbApi.GetProductsResponse, error) {
+	if req == nil {
+		return nil, status.Error(codes.InvalidArgument, messages.InvalidArgument)
+	}
+
 	products, err := h.catalogUC.GetAllProducts()
 	if err != nil {
 		return nil, h.mapper.MapError(ctx, err)
@@ -101,6 +117,10 @@ func (h *GRPCHandler) GetProductsOfCategoryId(
 	ctx context.Context,
 	req *pbApi.GetProductsOfCategoryIdRequest,
 ) (*pbApi.GetProductsResponse, error) {
+	if req == nil {
+		return nil, status.Error(codes.InvalidArgument, messages.InvalidArgument)
+	}
+
 	categoryID, err := uuid.Parse(req.CategoryId)
 	if err != nil {
 		return nil, h.mapper.MapError(ctx, err)
@@ -117,6 +137,10 @@ func (h *GRPCHandler) GetProductById(
 	ctx context.Context,
 	req *pbApi.GetProductByIdRequest,
 ) (*pbApi.ProductWithSupplement, error) {
+	if req == nil {
+		return nil, status.Error(codes.InvalidArgument, messages.InvalidArgument)
+	}
+
 	productID, err := uuid.Parse(req.ProductId)
 	if err != nil {
 		return nil, h.mapper.MapError(ctx, err)
@@ -133,6 +157,10 @@ func (h *GRPCHandler) GetProductsByIds(
 	ctx context.Context,
 	req *pbInterservice.GetProductsByIdsRequest,
 ) (*pbInterservice.GetProductsByIdsResponse, error) {
+	if req == nil {
+		return nil, status.Error(codes.InvalidArgument, messages.InvalidArgument)
+	}
+
 	productIDs := make([]uuid.UUID, 0, len(req.ProductIds))
 	for _, productID := range req.ProductIds {
 		id, err := uuid.Parse(productID)
@@ -151,8 +179,9 @@ func (h *GRPCHandler) GetProductsByIds(
 	}, nil
 }
 
-func NewGRPCHandler(catalogUC catalog.UseCase) *GRPCHandler {
+func NewGRPCHandler(catalogUC app.UseCase, mapper *ErrorMapper) *GRPCHandler {
 	return &GRPCHandler{
 		catalogUC: catalogUC,
+		mapper:    mapper,
 	}
 }
