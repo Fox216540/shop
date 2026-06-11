@@ -3,7 +3,6 @@ package repository
 import (
 	domain "github.com/Fox216540/shop/payment-service/domain/payment"
 	db "github.com/Fox216540/shop/payment-service/infra/db/core"
-	"github.com/Fox216540/shop/payment-service/infra/payment/repository/errors"
 	orm "github.com/Fox216540/shop/payment-service/infra/payment/repository/models"
 	pkgerrors "github.com/pkg/errors"
 	"gorm.io/gorm"
@@ -30,7 +29,7 @@ func (r *repository) Save(p domain.Payment) error {
 
 	err := r.db.WithSession(func(tx *gorm.DB) error {
 		if err := tx.Create(newPayment).Error; err != nil {
-			return errors.NewInvalidSavePayment(pkgerrors.WithStack(err))
+			return NewInvalidSavePayment(pkgerrors.WithStack(err))
 		}
 		return nil
 	})
