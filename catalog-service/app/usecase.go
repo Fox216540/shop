@@ -1,4 +1,4 @@
-package catalog
+package app
 
 import (
 	"github.com/Fox216540/shop/catalog-service/domain/category"
