@@ -1,4 +1,4 @@
-package product
+package app
 
 import "github.com/Fox216540/shop/catalog-service/app/globalError"
 
@@ -16,9 +16,27 @@ func (e *CatalogServerError) Unwrap() error {
 	return e.AppServerError
 }
 
-func NewCategoryServerError(msg string, err error) *CatalogServerError {
+func NewCatalogServerError(msg string, err error) *CatalogServerError {
 	return &CatalogServerError{
 		AppServerError: globalError.NewAppServerError(msg, domain, err),
+	}
+}
+
+type InvalidGetCategories struct {
+	*CatalogServerError
+}
+
+func (e *InvalidGetCategories) Error() string {
+	return e.CatalogServerError.Error()
+}
+
+func (e *InvalidGetCategories) Unwrap() error {
+	return e.CatalogServerError
+}
+
+func NewInvalidGetCategories(err error) error {
+	return &InvalidGetCategories{
+		CatalogServerError: NewCatalogServerError("Invalid Get Categories", err),
 	}
 }
 
@@ -36,7 +54,7 @@ func (e *InvalidGetAll) Unwrap() error {
 
 func NewInvalidGetAll(err error) error {
 	return &InvalidGetAll{
-		CatalogServerError: NewCategoryServerError("Invalid Get All", err),
+		CatalogServerError: NewCatalogServerError("Invalid Get All", err),
 	}
 }
 
@@ -54,7 +72,7 @@ func (e *InvalidGetProductsOfCategoryID) Unwrap() error {
 
 func NewInvalidGetProductsOfCategoryID(err error) error {
 	return &InvalidGetProductsOfCategoryID{
-		CatalogServerError: NewCategoryServerError("Invalid Products Of Category ID", err),
+		CatalogServerError: NewCatalogServerError("Invalid Get Products Of Category ID", err),
 	}
 }
 
@@ -72,7 +90,7 @@ func (e *InvalidGetProductByID) Unwrap() error {
 
 func NewInvalidGetProductByID(err error) error {
 	return &InvalidGetProductByID{
-		CatalogServerError: NewCategoryServerError("Invalid Product By ID", err),
+		CatalogServerError: NewCatalogServerError("Invalid Get Product By ID", err),
 	}
 }
 
@@ -90,6 +108,6 @@ func (e *InvalidGetProductsByIDs) Unwrap() error {
 
 func NewInvalidGetProductsByIDs(err error) error {
 	return &InvalidGetProductsByIDs{
-		CatalogServerError: NewCategoryServerError("Invalid Products By IDs", err),
+		CatalogServerError: NewCatalogServerError("Invalid Get Products By IDs", err),
 	}
 }
