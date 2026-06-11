@@ -1,57 +1,67 @@
 package yokassa
 
 import (
+	"errors"
+	"strings"
+
 	domain "github.com/Fox216540/shop/payment-service/domain/payment"
-	db "github.com/Fox216540/shop/payment-service/infra/db/core"
 	"github.com/google/uuid"
 	yo "github.com/rvinnie/yookassa-sdk-go/yookassa"
 	cm "github.com/rvinnie/yookassa-sdk-go/yookassa/common"
-	"github.com/rvinnie/yookassa-sdk-go/yookassa/payment"
+	yoopayment "github.com/rvinnie/yookassa-sdk-go/yookassa/payment"
 	"github.com/shopspring/decimal"
 )
 
 type provider struct {
-	client    yo.Client
-	handler   yo.PaymentHandler
-	returnURL string
-	db        *db.Database
+	handler *yo.PaymentHandler
 }
 
-func NewProvider(
-	client yo.Client,
-	returnUrl string,
-	paymentHand yo.PaymentHandler,
-) domain.Provider {
+func NewProvider(handler *yo.PaymentHandler) domain.Provider {
 	return &provider{
-		client:    client,
-		returnURL: returnUrl,
-		handler:   paymentHand,
+		handler: handler,
 	}
 }
 
-func (r *provider) CreatePaymentByOrderID(idOrder uuid.UUID, value, currency, description string) (domain.Payment, error) {
-	test := &yoopayment.Payment{
+func (r *provider) CreatePaymentByOrderID(
+	idOrder uuid.UUID,
+	value, currency, description, returnURL string,
+) (domain.Payment, error) {
+	req := &yoopayment.Payment{
 		Amount: &cm.Amount{
 			Value:    value,
 			Currency: currency,
 		},
 		Confirmation: yoopayment.Redirect{
-			Type:      "redirect",
-			ReturnURL: r.returnURL,
+			Type:      yoopayment.TypeRedirect,
+			ReturnURL: returnURL,
 		},
 		Description: description,
 	}
-	newPayment, err := r.handler.CreatePayment(test)
+
+	newPayment, err := r.handler.CreatePayment(req)
 	if err != nil {
-		return domain.Payment{}, err
+		if strings.Contains(strings.ToLower(err.Error()), "empty confirmation url") {
+			return domain.Payment{}, domain.NewNoRedirectConfirmation(err)
+		}
+		return domain.Payment{}, NewInvalidCreatePayment(err)
 	}
+
+	if newPayment == nil || newPayment.Amount == nil {
+		return domain.Payment{}, NewInvalidCreatePayment(errors.New("empty payment amount"))
+	}
+
 	val, err := decimal.NewFromString(newPayment.Amount.Value)
 	if err != nil {
-		return domain.Payment{}, err
+		return domain.Payment{}, NewInvalidParsePaymentAmount(err)
 	}
-	url, ok := newPayment.Confirmation.(*yoopayment.Redirect)
-	if !ok {
-		return domain.Payment{}, nil
+
+	confirmationURL, err := r.handler.ParsePaymentLink(newPayment)
+	if err != nil {
+		if strings.Contains(strings.ToLower(err.Error()), "empty confirmation url") ||
+			strings.Contains(strings.ToLower(err.Error()), "unable to get link") {
+			return domain.Payment{}, domain.NewNoRedirectConfirmation(err)
+		}
+		return domain.Payment{}, NewInvalidCreatePayment(err)
 	}
 
 	return domain.Payment{
@@ -61,8 +71,9 @@ func (r *provider) CreatePaymentByOrderID(idOrder uuid.UUID, value, currency, de
 			Value:    val,
 			Currency: newPayment.Amount.Currency,
 		},
-		Method:    newPayment.PaymentMethodID,
-		ReturnURL: url.ReturnURL,
-		Status:    newPayment.Status,
+		Method:      newPayment.PaymentMethodID,
+		ReturnURL:   confirmationURL,
+		Description: description,
+		Status:      newPayment.Status,
 	}, nil
 }
