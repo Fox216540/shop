@@ -16,7 +16,7 @@ func NewZeroLogger() *ZeroLogger {
 	logger := zerolog.New(os.Stdout).
 		With().
 		Timestamp().
-		Str("service", "auth").
+		Str("service", "user-service").
 		Logger()
 
 	return &ZeroLogger{
@@ -70,14 +70,14 @@ func (l *ZeroLogger) Error(ctx context.Context, err error) {
 	requestID := RequestIDFromContext(ctx)
 	e := l.log.Error().
 		Caller().
-		Stack(). // infra/category/errors.go:41
-		Err(err) // реальная ошибка + контекст
+		Stack().
+		Err(err)
 
 	if requestID != "" {
 		e.Str("request_id", requestID)
 	}
 
-	e.Send() // ← БЕЗ message
+	e.Send()
 }
 
 func (l *ZeroLogger) Fatal(ctx context.Context, err error) {
