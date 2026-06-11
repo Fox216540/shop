@@ -74,6 +74,22 @@ func NewNotFoundError(msg, domain string, err error) *NotFoundError {
 	}
 }
 
+type BadRequestError struct {
+	*DomainError
+}
+
+func (e *BadRequestError) Error() string {
+	return e.DomainError.Error()
+}
+
+func (e *BadRequestError) Unwrap() error { return e.DomainError }
+
+func NewBadRequestError(msg, domain string, err error) *BadRequestError {
+	return &BadRequestError{
+		DomainError: NewDomainException(msg, domain, err),
+	}
+}
+
 type ConflictError struct {
 	*DomainError
 }
@@ -86,6 +102,22 @@ func (e *ConflictError) Unwrap() error { return e.DomainError }
 
 func NewConflictError(msg, domain string, err error) *ConflictError {
 	return &ConflictError{
+		DomainError: NewDomainException(msg, domain, err),
+	}
+}
+
+type UnauthorizedError struct {
+	*DomainError
+}
+
+func (e *UnauthorizedError) Error() string {
+	return e.DomainError.Error()
+}
+
+func (e *UnauthorizedError) Unwrap() error { return e.DomainError }
+
+func NewUnauthorizedError(msg, domain string, err error) *UnauthorizedError {
+	return &UnauthorizedError{
 		DomainError: NewDomainException(msg, domain, err),
 	}
 }
