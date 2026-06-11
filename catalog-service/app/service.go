@@ -21,7 +21,7 @@ func NewService(categoryRepo categoryDomain.Repository, productRepo productDomai
 func (s *service) GetCategories() ([]categoryDomain.Category, error) {
 	categories, err := s.categoryRepo.FindAll()
 	if err != nil {
-		return nil, NewInvalidGetCategories(err)
+		return nil, err
 	}
 	return categories, nil
 }
@@ -29,7 +29,7 @@ func (s *service) GetCategories() ([]categoryDomain.Category, error) {
 func (s *service) GetAllProducts() ([]productDomain.Product, error) {
 	products, err := s.productRepo.FindAllProducts()
 	if err != nil {
-		return nil, NewInvalidGetAll(err)
+		return nil, err
 	}
 	return products, nil
 }
@@ -37,7 +37,7 @@ func (s *service) GetAllProducts() ([]productDomain.Product, error) {
 func (s *service) GetProductsOfCategoryID(categoryID uuid.UUID) ([]productDomain.Product, error) {
 	products, err := s.productRepo.FindProductsByCategoryID(categoryID)
 	if err != nil {
-		return nil, NewInvalidGetProductsOfCategoryID(err)
+		return nil, err
 	}
 	return products, nil
 }
@@ -45,7 +45,7 @@ func (s *service) GetProductsOfCategoryID(categoryID uuid.UUID) ([]productDomain
 func (s *service) GetProductByID(productID uuid.UUID) (productDomain.Product, error) {
 	product, err := s.productRepo.FindProductByID(productID)
 	if err != nil {
-		return product, NewInvalidGetProductByID(err)
+		return product, err
 	}
 	return product, nil
 }
@@ -53,7 +53,7 @@ func (s *service) GetProductByID(productID uuid.UUID) (productDomain.Product, er
 func (s *service) GetProductsByIDs(ids []uuid.UUID) ([]productDomain.Product, error) {
 	products, err := s.productRepo.FindProductsByIDs(ids)
 	if err != nil {
-		return nil, NewInvalidGetProductsByIDs(err)
+		return nil, err
 	}
 
 	if len(products) != len(ids) {
