@@ -2,7 +2,6 @@ package app
 
 import (
 	"github.com/Fox216540/shop/user-service/app/dto"
-	"github.com/Fox216540/shop/user-service/app/mapError"
 	"github.com/Fox216540/shop/user-service/domain/auth"
 	"github.com/Fox216540/shop/user-service/domain/hasher"
 	"github.com/Fox216540/shop/user-service/domain/user"
@@ -15,36 +14,40 @@ type service struct {
 	h    hasher.UseCase
 }
 
-func NewUserService(
+func NewService(
 	r user.Repository,
 	auth auth.Client,
 	h hasher.UseCase,
 ) UseCase {
 	return &service{
-		r: r, auth: auth, h: h}
+		r:    r,
+		auth: auth,
+		h:    h,
+	}
 }
 
 func (s *service) Register(u user.User) (user.User, auth.Tokens, error) {
-	if _, err := s.r.FindByPhoneOrEmail(u.Email, u.Phone); err != nil {
-		return u, auth.Tokens{}, mapError.MapError(err, NewInvalidRegister(err)) // Return error if unable to check if email or phone exists
+	if err := s.r.ExistsByEmail(u.Email); err != nil {
+		return u, auth.Tokens{}, err
+	}
+	if err := s.r.ExistsByPhone(u.Phone); err != nil {
+		return u, auth.Tokens{}, err
 	}
 	passwordHashed, err := s.h.HashPass(u.Password)
-
 	if err != nil {
-		return u, auth.Tokens{}, mapError.MapError(err, NewInvalidRegister(err)) // Return error if unable to hash password
+		return u, auth.Tokens{}, err
 	}
 
 	u.Password = passwordHashed
 
 	u, err = s.r.Create(u)
-
 	if err != nil {
-		return u, auth.Tokens{}, mapError.MapError(err, NewInvalidRegister(err)) // Return error if unable to add user
+		return u, auth.Tokens{}, err
 	}
 
 	tokens, err := s.auth.GenerateTokens(u.ID)
 	if err != nil {
-		return u, auth.Tokens{}, mapError.MapError(err, NewInvalidRegister(err)) // Return error if unable to generate tokens
+		return u, auth.Tokens{}, err
 	}
 
 	return u, tokens, nil
@@ -53,11 +56,11 @@ func (s *service) Register(u user.User) (user.User, auth.Tokens, error) {
 func (s *service) VerifyCredentials(phoneOrEmail, password string) (name string, id uuid.UUID, error error) {
 	u, err := s.r.FindByPhoneOrEmail(phoneOrEmail, phoneOrEmail)
 	if err != nil {
-		return "", uuid.Nil, mapError.MapError(err, NewInvalidLogin(err)) // Return error if unable to find user
+		return "", uuid.Nil, err
 	}
 
 	if err = s.h.VerifyPass(password, u.Password); err != nil {
-		return "", uuid.Nil, mapError.MapError(err, NewInvalidLogin(err)) // Password is invalid
+		return "", uuid.Nil, err
 	}
 
 	return u.Name, u.ID, nil
@@ -66,15 +69,15 @@ func (s *service) VerifyCredentials(phoneOrEmail, password string) (name string,
 func (s *service) UpdateEmail(userID uuid.UUID, newEmail string) (user.User, error) {
 	u, err := s.r.GetByID(userID)
 	if err != nil {
-		return user.User{}, mapError.MapError(err, NewInvalidUpdateEmail(err)) // Вернуть ошибку, если не удалось найти пользователя
+		return user.User{}, err
 	}
 	if err = s.r.ExistsByEmail(newEmail); err != nil {
-		return user.User{}, mapError.MapError(err, NewInvalidUpdateEmail(err)) // Вернуть ошибку, если пользователь с таким именем уже существует
+		return user.User{}, err
 	}
 	u.Email = newEmail
 	u, err = s.r.Update(u)
 	if err != nil {
-		return user.User{}, mapError.MapError(err, NewInvalidUpdateEmail(err)) // Вернуть ошибку, если не удалось обновить пользователя
+		return user.User{}, err
 	}
 	return u, nil
 }
@@ -82,19 +85,19 @@ func (s *service) UpdateEmail(userID uuid.UUID, newEmail string) (user.User, err
 func (s *service) UpdatePassword(userID uuid.UUID, newPassword string) (user.User, error) {
 	u, err := s.r.GetByID(userID)
 	if err != nil {
-		return user.User{}, mapError.MapError(err, NewInvalidUpdatePassword(err)) // Вернуть ошибку, если не удалось найти пользователя
+		return user.User{}, err
 	}
 	if err = s.h.VerifyPass(newPassword, u.Password); err == nil {
 		return user.User{}, user.NewExistingPasswordError(nil)
 	}
 	hashedPassword, err := s.h.HashPass(newPassword)
 	if err != nil {
-		return user.User{}, mapError.MapError(err, NewInvalidUpdatePassword(err))
+		return user.User{}, err
 	}
 	u.Password = hashedPassword
 	u, err = s.r.Update(u)
 	if err != nil {
-		return user.User{}, mapError.MapError(err, NewInvalidUpdatePassword(err)) // Вернуть ошибку, если не удалось обновить пользователя
+		return user.User{}, err
 	}
 	return u, nil
 }
@@ -102,15 +105,15 @@ func (s *service) UpdatePassword(userID uuid.UUID, newPassword string) (user.Use
 func (s *service) UpdatePhone(userID uuid.UUID, newPhone string) (user.User, error) {
 	u, err := s.r.GetByID(userID)
 	if err != nil {
-		return user.User{}, err // Вернуть ошибку, если не удалось найти пользователя
+		return user.User{}, err
 	}
 	if err = s.r.ExistsByPhone(newPhone); err != nil {
-		return user.User{}, mapError.MapError(err, NewInvalidUpdatePhone(err))
+		return user.User{}, err
 	}
 	u.Phone = newPhone
 	u, err = s.r.Update(u)
 	if err != nil {
-		return user.User{}, mapError.MapError(err, NewInvalidUpdatePhone(err)) // Вернуть ошибку, если не удалось обновить пользователя
+		return user.User{}, err
 	}
 	return u, nil
 }
@@ -118,7 +121,7 @@ func (s *service) UpdatePhone(userID uuid.UUID, newPhone string) (user.User, err
 func (s *service) UpdateProfile(userID uuid.UUID, userDTO dto.ProfileUpdate) (user.User, error) {
 	u, err := s.r.GetByID(userID)
 	if err != nil {
-		return user.User{}, mapError.MapError(err, NewInvalidUpdateProfile(err)) // Вернуть ошибку, если не удалось найти пользователя
+		return user.User{}, err
 	}
 	if userDTO.Name != nil {
 		if *userDTO.Name == "" {
@@ -135,20 +138,20 @@ func (s *service) UpdateProfile(userID uuid.UUID, userDTO dto.ProfileUpdate) (us
 	}
 	u, err = s.r.Update(u)
 	if err != nil {
-		return user.User{}, mapError.MapError(err, NewInvalidUpdateProfile(err)) // Вернуть ошибку, если не удалось обновить пользователя
+		return user.User{}, err
 	}
 	return u, nil
 }
 
 func (s *service) DeleteUser(userID uuid.UUID) error {
 	if _, err := s.r.GetByID(userID); err != nil {
-		return mapError.MapError(err, NewInvalidDelete(err))
+		return err
 	}
 	if err := s.r.Delete(userID); err != nil {
-		return mapError.MapError(err, NewInvalidDelete(err)) // Вернуть ошибку, если не удалось удалить пользователя
+		return err
 	}
 	if err := s.auth.DeleteAllRefreshTokens(userID); err != nil {
-		return mapError.MapError(err, NewInvalidDelete(err))
+		return err
 	}
 	return nil
 }
