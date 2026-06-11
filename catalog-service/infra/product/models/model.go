@@ -29,7 +29,7 @@ func FromORM(orm ProductORM) product.Product {
 		ID:          orm.ProductID,
 		Name:        orm.Name,
 		Img:         orm.Img,
-		Price:       orm.Price,
+		Amount:      orm.Price,
 		Currency:    orm.Currency,
 		CategoryID:  orm.Category.CategoryID,
 		Description: orm.Description,
