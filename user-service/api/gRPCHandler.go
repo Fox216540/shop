@@ -2,7 +2,7 @@ package api
 
 import (
 	"context"
-	"errors"
+
 	types "github.com/Fox216540/shop/proto/common/gen"
 	pbApi "github.com/Fox216540/shop/proto/user-service/gen/api"
 	pbInterservice "github.com/Fox216540/shop/proto/user-service/gen/interservice"
@@ -11,7 +11,9 @@ import (
 	"github.com/Fox216540/shop/user-service/domain/auth"
 	userDomain "github.com/Fox216540/shop/user-service/domain/user"
 	"github.com/google/uuid"
+	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
+	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -57,11 +59,17 @@ func (h *GRPCHandler) getUserIDFromMetadata(
 ) (uuid.UUID, error) {
 	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
-		return uuid.Nil, errors.New("metadata not found")
+		return uuid.Nil, status.Error(codes.InvalidArgument, messages.MetadataNotFound)
 	}
-	userID, err := uuid.Parse(md.Get("user_id")[0])
+
+	values := md.Get("user_id")
+	if len(values) == 0 {
+		return uuid.Nil, status.Error(codes.InvalidArgument, messages.UserIDMetadataNotFound)
+	}
+
+	userID, err := uuid.Parse(values[0])
 	if err != nil {
-		return uuid.Nil, err
+		return uuid.Nil, status.Error(codes.InvalidArgument, messages.InvalidArgument)
 	}
 	return userID, nil
 }
@@ -70,6 +78,9 @@ func (h *GRPCHandler) RegisterUser(
 	ctx context.Context,
 	req *pbApi.RegisterUserRequest,
 ) (*types.UserWithTokensResponse, error) {
+	if req == nil {
+		return nil, status.Error(codes.InvalidArgument, messages.InvalidArgument)
+	}
 	uDomain := userDomain.User{
 		Email:    req.Email,
 		Name:     req.Name,
@@ -84,7 +95,7 @@ func (h *GRPCHandler) RegisterUser(
 	return h.returnUserWithTokensResponse(
 		u,
 		tokens,
-		"User registered successfully",
+		messages.UserRegistered,
 	), nil
 }
 
@@ -100,7 +111,7 @@ func (h *GRPCHandler) DeleteUser(
 		return nil, h.mapper.MapError(ctx, err)
 	}
 	return &types.MessageResponse{
-		Message: "User deleted successfully",
+		Message: messages.UserDeleted,
 	}, nil
 }
 
@@ -108,6 +119,9 @@ func (h *GRPCHandler) VerifyCredentials(
 	ctx context.Context,
 	req *types.CredentialsRequest,
 ) (*pbInterservice.VerifyCredentialsResponse, error) {
+	if req == nil {
+		return nil, status.Error(codes.InvalidArgument, messages.InvalidArgument)
+	}
 	name, id, err := h.userUS.VerifyCredentials(req.PhoneOrEmail, req.Password)
 	if err != nil {
 		return nil, h.mapper.MapError(ctx, err)
@@ -122,6 +136,9 @@ func (h *GRPCHandler) UpdateEmail(
 	ctx context.Context,
 	req *pbApi.UpdateEmailRequest,
 ) (*pbApi.UserWithMessageResponse, error) {
+	if req == nil {
+		return nil, status.Error(codes.InvalidArgument, messages.InvalidArgument)
+	}
 	userID, err := h.getUserIDFromMetadata(ctx)
 	if err != nil {
 		return nil, h.mapper.MapError(ctx, err)
@@ -132,7 +149,7 @@ func (h *GRPCHandler) UpdateEmail(
 	}
 	return h.returnUserWithMessageResponse(
 		u,
-		"Email updated successfully",
+		messages.EmailUpdated,
 	), nil
 }
 
@@ -140,6 +157,9 @@ func (h *GRPCHandler) UpdatePassword(
 	ctx context.Context,
 	req *pbApi.UpdatePasswordRequest,
 ) (*pbApi.UserWithMessageResponse, error) {
+	if req == nil {
+		return nil, status.Error(codes.InvalidArgument, messages.InvalidArgument)
+	}
 	userID, err := h.getUserIDFromMetadata(ctx)
 	if err != nil {
 		return nil, h.mapper.MapError(ctx, err)
@@ -150,7 +170,7 @@ func (h *GRPCHandler) UpdatePassword(
 	}
 	return h.returnUserWithMessageResponse(
 		u,
-		"Password updated successfully",
+		messages.PasswordUpdated,
 	), nil
 }
 
@@ -158,6 +178,9 @@ func (h *GRPCHandler) UpdatePhone(
 	ctx context.Context,
 	req *pbApi.UpdatePhoneRequest,
 ) (*pbApi.UserWithMessageResponse, error) {
+	if req == nil {
+		return nil, status.Error(codes.InvalidArgument, messages.InvalidArgument)
+	}
 	userID, err := h.getUserIDFromMetadata(ctx)
 	if err != nil {
 		return nil, h.mapper.MapError(ctx, err)
@@ -168,7 +191,7 @@ func (h *GRPCHandler) UpdatePhone(
 	}
 	return h.returnUserWithMessageResponse(
 		u,
-		"Phone updated successfully",
+		messages.PhoneUpdated,
 	), nil
 }
 
@@ -176,6 +199,9 @@ func (h *GRPCHandler) UpdateProfile(
 	ctx context.Context,
 	req *pbApi.UpdateProfileRequest,
 ) (*pbApi.UserWithMessageResponse, error) {
+	if req == nil {
+		return nil, status.Error(codes.InvalidArgument, messages.InvalidArgument)
+	}
 	userID, err := h.getUserIDFromMetadata(ctx)
 	if err != nil {
 		return nil, h.mapper.MapError(ctx, err)
@@ -190,12 +216,13 @@ func (h *GRPCHandler) UpdateProfile(
 	}
 	return h.returnUserWithMessageResponse(
 		u,
-		"Profile updated successfully",
+		messages.ProfileUpdated,
 	), nil
 }
 
-func NewGRPCHandler(userUS user.UseCase) *GRPCHandler {
+func NewGRPCHandler(userUS user.UseCase, mapper *ErrorMapper) *GRPCHandler {
 	return &GRPCHandler{
 		userUS: userUS,
+		mapper: mapper,
 	}
 }
