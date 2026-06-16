@@ -7,11 +7,13 @@ import (
 	"net"
 
 	"github.com/Fox216540/shop/payment-service/api"
+	"github.com/Fox216540/shop/payment-service/domain/payment"
 	"github.com/Fox216540/shop/payment-service/infra/config"
 	"github.com/Fox216540/shop/payment-service/infra/db"
 	dbcore "github.com/Fox216540/shop/payment-service/infra/db/core"
 	"github.com/Fox216540/shop/payment-service/infra/di"
 	"github.com/Fox216540/shop/payment-service/infra/logger"
+	"github.com/Fox216540/shop/payment-service/infra/payment/mock"
 	"github.com/Fox216540/shop/payment-service/infra/payment/yokassa"
 	pbInterservice "github.com/Fox216540/shop/proto/payment-service/gen/interservice"
 	yo "github.com/rvinnie/yookassa-sdk-go/yookassa"
@@ -37,9 +39,7 @@ func main() {
 	database := dbcore.NewDatabase(dbConn)
 	defer db.ClosePostgres(ctx, logg, database)
 
-	client := yo.NewClient(conf.YoKassaAccountID, conf.YoKassaSecretKey)
-	paymentHandler := yo.NewPaymentHandler(client)
-	provider := yokassa.NewProvider(paymentHandler)
+	provider := selectProvider(conf)
 
 	handler := api.NewGRPCHandler(
 		di.NewPaymentModule(database, provider),
@@ -58,4 +58,16 @@ func main() {
 	if err := server.Serve(lis); err != nil {
 		log.Fatal(err)
 	}
+}
+
+func selectProvider(conf *config.Config) payment.Provider {
+	if conf.PaymentProviderMode == "yookassa" {
+		if conf.YoKassaAccountID == "" || conf.YoKassaSecretKey == "" {
+			log.Fatal("YOOKASSA_ACCOUNT_ID and YOOKASSA_SECRET_KEY are required for payment provider mode yookassa")
+		}
+		client := yo.NewClient(conf.YoKassaAccountID, conf.YoKassaSecretKey)
+		return yokassa.NewProvider(yo.NewPaymentHandler(client))
+	}
+
+	return mock.NewProvider()
 }
