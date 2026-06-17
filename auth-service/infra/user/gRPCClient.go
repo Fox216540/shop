@@ -13,6 +13,13 @@ type GRPCClient struct {
 	pb     pb.InterserviceServiceClient
 }
 
+func NewGRPCClient(client *client.GRPCClient) *GRPCClient {
+	return &GRPCClient{
+		client: client,
+		pb:     pb.NewInterserviceServiceClient(client.Conn()),
+	}
+}
+
 func (c *GRPCClient) VerifyCredentialsOfUser(phoneOrEmail, password string) (name string, id uuid.UUID, error error) {
 	ctx := c.client.Context()
 	req := &types.CredentialsRequest{
