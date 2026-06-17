@@ -1,4 +1,4 @@
-package auth
+package app
 
 import (
 	"github.com/Fox216540/shop/auth-service/domain/jwt"
@@ -6,6 +6,7 @@ import (
 )
 
 type UseCase interface {
+	LogIn(phoneOrEmail, password string) (name string, tokens jwt.Tokens, err error)
 	GenerateTokens(userID uuid.UUID) (tokens jwt.Tokens, err error)
 	DecodeAccessToken(token string) (userJWT jwt.JWTUser, err error)
 	DecodeRefreshToken(token string) (userJWT jwt.JWTUser, err error)
