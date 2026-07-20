@@ -27,6 +27,9 @@ func (c *GRPCClient) GetAllCategories() ([]catalog.Category, error) {
 	if err != nil {
 		return nil, err
 	}
+	if resp == nil {
+		return nil, nil
+	}
 
 	var categories []catalog.Category
 	for _, category := range resp.Categories {
@@ -49,9 +52,15 @@ func (c *GRPCClient) GetAllProducts() ([]catalog.Product, error) {
 	if err != nil {
 		return nil, err
 	}
+	if resp == nil {
+		return nil, nil
+	}
 
 	var products []catalog.Product
 	for _, product := range resp.Products {
+		if product == nil || product.Product == nil {
+			continue
+		}
 		productID, err := uuid.Parse(product.Product.Id)
 		if err != nil {
 			return nil, err
@@ -60,11 +69,18 @@ func (c *GRPCClient) GetAllProducts() ([]catalog.Product, error) {
 		if err != nil {
 			return nil, err
 		}
+		price := ""
+		currency := ""
+		if product.Product.GetPrice() != nil {
+			price = product.Product.GetPrice().GetAmount()
+			currency = product.Product.GetPrice().GetCurrency()
+		}
 		products = append(products, catalog.Product{
 			ID:          productID,
 			Name:        product.Product.Name,
 			Img:         product.Product.Img,
-			Price:       product.Product.Price,
+			Price:       price,
+			Currency:    currency,
 			CategoryID:  categoryID,
 			Description: product.Description,
 			Stock:       product.Stock,
@@ -84,9 +100,15 @@ func (c *GRPCClient) GetProductsOfCategoryID(ID uuid.UUID) ([]catalog.Product, e
 	if err != nil {
 		return nil, err
 	}
+	if resp == nil {
+		return nil, nil
+	}
 
 	var products []catalog.Product
 	for _, product := range resp.Products {
+		if product == nil || product.Product == nil {
+			continue
+		}
 		productID, err := uuid.Parse(product.Product.Id)
 		if err != nil {
 			return nil, err
@@ -95,11 +117,18 @@ func (c *GRPCClient) GetProductsOfCategoryID(ID uuid.UUID) ([]catalog.Product, e
 		if err != nil {
 			return nil, err
 		}
+		price := ""
+		currency := ""
+		if product.Product.GetPrice() != nil {
+			price = product.Product.GetPrice().GetAmount()
+			currency = product.Product.GetPrice().GetCurrency()
+		}
 		products = append(products, catalog.Product{
 			ID:          productID,
 			Name:        product.Product.Name,
 			Img:         product.Product.Img,
-			Price:       product.Product.Price,
+			Price:       price,
+			Currency:    currency,
 			CategoryID:  categoryID,
 			Description: product.Description,
 			Stock:       product.Stock,
@@ -119,6 +148,9 @@ func (c *GRPCClient) GetProductByID(ID uuid.UUID) (catalog.Product, error) {
 	if err != nil {
 		return catalog.Product{}, err
 	}
+	if resp == nil || resp.Product == nil {
+		return catalog.Product{}, nil
+	}
 
 	productID, err := uuid.Parse(resp.Product.Id)
 	if err != nil {
@@ -128,11 +160,18 @@ func (c *GRPCClient) GetProductByID(ID uuid.UUID) (catalog.Product, error) {
 	if err != nil {
 		return catalog.Product{}, err
 	}
+	price := ""
+	currency := ""
+	if resp.Product.GetPrice() != nil {
+		price = resp.Product.GetPrice().GetAmount()
+		currency = resp.Product.GetPrice().GetCurrency()
+	}
 	return catalog.Product{
 		ID:          productID,
 		Name:        resp.Product.Name,
 		Img:         resp.Product.Img,
-		Price:       resp.Product.Price,
+		Price:       price,
+		Currency:    currency,
 		CategoryID:  categoryID,
 		Description: resp.Description,
 		Stock:       resp.Stock,
