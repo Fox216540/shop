@@ -5,6 +5,7 @@ go 1.24.0
 require (
 	github.com/Fox216540/shop/api v1.0.0
 	github.com/Fox216540/shop/proto v1.0.0
+	github.com/caarlos0/env/v10 v10.0.0
 	github.com/gin-gonic/gin v1.11.0
 	github.com/google/uuid v1.6.0
 	github.com/pkg/errors v0.9.1
