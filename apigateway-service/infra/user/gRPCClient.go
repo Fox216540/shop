@@ -1,6 +1,7 @@
 package user
 
 import (
+	"github.com/Fox216540/shop/apigateway-service/core/transport"
 	"github.com/Fox216540/shop/apigateway-service/domain/auth"
 	"github.com/Fox216540/shop/apigateway-service/domain/user"
 	"github.com/Fox216540/shop/apigateway-service/infra/client"
@@ -45,7 +46,7 @@ func (c *GRPCClient) Register(u user.User) (name string, tokens auth.Tokens, mes
 
 func (c *GRPCClient) Delete(id uuid.UUID) (message string, err error) {
 	ctx := c.conn.Context()
-	ctx = metadata.AppendToOutgoingContext(ctx, "user_id", id.String())
+	ctx = metadata.AppendToOutgoingContext(ctx, transport.UserIDKey, id.String())
 	resp, err := c.pbClient.DeleteUser(ctx, &emptypb.Empty{})
 	if err != nil {
 		return "", err
@@ -55,7 +56,7 @@ func (c *GRPCClient) Delete(id uuid.UUID) (message string, err error) {
 
 func (c *GRPCClient) UpdateEmail(id uuid.UUID, email string) (message string, err error) {
 	ctx := c.conn.Context()
-	ctx = metadata.AppendToOutgoingContext(ctx, "user_id", id.String())
+	ctx = metadata.AppendToOutgoingContext(ctx, transport.UserIDKey, id.String())
 	req := &pb.UpdateEmailRequest{
 		Email: email,
 	}
@@ -68,7 +69,7 @@ func (c *GRPCClient) UpdateEmail(id uuid.UUID, email string) (message string, er
 
 func (c *GRPCClient) UpdatePassword(id uuid.UUID, password string) (message string, err error) {
 	ctx := c.conn.Context()
-	ctx = metadata.AppendToOutgoingContext(ctx, "user_id", id.String())
+	ctx = metadata.AppendToOutgoingContext(ctx, transport.UserIDKey, id.String())
 	req := &pb.UpdatePasswordRequest{
 		Password: password,
 	}
@@ -81,7 +82,7 @@ func (c *GRPCClient) UpdatePassword(id uuid.UUID, password string) (message stri
 
 func (c *GRPCClient) UpdatePhone(id uuid.UUID, phone string) (message string, err error) {
 	ctx := c.conn.Context()
-	ctx = metadata.AppendToOutgoingContext(ctx, "user_id", id.String())
+	ctx = metadata.AppendToOutgoingContext(ctx, transport.UserIDKey, id.String())
 	req := &pb.UpdatePhoneRequest{
 		Phone: phone,
 	}
@@ -94,7 +95,7 @@ func (c *GRPCClient) UpdatePhone(id uuid.UUID, phone string) (message string, er
 
 func (c *GRPCClient) UpdateProfile(id uuid.UUID, name *string, address *string) (newName string, message string, err error) {
 	ctx := c.conn.Context()
-	ctx = metadata.AppendToOutgoingContext(ctx, "user_id", id.String())
+	ctx = metadata.AppendToOutgoingContext(ctx, transport.UserIDKey, id.String())
 	req := &pb.UpdateProfileRequest{
 		Name:    name,
 		Address: address,
