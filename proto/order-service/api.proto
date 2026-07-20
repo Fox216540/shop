@@ -35,8 +35,7 @@ message OrderWithItems {
 message ItemRequest {
     string product_id = 1;
     uint64 quantity = 2;
-    string value = 3;
-    string currency = 4;
+    common.Money expected_price = 3;
 }
 
 message CreateOrderRequest {
@@ -45,8 +44,8 @@ message CreateOrderRequest {
 
 message Order {
     string id = 1;
-    string order_num = 2;
-    common.Money price = 3;
+    string order_number = 2;
+    common.Money total = 3;
     string status = 4;
 }
 
