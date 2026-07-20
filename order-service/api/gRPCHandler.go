@@ -37,10 +37,10 @@ func mapMoney(amount, currency string) *types.Money {
 
 func (h *GRPCHandler) mapOrder(order orderDomain.Order) *pbApi.Order {
 	return &pbApi.Order{
-		Id:       order.ID.String(),
-		OrderNum: order.OrderNum,
-		Price:    mapMoney(order.Total.StringFixed(2), order.Currency),
-		Status:   order.Status,
+		Id:          order.ID.String(),
+		OrderNumber: order.OrderNum,
+		Total:       mapMoney(order.Total.StringFixed(2), order.Currency),
+		Status:      order.Status,
 	}
 }
 
@@ -105,11 +105,16 @@ func (h *GRPCHandler) CreateOrder(ctx context.Context, req *pbApi.CreateOrderReq
 
 	items := make([]dto.OrderItems, 0, len(req.Items))
 	for _, item := range req.Items {
+		expectedPrice := item.GetExpectedPrice()
+		if expectedPrice == nil {
+			return nil, h.mapper.MapError(ctx, status.Error(codes.InvalidArgument, messages.InvalidArgument))
+		}
+
 		items = append(items, dto.OrderItems{
 			ProductID: item.ProductId,
 			Quantity:  item.Quantity,
-			Value:     item.Value,
-			Currency:  item.Currency,
+			Value:     expectedPrice.GetAmount(),
+			Currency:  expectedPrice.GetCurrency(),
 		})
 	}
 
