@@ -21,21 +21,24 @@ service ApiService {
 
 
 message GetBasketResponse {
-    repeated common.Product products = 1;
-    common.Money price = 2;
+    repeated BasketItem items = 1;
+    common.Money total = 2;
 }
 
 message AddItemToBasketRequest {
     string product_id = 1;
-    string quantity = 2;
+    uint64 quantity = 2;
 }
 
 message AddItemToBasketResponse {
-    common.Product product = 1;
-    string quantity = 2;
+    BasketItem item = 1;
 }
 
 message RemoveItemFromBasketRequest {
     string product_id = 1;
 }
 
+message BasketItem {
+    common.Product product = 1;
+    uint64 quantity = 2;
+}
