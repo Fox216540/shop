@@ -20,7 +20,7 @@ func main() {
 	}
 
 	logger.InitLogger()
-	logg := logger.NewStdLogger()
+	logg := logger.NewZeroLogger()
 
 	metrics := di.ProvideMetrics()
 	handler, clients := di.NewHTTPHandler(conf, api.NewHTTPMapper(logg), metrics)
