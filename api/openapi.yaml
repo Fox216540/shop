@@ -1,11 +1,18 @@
-openapi: 3.0.0
+openapi: 3.0.3
 info:
   title: Shop API
-  description: This is a shop API
+  description: Public HTTP API for the shop services.
   version: 1.0.0
 servers:
   - url: http://localhost:8080
     description: Shop API server
+tags:
+  - name: Auth
+  - name: Basket
+  - name: Catalog
+  - name: Categories
+  - name: Orders
+  - name: User
 
 paths:
   /categories:
@@ -32,10 +39,12 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/ProductsList'
+        '400':
+          $ref: '#/components/responses/BadRequest'
         '500':
           $ref: '#/components/responses/ServerError'
 
-  /products/{productId}:
+  /products/{product_id}:
     get:
       summary: Get a product by its ID
       operationId: getProductById
@@ -47,6 +56,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/Product'
+        '400':
+          $ref: '#/components/responses/BadRequest'
         '404':
           $ref: '#/components/responses/NotFound'
         '500':
@@ -84,8 +95,8 @@ paths:
       security:
         - bearerAuth: [ ]
       responses:
-        '200':
-          $ref: '#/components/responses/UserDeleted'
+        '204':
+          description: User deleted successfully
         '401':
           $ref: '#/components/responses/Unauthorized'
         '404':
@@ -97,6 +108,7 @@ paths:
     patch:
       summary: Change user email
       description: Updates the authenticated user's email. Requires Bearer token.
+      operationId: updateUserEmail
       tags:
         - User
       security:
@@ -121,6 +133,7 @@ paths:
     patch:
       summary: Change user password
       description: Updates the authenticated user's password. Requires Bearer token.
+      operationId: updateUserPassword
       tags:
         - User
       security:
@@ -145,6 +158,7 @@ paths:
     patch:
       summary: Change user phone
       description: Updates the authenticated user's phone number. Requires Bearer token.
+      operationId: updateUserPhone
       tags:
         - User
       security:
@@ -169,6 +183,7 @@ paths:
     patch:
       summary: Change user profile
       description: Updates the authenticated user's profile fields (name and/or address). Requires Bearer token.
+      operationId: updateUserProfile
       tags:
         - User
       security:
@@ -193,6 +208,7 @@ paths:
     post:
       summary: Authenticate user
       description: Logs in a user and returns access token. Refresh token is set as HttpOnly cookie.
+      operationId: login
       tags:
         - Auth
       requestBody:
@@ -204,8 +220,10 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/UserWithToken'
+        '400':
+          $ref: '#/components/responses/BadRequest'
         '401':
-          $ref: '#/components/responses/Unauthorized'
+          $ref: '#/components/responses/AuthUnauthorized'
         '500':
           $ref: '#/components/responses/ServerError'
 
@@ -213,15 +231,16 @@ paths:
     post:
       summary: Logout from current session
       description: Deletes refresh token cookie for current session.
+      operationId: logout
       tags:
         - Auth
       security:
-        - bearerAuth: [ ]
+        - refreshCookie: [ ]
       responses:
         '200':
-          $ref: '#/components/responses/MessageOK'
+          $ref: '#/components/responses/AuthMessageOK'
         '401':
-          $ref: '#/components/responses/Unauthorized'
+          $ref: '#/components/responses/CookieUnauthorized'
         '500':
           $ref: '#/components/responses/ServerError'
 
@@ -229,13 +248,14 @@ paths:
     post:
       summary: Logout from all sessions
       description: Deletes all refresh tokens for the authenticated user.
+      operationId: logoutAll
       tags:
         - Auth
       security:
         - bearerAuth: [ ]
       responses:
         '200':
-          $ref: '#/components/responses/MessageOK'
+          $ref: '#/components/responses/AuthMessageOK'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '500':
@@ -245,13 +265,16 @@ paths:
     post:
       summary: Refresh access token
       description: Issues a new access token using the refresh token stored in HttpOnly cookie. Also updates the refresh token.
+      operationId: refreshToken
       tags:
         - Auth
+      security:
+        - refreshCookie: [ ]
       responses:
         '200':
           $ref: '#/components/responses/RefreshResponse'
         '401':
-          $ref: '#/components/responses/Unauthorized'
+          $ref: '#/components/responses/CookieUnauthorized'
         '500':
           $ref: '#/components/responses/ServerError'
 
@@ -262,12 +285,14 @@ paths:
       tags:
         - Basket
       security:
-        - BearerAuth: [ ]
+        - bearerAuth: [ ]
       parameters:
         - $ref: '#/components/parameters/Currency'
       responses:
         '200':
-          $ref: '#/components/responses/BasketItemListResponse'
+          $ref: '#/components/responses/BasketResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '500':
@@ -279,7 +304,7 @@ paths:
       tags:
         - Basket
       security:
-        - BearerAuth: [ ]
+        - bearerAuth: [ ]
       requestBody:
         required: true
         content:
@@ -291,6 +316,8 @@ paths:
           $ref: '#/components/responses/BasketItemResponse'
         '400':
           $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '500':
@@ -302,29 +329,31 @@ paths:
       tags:
         - Basket
       security:
-        - BearerAuth: [ ]
+        - bearerAuth: [ ]
       responses:
         '204':
-          $ref: "#/components/responses/MessageOK"
+          description: Basket cleared successfully
         '401':
           $ref: '#/components/responses/Unauthorized'
         '500':
           $ref: '#/components/responses/ServerError'
 
 
-  /basket/{productId}:
+  /basket/{product_id}:
     delete:
       summary: Remove item from basket
       operationId: removeItemFromBasket
       tags:
         - Basket
       security:
-        - BearerAuth: [ ]
+        - bearerAuth: [ ]
       parameters:
         - $ref: "#/components/parameters/ProductId"
       responses:
         '200':
           $ref: '#/components/responses/MessageOK'
+        '400':
+          $ref: '#/components/responses/BadRequest'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '404':
@@ -336,6 +365,7 @@ paths:
     post:
       summary: Create a new order
       description: Creates a new order for the authenticated user. Requires Bearer token.
+      operationId: createOrder
       tags:
         - Orders
       security:
@@ -361,6 +391,7 @@ paths:
     get:
       summary: Get all orders of the authenticated user
       description: Retrieves all orders for the current user. Requires Bearer token.
+      operationId: getOrders
       tags:
         - Orders
       security:
@@ -373,10 +404,11 @@ paths:
         '500':
           $ref: '#/components/responses/ServerError'
 
-  /orders/{orderId}:
+  /orders/{order_id}:
     get:
       summary: Get an order by its ID
       description: Retrieves a specific order by ID. Requires Bearer token.
+      operationId: getOrderById
       tags:
         - Orders
       security:
@@ -386,6 +418,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/Order'
+        '400':
+          $ref: '#/components/responses/BadRequest'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '404':
@@ -396,6 +430,7 @@ paths:
     delete:
       summary: Delete an order
       description: Deletes a specific order by ID. Requires Bearer token.
+      operationId: deleteOrder
       tags:
         - Orders
       security:
@@ -405,6 +440,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/OrderDeleted'
+        '400':
+          $ref: '#/components/responses/BadRequest'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '404':
@@ -418,10 +455,14 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
+    refreshCookie:
+      type: apiKey
+      in: cookie
+      name: __Host-refresh
 
   parameters:
     CategoryId:
-      name: categoryId
+      name: category_id
       in: query
       description: Category UUID (optional — if omitted, returns all products)
       required: false
@@ -430,7 +471,7 @@ components:
         format: uuid
 
     ProductId:
-      name: productId
+      name: product_id
       in: path
       required: true
       description: Product UUID
@@ -439,7 +480,7 @@ components:
         format: uuid
 
     OrderId:
-      name: orderId
+      name: order_id
       in: path
       required: true
       description: Order UUID
@@ -454,6 +495,9 @@ components:
       description: Currency of user
       schema:
         type: string
+        minLength: 3
+        maxLength: 3
+        example: EUR
 
   responses:
     PriceMismatch:
@@ -464,6 +508,30 @@ components:
             $ref: '#/components/schemas/PriceMismatchError'
     Unauthorized:
       description: Unauthorized - missing or invalid token
+      headers:
+        WWW-Authenticate:
+          description: Authentication challenge for bearer-protected resources
+          schema:
+            type: string
+            example: Bearer realm="shop-api"
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/MessageResponse'
+          example:
+            message: Unauthorized
+
+    CookieUnauthorized:
+      description: Unauthorized - missing or invalid refresh cookie
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/MessageResponse'
+          example:
+            message: Unauthorized
+
+    AuthUnauthorized:
+      description: Unauthorized - invalid credentials
       content:
         application/json:
           schema:
@@ -520,6 +588,21 @@ components:
           example:
             message: Operation successful
 
+    AuthMessageOK:
+      description: OK
+      headers:
+        Set-Cookie:
+          description: Clears the refresh token cookie when applicable
+          schema:
+            type: string
+            example: __Host-refresh=; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=0
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/MessageResponse'
+          example:
+            message: Operation successful
+
     CategoriesList:
       description: Categories retrieved successfully
       content:
@@ -547,24 +630,25 @@ components:
 
     UserCreated:
       description: User created successfully
+      headers:
+        Set-Cookie:
+          description: HttpOnly refresh token cookie
+          schema:
+            type: string
+            example: __Host-refresh=refresh-token; HttpOnly; Secure; SameSite=Strict; Path=/
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/UserWithTokenResponse'
 
-    UserDeleted:
-      description: User deleted successfully
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/UserResponse'
-          example:
-            name: John Doe
-            message: User deleted successfully
-
-
     UserWithToken:
       description: Login successful
+      headers:
+        Set-Cookie:
+          description: HttpOnly refresh token cookie
+          schema:
+            type: string
+            example: __Host-refresh=refresh-token; HttpOnly; Secure; SameSite=Strict; Path=/
       content:
         application/json:
           schema:
@@ -582,26 +666,23 @@ components:
 
     RefreshResponse:
       description: Token refreshed successfully, refresh token updated
+      headers:
+        Set-Cookie:
+          description: Updated HttpOnly refresh token cookie
+          schema:
+            type: string
+            example: __Host-refresh=refresh-token; HttpOnly; Secure; SameSite=Strict; Path=/
       content:
         application/json:
           schema:
-            type: object
-            properties:
-              access_token:
-                type: string
-                example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-              message:
-                type: string
-                example: Access and refresh tokens updated successfully
+            $ref: '#/components/schemas/RefreshResponse'
 
-    BasketItemListResponse:
+    BasketResponse:
       description: Basket items retrieved successfully
       content:
         application/json:
           schema:
-            type: array
-            items:
-              $ref: '#/components/schemas/BasketItemList'
+            $ref: '#/components/schemas/BasketResponse'
 
     BasketItemResponse:
       description: Basket item added successfully
@@ -651,9 +732,12 @@ components:
       properties:
         amount:
           type: string
+          pattern: '^\d+(\.\d{1,2})?$'
           example: "12.99"
         currency:
           type: string
+          minLength: 3
+          maxLength: 3
           example: "EUR"
 
     PriceMismatchError:
@@ -662,6 +746,8 @@ components:
       properties:
         code:
           type: string
+          enum:
+            - PRICE_MISMATCH
           example: PRICE_MISMATCH
         error_items:
           type: array
@@ -688,6 +774,7 @@ components:
       properties:
         message:
           type: string
+          minLength: 1
           example: Error message description
 
     # Categories
@@ -703,29 +790,29 @@ components:
           example: 4b8f5db4-ac77-4738-ad9e-9da30f215b2e
         name:
           type: string
+          minLength: 1
           example: Electronics
 
     # Orders: requests
     CreateOrderRequest:
       type: object
-      required: [ items, currency ]
+      required: [ items ]
       properties:
-        currency:
-          type: string
         items:
           type: array
+          minItems: 1
           items:
             type: object
-            required: [ product_id, expectedUnitPrice, quantity ]
+            required: [ product_id, expected_price, quantity ]
             properties:
               product_id:
                 type: string
                 format: uuid
-              expectedUnitPrice:
-                type: string
+              expected_price:
+                $ref: '#/components/schemas/Money'
               quantity:
                 type: integer
-                format: uint64
+                format: int64
                 minimum: 1
 
     # Orders and products: shared building blocks
@@ -742,6 +829,7 @@ components:
           format: uuid
         name:
           type: string
+          minLength: 1
         img:
           type: string
           format: uri
@@ -766,21 +854,21 @@ components:
               example: A modern smartphone with an excellent camera and display.
             stock:
               type: integer
-              format: uint64
+              format: int64
               minimum: 0
               example: 42
 
-    BasketItemList:
+    BasketResponse:
       type: object
       required:
         - items
-        - price
+        - total
       properties:
         items:
           type: array
           items:
             $ref: "#/components/schemas/BasketItem"
-        price:
+        total:
           $ref: "#/components/schemas/Money"
 
     BasketItem:
@@ -791,19 +879,21 @@ components:
           $ref: "#/components/schemas/ProductShort"
         quantity:
           type: integer
+          format: int64
+          minimum: 1
 
     AddBasketItemRequest:
       type: object
       properties:
-        productId:
+        product_id:
           type: string
           format: uuid
         quantity:
           type: integer
-          format: uint64
+          format: int64
           minimum: 1
       required:
-        - productId
+        - product_id
         - quantity
 
     OrderResponse:
@@ -813,18 +903,23 @@ components:
         - order_number
         - total
         - status
-        - currency
       properties:
         id:
           type: string
           format: uuid
         order_number:
           type: string
+          minLength: 1
           example: ORD-123456789
-        price:
+        total:
           $ref: '#/components/schemas/Money'
         status:
           type: string
+          enum:
+            - pending
+            - paid
+            - cancelled
+            - deleted
           example: pending
 
     OrderItem:
@@ -837,7 +932,7 @@ components:
           $ref: '#/components/schemas/ProductShort'
         quantity:
           type: integer
-          format: uint64
+          format: int64
           minimum: 1
 
     OrderWithItemsResponse:
@@ -865,9 +960,12 @@ components:
           example: 2b13fa9e-a5a7-4c71-8cc9-f11164fd2628
         status:
           type: string
+          enum:
+            - deleted
           example: deleted
         message:
           type: string
+          minLength: 1
           example: Order deleted successfully
 
     # User-related schemas
@@ -886,16 +984,20 @@ components:
           example: john.doe@example.com
         name:
           type: string
+          minLength: 1
           example: John Doe
         password:
           type: string
           format: password
+          minLength: 8
           example: MySecurePass123
         address:
           type: string
+          minLength: 1
           example: 123 Main St, Springfield, USA
         phone:
           type: string
+          minLength: 1
           example: "+1-555-123-4567"
 
     UserResponse:
@@ -906,8 +1008,10 @@ components:
       properties:
         name:
           type: string
+          minLength: 1
         message:
           type: string
+          minLength: 1
 
     UserWithTokenResponse:
       type: object
@@ -918,13 +1022,31 @@ components:
       properties:
         name:
           type: string
+          minLength: 1
           example: John Doe
         access_token:
           type: string
+          minLength: 1
           example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
         message:
           type: string
+          minLength: 1
           example: Success
+
+    RefreshResponse:
+      type: object
+      required:
+        - access_token
+        - message
+      properties:
+        access_token:
+          type: string
+          minLength: 1
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        message:
+          type: string
+          minLength: 1
+          example: Access and refresh tokens updated successfully
 
     # Login
     LoginRequest:
@@ -935,10 +1057,12 @@ components:
       properties:
         phone_or_email:
           type: string
+          minLength: 1
           example: john.doe@example.com
         password:
           type: string
           format: password
+          minLength: 1
           example: MySecurePass123
 
     # Update small fields requests (kept separate for clear validation and examples)
@@ -960,6 +1084,7 @@ components:
         password:
           type: string
           format: password
+          minLength: 8
           example: NewSecurePass123
 
     UpdatePhoneRequest:
@@ -969,6 +1094,7 @@ components:
       properties:
         phone:
           type: string
+          minLength: 1
           example: "+1-555-123-4567"
 
     UpdateProfileRequest:
@@ -976,8 +1102,10 @@ components:
       properties:
         name:
           type: string
+          minLength: 1
           example: Andrei
         address:
           type: string
+          minLength: 1
           example: 123 Main St, Springfield
 

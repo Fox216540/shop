@@ -13,26 +13,52 @@ import (
 )
 
 const (
-	BearerAuthScopes = "BearerAuth.Scopes"
-	BearerAuthScopes = "bearerAuth.Scopes"
+	BearerAuthScopes    = "bearerAuth.Scopes"
+	RefreshCookieScopes = "refreshCookie.Scopes"
+)
+
+// Defines values for OrderDeletedResponseStatus.
+const (
+	OrderDeletedResponseStatusDeleted OrderDeletedResponseStatus = "deleted"
+)
+
+// Defines values for OrderResponseStatus.
+const (
+	OrderResponseStatusCancelled OrderResponseStatus = "cancelled"
+	OrderResponseStatusDeleted   OrderResponseStatus = "deleted"
+	OrderResponseStatusPaid      OrderResponseStatus = "paid"
+	OrderResponseStatusPending   OrderResponseStatus = "pending"
+)
+
+// Defines values for OrderWithItemsResponseStatus.
+const (
+	Cancelled OrderWithItemsResponseStatus = "cancelled"
+	Deleted   OrderWithItemsResponseStatus = "deleted"
+	Paid      OrderWithItemsResponseStatus = "paid"
+	Pending   OrderWithItemsResponseStatus = "pending"
+)
+
+// Defines values for PriceMismatchErrorCode.
+const (
+	PRICEMISMATCH PriceMismatchErrorCode = "PRICE_MISMATCH"
 )
 
 // AddBasketItemRequest defines model for AddBasketItemRequest.
 type AddBasketItemRequest struct {
-	ProductId openapi_types.UUID `json:"productId"`
-	Quantity  uint64             `json:"quantity"`
+	ProductId openapi_types.UUID `json:"product_id"`
+	Quantity  int64              `json:"quantity"`
 }
 
 // BasketItem defines model for BasketItem.
 type BasketItem struct {
 	Product  ProductShort `json:"product"`
-	Quantity int          `json:"quantity"`
+	Quantity int64        `json:"quantity"`
 }
 
-// BasketItemList defines model for BasketItemList.
-type BasketItemList struct {
+// BasketResponse defines model for BasketResponse.
+type BasketResponse struct {
 	Items []BasketItem `json:"items"`
-	Price Money        `json:"price"`
+	Total Money        `json:"total"`
 }
 
 // CategoryResponse defines model for CategoryResponse.
@@ -43,11 +69,10 @@ type CategoryResponse struct {
 
 // CreateOrderRequest defines model for CreateOrderRequest.
 type CreateOrderRequest struct {
-	Currency string `json:"currency"`
-	Items    []struct {
-		ExpectedUnitPrice string             `json:"expectedUnitPrice"`
-		ProductId         openapi_types.UUID `json:"product_id"`
-		Quantity          uint64             `json:"quantity"`
+	Items []struct {
+		ExpectedPrice Money              `json:"expected_price"`
+		ProductId     openapi_types.UUID `json:"product_id"`
+		Quantity      int64              `json:"quantity"`
 	} `json:"items"`
 }
 
@@ -70,43 +95,55 @@ type Money struct {
 
 // OrderDeletedResponse defines model for OrderDeletedResponse.
 type OrderDeletedResponse struct {
-	Id      openapi_types.UUID `json:"id"`
-	Message string             `json:"message"`
-	Status  string             `json:"status"`
+	Id      openapi_types.UUID         `json:"id"`
+	Message string                     `json:"message"`
+	Status  OrderDeletedResponseStatus `json:"status"`
 }
+
+// OrderDeletedResponseStatus defines model for OrderDeletedResponse.Status.
+type OrderDeletedResponseStatus string
 
 // OrderItem defines model for OrderItem.
 type OrderItem struct {
 	Product  ProductShort `json:"product"`
-	Quantity uint64       `json:"quantity"`
+	Quantity int64        `json:"quantity"`
 }
 
 // OrderResponse defines model for OrderResponse.
 type OrderResponse struct {
-	Id          openapi_types.UUID `json:"id"`
-	OrderNumber string             `json:"order_number"`
-	Price       *Money             `json:"price,omitempty"`
-	Status      string             `json:"status"`
+	Id          openapi_types.UUID  `json:"id"`
+	OrderNumber string              `json:"order_number"`
+	Status      OrderResponseStatus `json:"status"`
+	Total       Money               `json:"total"`
 }
+
+// OrderResponseStatus defines model for OrderResponse.Status.
+type OrderResponseStatus string
 
 // OrderWithItemsResponse defines model for OrderWithItemsResponse.
 type OrderWithItemsResponse struct {
-	Id          openapi_types.UUID `json:"id"`
-	OrderItems  []OrderItem        `json:"order_items"`
-	OrderNumber string             `json:"order_number"`
-	Price       *Money             `json:"price,omitempty"`
-	Status      string             `json:"status"`
+	Id          openapi_types.UUID           `json:"id"`
+	OrderItems  []OrderItem                  `json:"order_items"`
+	OrderNumber string                       `json:"order_number"`
+	Status      OrderWithItemsResponseStatus `json:"status"`
+	Total       Money                        `json:"total"`
 }
+
+// OrderWithItemsResponseStatus defines model for OrderWithItemsResponse.Status.
+type OrderWithItemsResponseStatus string
 
 // PriceMismatchError defines model for PriceMismatchError.
 type PriceMismatchError struct {
-	Code       string `json:"code"`
+	Code       PriceMismatchErrorCode `json:"code"`
 	ErrorItems []struct {
 		ActualPrice   Money              `json:"actual_price"`
 		ExpectedPrice Money              `json:"expected_price"`
 		ProductId     openapi_types.UUID `json:"product_id"`
 	} `json:"error_items"`
 }
+
+// PriceMismatchErrorCode defines model for PriceMismatchError.Code.
+type PriceMismatchErrorCode string
 
 // ProductResponse defines model for ProductResponse.
 type ProductResponse struct {
@@ -116,7 +153,7 @@ type ProductResponse struct {
 	Img         string             `json:"img"`
 	Name        string             `json:"name"`
 	Price       Money              `json:"price"`
-	Stock       uint64             `json:"stock"`
+	Stock       int64              `json:"stock"`
 }
 
 // ProductShort defines model for ProductShort.
@@ -125,6 +162,12 @@ type ProductShort struct {
 	Img   string             `json:"img"`
 	Name  string             `json:"name"`
 	Price Money              `json:"price"`
+}
+
+// RefreshResponse defines model for RefreshResponse.
+type RefreshResponse struct {
+	AccessToken string `json:"access_token"`
+	Message     string `json:"message"`
 }
 
 // RegisterRequest defines model for RegisterRequest.
@@ -182,11 +225,14 @@ type OrderId = openapi_types.UUID
 // ProductId defines model for ProductId.
 type ProductId = openapi_types.UUID
 
+// AuthMessageOK defines model for AuthMessageOK.
+type AuthMessageOK = MessageResponse
+
+// AuthUnauthorized defines model for AuthUnauthorized.
+type AuthUnauthorized = MessageResponse
+
 // BadRequest defines model for BadRequest.
 type BadRequest = MessageResponse
-
-// BasketItemListResponse defines model for BasketItemListResponse.
-type BasketItemListResponse = []BasketItemList
 
 // BasketItemResponse defines model for BasketItemResponse.
 type BasketItemResponse = BasketItem
@@ -196,6 +242,9 @@ type CategoriesList = []CategoryResponse
 
 // Conflict defines model for Conflict.
 type Conflict = MessageResponse
+
+// CookieUnauthorized defines model for CookieUnauthorized.
+type CookieUnauthorized = MessageResponse
 
 // MessageOK defines model for MessageOK.
 type MessageOK = MessageResponse
@@ -224,12 +273,6 @@ type Product = ProductResponse
 // ProductsList defines model for ProductsList.
 type ProductsList = []ProductResponse
 
-// RefreshResponse defines model for RefreshResponse.
-type RefreshResponse struct {
-	AccessToken *string `json:"access_token,omitempty"`
-	Message     *string `json:"message,omitempty"`
-}
-
 // ServerError defines model for ServerError.
 type ServerError = MessageResponse
 
@@ -238,9 +281,6 @@ type Unauthorized = MessageResponse
 
 // UserCreated defines model for UserCreated.
 type UserCreated = UserWithTokenResponse
-
-// UserDeleted defines model for UserDeleted.
-type UserDeleted = UserResponse
 
 // UserWithToken defines model for UserWithToken.
 type UserWithToken = UserWithTokenResponse
@@ -254,7 +294,7 @@ type GetBasketParams struct {
 // GetProductsParams defines parameters for GetProducts.
 type GetProductsParams struct {
 	// CategoryId Category UUID (optional — if omitted, returns all products)
-	CategoryId *CategoryId `form:"categoryId,omitempty" json:"categoryId,omitempty"`
+	CategoryId *CategoryId `form:"category_id,omitempty" json:"category_id,omitempty"`
 
 	// Currency Currency of user
 	Currency Currency `form:"currency" json:"currency"`
@@ -266,44 +306,44 @@ type GetProductByIdParams struct {
 	Currency Currency `form:"currency" json:"currency"`
 }
 
-// PostAuthLoginJSONRequestBody defines body for PostAuthLogin for application/json ContentType.
-type PostAuthLoginJSONRequestBody = LoginRequest
+// LoginJSONRequestBody defines body for Login for application/json ContentType.
+type LoginJSONRequestBody = LoginRequest
 
 // AddItemToBasketJSONRequestBody defines body for AddItemToBasket for application/json ContentType.
 type AddItemToBasketJSONRequestBody = AddBasketItemRequest
 
-// PostOrdersJSONRequestBody defines body for PostOrders for application/json ContentType.
-type PostOrdersJSONRequestBody = CreateOrderRequest
+// CreateOrderJSONRequestBody defines body for CreateOrder for application/json ContentType.
+type CreateOrderJSONRequestBody = CreateOrderRequest
 
 // CreateUserJSONRequestBody defines body for CreateUser for application/json ContentType.
 type CreateUserJSONRequestBody = RegisterRequest
 
-// PatchUsersMeEmailJSONRequestBody defines body for PatchUsersMeEmail for application/json ContentType.
-type PatchUsersMeEmailJSONRequestBody = UpdateEmailRequest
+// UpdateUserEmailJSONRequestBody defines body for UpdateUserEmail for application/json ContentType.
+type UpdateUserEmailJSONRequestBody = UpdateEmailRequest
 
-// PatchUsersMePasswordJSONRequestBody defines body for PatchUsersMePassword for application/json ContentType.
-type PatchUsersMePasswordJSONRequestBody = UpdatePasswordRequest
+// UpdateUserPasswordJSONRequestBody defines body for UpdateUserPassword for application/json ContentType.
+type UpdateUserPasswordJSONRequestBody = UpdatePasswordRequest
 
-// PatchUsersMePhoneJSONRequestBody defines body for PatchUsersMePhone for application/json ContentType.
-type PatchUsersMePhoneJSONRequestBody = UpdatePhoneRequest
+// UpdateUserPhoneJSONRequestBody defines body for UpdateUserPhone for application/json ContentType.
+type UpdateUserPhoneJSONRequestBody = UpdatePhoneRequest
 
-// PatchUsersMeProfileJSONRequestBody defines body for PatchUsersMeProfile for application/json ContentType.
-type PatchUsersMeProfileJSONRequestBody = UpdateProfileRequest
+// UpdateUserProfileJSONRequestBody defines body for UpdateUserProfile for application/json ContentType.
+type UpdateUserProfileJSONRequestBody = UpdateProfileRequest
 
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
 	// Authenticate user
 	// (POST /auth/login)
-	PostAuthLogin(c *gin.Context)
+	Login(c *gin.Context)
 	// Logout from current session
 	// (POST /auth/logout)
-	PostAuthLogout(c *gin.Context)
+	Logout(c *gin.Context)
 	// Logout from all sessions
 	// (POST /auth/logout-all)
-	PostAuthLogoutAll(c *gin.Context)
+	LogoutAll(c *gin.Context)
 	// Refresh access token
 	// (POST /auth/refresh)
-	PostAuthRefresh(c *gin.Context)
+	RefreshToken(c *gin.Context)
 	// Clear basket
 	// (DELETE /basket)
 	ClearBasket(c *gin.Context)
@@ -314,7 +354,7 @@ type ServerInterface interface {
 	// (POST /basket)
 	AddItemToBasket(c *gin.Context)
 	// Remove item from basket
-	// (DELETE /basket/{productId})
+	// (DELETE /basket/{product_id})
 	RemoveItemFromBasket(c *gin.Context, productId ProductId)
 	// Get all product categories
 	// (GET /categories)
@@ -324,18 +364,18 @@ type ServerInterface interface {
 	GetOrders(c *gin.Context)
 	// Create a new order
 	// (POST /orders)
-	PostOrders(c *gin.Context)
+	CreateOrder(c *gin.Context)
 	// Delete an order
-	// (DELETE /orders/{orderId})
-	DeleteOrdersOrderId(c *gin.Context, orderId OrderId)
+	// (DELETE /orders/{order_id})
+	DeleteOrder(c *gin.Context, orderId OrderId)
 	// Get an order by its ID
-	// (GET /orders/{orderId})
-	GetOrdersOrderId(c *gin.Context, orderId OrderId)
+	// (GET /orders/{order_id})
+	GetOrderById(c *gin.Context, orderId OrderId)
 	// Get products (optionally filtered by category)
 	// (GET /products)
 	GetProducts(c *gin.Context, params GetProductsParams)
 	// Get a product by its ID
-	// (GET /products/{productId})
+	// (GET /products/{product_id})
 	GetProductById(c *gin.Context, productId ProductId, params GetProductByIdParams)
 	// Register a new user
 	// (POST /users)
@@ -345,16 +385,16 @@ type ServerInterface interface {
 	DeleteUser(c *gin.Context)
 	// Change user email
 	// (PATCH /users/me/email)
-	PatchUsersMeEmail(c *gin.Context)
+	UpdateUserEmail(c *gin.Context)
 	// Change user password
 	// (PATCH /users/me/password)
-	PatchUsersMePassword(c *gin.Context)
+	UpdateUserPassword(c *gin.Context)
 	// Change user phone
 	// (PATCH /users/me/phone)
-	PatchUsersMePhone(c *gin.Context)
+	UpdateUserPhone(c *gin.Context)
 	// Change user profile
 	// (PATCH /users/me/profile)
-	PatchUsersMeProfile(c *gin.Context)
+	UpdateUserProfile(c *gin.Context)
 }
 
 // ServerInterfaceWrapper converts contexts to parameters.
@@ -366,8 +406,8 @@ type ServerInterfaceWrapper struct {
 
 type MiddlewareFunc func(c *gin.Context)
 
-// PostAuthLogin operation middleware
-func (siw *ServerInterfaceWrapper) PostAuthLogin(c *gin.Context) {
+// Login operation middleware
+func (siw *ServerInterfaceWrapper) Login(c *gin.Context) {
 
 	for _, middleware := range siw.HandlerMiddlewares {
 		middleware(c)
@@ -376,11 +416,26 @@ func (siw *ServerInterfaceWrapper) PostAuthLogin(c *gin.Context) {
 		}
 	}
 
-	siw.Handler.PostAuthLogin(c)
+	siw.Handler.Login(c)
 }
 
-// PostAuthLogout operation middleware
-func (siw *ServerInterfaceWrapper) PostAuthLogout(c *gin.Context) {
+// Logout operation middleware
+func (siw *ServerInterfaceWrapper) Logout(c *gin.Context) {
+
+	c.Set(RefreshCookieScopes, []string{})
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.Logout(c)
+}
+
+// LogoutAll operation middleware
+func (siw *ServerInterfaceWrapper) LogoutAll(c *gin.Context) {
 
 	c.Set(BearerAuthScopes, []string{})
 
@@ -391,13 +446,13 @@ func (siw *ServerInterfaceWrapper) PostAuthLogout(c *gin.Context) {
 		}
 	}
 
-	siw.Handler.PostAuthLogout(c)
+	siw.Handler.LogoutAll(c)
 }
 
-// PostAuthLogoutAll operation middleware
-func (siw *ServerInterfaceWrapper) PostAuthLogoutAll(c *gin.Context) {
+// RefreshToken operation middleware
+func (siw *ServerInterfaceWrapper) RefreshToken(c *gin.Context) {
 
-	c.Set(BearerAuthScopes, []string{})
+	c.Set(RefreshCookieScopes, []string{})
 
 	for _, middleware := range siw.HandlerMiddlewares {
 		middleware(c)
@@ -406,20 +461,7 @@ func (siw *ServerInterfaceWrapper) PostAuthLogoutAll(c *gin.Context) {
 		}
 	}
 
-	siw.Handler.PostAuthLogoutAll(c)
-}
-
-// PostAuthRefresh operation middleware
-func (siw *ServerInterfaceWrapper) PostAuthRefresh(c *gin.Context) {
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		middleware(c)
-		if c.IsAborted() {
-			return
-		}
-	}
-
-	siw.Handler.PostAuthRefresh(c)
+	siw.Handler.RefreshToken(c)
 }
 
 // ClearBasket operation middleware
@@ -492,12 +534,12 @@ func (siw *ServerInterfaceWrapper) RemoveItemFromBasket(c *gin.Context) {
 
 	var err error
 
-	// ------------- Path parameter "productId" -------------
+	// ------------- Path parameter "product_id" -------------
 	var productId ProductId
 
-	err = runtime.BindStyledParameterWithOptions("simple", "productId", c.Param("productId"), &productId, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	err = runtime.BindStyledParameterWithOptions("simple", "product_id", c.Param("product_id"), &productId, runtime.BindStyledParameterOptions{Explode: false, Required: true})
 	if err != nil {
-		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter productId: %w", err), http.StatusBadRequest)
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter product_id: %w", err), http.StatusBadRequest)
 		return
 	}
 
@@ -541,8 +583,8 @@ func (siw *ServerInterfaceWrapper) GetOrders(c *gin.Context) {
 	siw.Handler.GetOrders(c)
 }
 
-// PostOrders operation middleware
-func (siw *ServerInterfaceWrapper) PostOrders(c *gin.Context) {
+// CreateOrder operation middleware
+func (siw *ServerInterfaceWrapper) CreateOrder(c *gin.Context) {
 
 	c.Set(BearerAuthScopes, []string{})
 
@@ -553,20 +595,20 @@ func (siw *ServerInterfaceWrapper) PostOrders(c *gin.Context) {
 		}
 	}
 
-	siw.Handler.PostOrders(c)
+	siw.Handler.CreateOrder(c)
 }
 
-// DeleteOrdersOrderId operation middleware
-func (siw *ServerInterfaceWrapper) DeleteOrdersOrderId(c *gin.Context) {
+// DeleteOrder operation middleware
+func (siw *ServerInterfaceWrapper) DeleteOrder(c *gin.Context) {
 
 	var err error
 
-	// ------------- Path parameter "orderId" -------------
+	// ------------- Path parameter "order_id" -------------
 	var orderId OrderId
 
-	err = runtime.BindStyledParameterWithOptions("simple", "orderId", c.Param("orderId"), &orderId, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	err = runtime.BindStyledParameterWithOptions("simple", "order_id", c.Param("order_id"), &orderId, runtime.BindStyledParameterOptions{Explode: false, Required: true})
 	if err != nil {
-		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter orderId: %w", err), http.StatusBadRequest)
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter order_id: %w", err), http.StatusBadRequest)
 		return
 	}
 
@@ -579,20 +621,20 @@ func (siw *ServerInterfaceWrapper) DeleteOrdersOrderId(c *gin.Context) {
 		}
 	}
 
-	siw.Handler.DeleteOrdersOrderId(c, orderId)
+	siw.Handler.DeleteOrder(c, orderId)
 }
 
-// GetOrdersOrderId operation middleware
-func (siw *ServerInterfaceWrapper) GetOrdersOrderId(c *gin.Context) {
+// GetOrderById operation middleware
+func (siw *ServerInterfaceWrapper) GetOrderById(c *gin.Context) {
 
 	var err error
 
-	// ------------- Path parameter "orderId" -------------
+	// ------------- Path parameter "order_id" -------------
 	var orderId OrderId
 
-	err = runtime.BindStyledParameterWithOptions("simple", "orderId", c.Param("orderId"), &orderId, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	err = runtime.BindStyledParameterWithOptions("simple", "order_id", c.Param("order_id"), &orderId, runtime.BindStyledParameterOptions{Explode: false, Required: true})
 	if err != nil {
-		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter orderId: %w", err), http.StatusBadRequest)
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter order_id: %w", err), http.StatusBadRequest)
 		return
 	}
 
@@ -605,7 +647,7 @@ func (siw *ServerInterfaceWrapper) GetOrdersOrderId(c *gin.Context) {
 		}
 	}
 
-	siw.Handler.GetOrdersOrderId(c, orderId)
+	siw.Handler.GetOrderById(c, orderId)
 }
 
 // GetProducts operation middleware
@@ -616,11 +658,11 @@ func (siw *ServerInterfaceWrapper) GetProducts(c *gin.Context) {
 	// Parameter object where we will unmarshal all parameters from the context
 	var params GetProductsParams
 
-	// ------------- Optional query parameter "categoryId" -------------
+	// ------------- Optional query parameter "category_id" -------------
 
-	err = runtime.BindQueryParameter("form", true, false, "categoryId", c.Request.URL.Query(), &params.CategoryId)
+	err = runtime.BindQueryParameter("form", true, false, "category_id", c.Request.URL.Query(), &params.CategoryId)
 	if err != nil {
-		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter categoryId: %w", err), http.StatusBadRequest)
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter category_id: %w", err), http.StatusBadRequest)
 		return
 	}
 
@@ -654,12 +696,12 @@ func (siw *ServerInterfaceWrapper) GetProductById(c *gin.Context) {
 
 	var err error
 
-	// ------------- Path parameter "productId" -------------
+	// ------------- Path parameter "product_id" -------------
 	var productId ProductId
 
-	err = runtime.BindStyledParameterWithOptions("simple", "productId", c.Param("productId"), &productId, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	err = runtime.BindStyledParameterWithOptions("simple", "product_id", c.Param("product_id"), &productId, runtime.BindStyledParameterOptions{Explode: false, Required: true})
 	if err != nil {
-		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter productId: %w", err), http.StatusBadRequest)
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter product_id: %w", err), http.StatusBadRequest)
 		return
 	}
 
@@ -719,8 +761,8 @@ func (siw *ServerInterfaceWrapper) DeleteUser(c *gin.Context) {
 	siw.Handler.DeleteUser(c)
 }
 
-// PatchUsersMeEmail operation middleware
-func (siw *ServerInterfaceWrapper) PatchUsersMeEmail(c *gin.Context) {
+// UpdateUserEmail operation middleware
+func (siw *ServerInterfaceWrapper) UpdateUserEmail(c *gin.Context) {
 
 	c.Set(BearerAuthScopes, []string{})
 
@@ -731,11 +773,11 @@ func (siw *ServerInterfaceWrapper) PatchUsersMeEmail(c *gin.Context) {
 		}
 	}
 
-	siw.Handler.PatchUsersMeEmail(c)
+	siw.Handler.UpdateUserEmail(c)
 }
 
-// PatchUsersMePassword operation middleware
-func (siw *ServerInterfaceWrapper) PatchUsersMePassword(c *gin.Context) {
+// UpdateUserPassword operation middleware
+func (siw *ServerInterfaceWrapper) UpdateUserPassword(c *gin.Context) {
 
 	c.Set(BearerAuthScopes, []string{})
 
@@ -746,11 +788,11 @@ func (siw *ServerInterfaceWrapper) PatchUsersMePassword(c *gin.Context) {
 		}
 	}
 
-	siw.Handler.PatchUsersMePassword(c)
+	siw.Handler.UpdateUserPassword(c)
 }
 
-// PatchUsersMePhone operation middleware
-func (siw *ServerInterfaceWrapper) PatchUsersMePhone(c *gin.Context) {
+// UpdateUserPhone operation middleware
+func (siw *ServerInterfaceWrapper) UpdateUserPhone(c *gin.Context) {
 
 	c.Set(BearerAuthScopes, []string{})
 
@@ -761,11 +803,11 @@ func (siw *ServerInterfaceWrapper) PatchUsersMePhone(c *gin.Context) {
 		}
 	}
 
-	siw.Handler.PatchUsersMePhone(c)
+	siw.Handler.UpdateUserPhone(c)
 }
 
-// PatchUsersMeProfile operation middleware
-func (siw *ServerInterfaceWrapper) PatchUsersMeProfile(c *gin.Context) {
+// UpdateUserProfile operation middleware
+func (siw *ServerInterfaceWrapper) UpdateUserProfile(c *gin.Context) {
 
 	c.Set(BearerAuthScopes, []string{})
 
@@ -776,7 +818,7 @@ func (siw *ServerInterfaceWrapper) PatchUsersMeProfile(c *gin.Context) {
 		}
 	}
 
-	siw.Handler.PatchUsersMeProfile(c)
+	siw.Handler.UpdateUserProfile(c)
 }
 
 // GinServerOptions provides options for the Gin server.
@@ -806,25 +848,25 @@ func RegisterHandlersWithOptions(router gin.IRouter, si ServerInterface, options
 		ErrorHandler:       errorHandler,
 	}
 
-	router.POST(options.BaseURL+"/auth/login", wrapper.PostAuthLogin)
-	router.POST(options.BaseURL+"/auth/logout", wrapper.PostAuthLogout)
-	router.POST(options.BaseURL+"/auth/logout-all", wrapper.PostAuthLogoutAll)
-	router.POST(options.BaseURL+"/auth/refresh", wrapper.PostAuthRefresh)
+	router.POST(options.BaseURL+"/auth/login", wrapper.Login)
+	router.POST(options.BaseURL+"/auth/logout", wrapper.Logout)
+	router.POST(options.BaseURL+"/auth/logout-all", wrapper.LogoutAll)
+	router.POST(options.BaseURL+"/auth/refresh", wrapper.RefreshToken)
 	router.DELETE(options.BaseURL+"/basket", wrapper.ClearBasket)
 	router.GET(options.BaseURL+"/basket", wrapper.GetBasket)
 	router.POST(options.BaseURL+"/basket", wrapper.AddItemToBasket)
-	router.DELETE(options.BaseURL+"/basket/:productId", wrapper.RemoveItemFromBasket)
+	router.DELETE(options.BaseURL+"/basket/:product_id", wrapper.RemoveItemFromBasket)
 	router.GET(options.BaseURL+"/categories", wrapper.GetCategories)
 	router.GET(options.BaseURL+"/orders", wrapper.GetOrders)
-	router.POST(options.BaseURL+"/orders", wrapper.PostOrders)
-	router.DELETE(options.BaseURL+"/orders/:orderId", wrapper.DeleteOrdersOrderId)
-	router.GET(options.BaseURL+"/orders/:orderId", wrapper.GetOrdersOrderId)
+	router.POST(options.BaseURL+"/orders", wrapper.CreateOrder)
+	router.DELETE(options.BaseURL+"/orders/:order_id", wrapper.DeleteOrder)
+	router.GET(options.BaseURL+"/orders/:order_id", wrapper.GetOrderById)
 	router.GET(options.BaseURL+"/products", wrapper.GetProducts)
-	router.GET(options.BaseURL+"/products/:productId", wrapper.GetProductById)
+	router.GET(options.BaseURL+"/products/:product_id", wrapper.GetProductById)
 	router.POST(options.BaseURL+"/users", wrapper.CreateUser)
 	router.DELETE(options.BaseURL+"/users/me", wrapper.DeleteUser)
-	router.PATCH(options.BaseURL+"/users/me/email", wrapper.PatchUsersMeEmail)
-	router.PATCH(options.BaseURL+"/users/me/password", wrapper.PatchUsersMePassword)
-	router.PATCH(options.BaseURL+"/users/me/phone", wrapper.PatchUsersMePhone)
-	router.PATCH(options.BaseURL+"/users/me/profile", wrapper.PatchUsersMeProfile)
+	router.PATCH(options.BaseURL+"/users/me/email", wrapper.UpdateUserEmail)
+	router.PATCH(options.BaseURL+"/users/me/password", wrapper.UpdateUserPassword)
+	router.PATCH(options.BaseURL+"/users/me/phone", wrapper.UpdateUserPhone)
+	router.PATCH(options.BaseURL+"/users/me/profile", wrapper.UpdateUserProfile)
 }
