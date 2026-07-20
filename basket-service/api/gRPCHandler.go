@@ -2,7 +2,6 @@ package api
 
 import (
 	"context"
-	"strconv"
 
 	"github.com/Fox216540/shop/basket-service/app"
 	"github.com/Fox216540/shop/basket-service/domain/money"
@@ -78,14 +77,17 @@ func (h *GRPCHandler) GetBasket(ctx context.Context, req *emptypb.Empty) (*pbApi
 		return nil, h.mapper.MapError(ctx, err)
 	}
 
-	products := make([]*types.Product, 0, len(basketDomain.Products))
+	items := make([]*pbApi.BasketItem, 0, len(basketDomain.Products))
 	for _, item := range basketDomain.Products {
-		products = append(products, toProtoProduct(item.Product))
+		items = append(items, &pbApi.BasketItem{
+			Product:  toProtoProduct(item.Product),
+			Quantity: item.Quantity,
+		})
 	}
 
 	return &pbApi.GetBasketResponse{
-		Products: products,
-		Price:    toProtoMoney(basketDomain.Total),
+		Items: items,
+		Total: toProtoMoney(basketDomain.Total),
 	}, nil
 }
 
@@ -100,19 +102,16 @@ func (h *GRPCHandler) AddItemToBasket(ctx context.Context, req *pbApi.AddItemToB
 		return nil, h.mapper.MapError(ctx, status.Error(codes.InvalidArgument, err.Error()))
 	}
 
-	quantity, err := strconv.ParseUint(req.GetQuantity(), 10, 64)
-	if err != nil {
-		return nil, h.mapper.MapError(ctx, status.Error(codes.InvalidArgument, err.Error()))
-	}
-
-	item, err := h.basketUS.AddItemToBasket(userID, productID, quantity)
+	item, err := h.basketUS.AddItemToBasket(userID, productID, req.GetQuantity())
 	if err != nil {
 		return nil, h.mapper.MapError(ctx, err)
 	}
 
 	return &pbApi.AddItemToBasketResponse{
-		Product:  toProtoProduct(item.Product),
-		Quantity: strconv.FormatUint(item.Quantity, 10),
+		Item: &pbApi.BasketItem{
+			Product:  toProtoProduct(item.Product),
+			Quantity: item.Quantity,
+		},
 	}, nil
 }
 
