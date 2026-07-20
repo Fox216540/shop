@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 
@@ -14,13 +15,14 @@ import (
 )
 
 func main() {
+	logger.InitLogger()
+	logg := logger.NewZeroLogger()
+	ctx := context.Background()
+
 	conf, err := config.LoadConfig()
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	logger.InitLogger()
-	logg := logger.NewZeroLogger()
 
 	metrics := di.ProvideMetrics()
 	handler, clients := di.NewHTTPHandler(conf, api.NewHTTPMapper(logg), metrics)
@@ -42,7 +44,7 @@ func main() {
 	})
 
 	addr := fmt.Sprintf(":%d", conf.APIGatewayPort)
-	logg.Info("apigateway-service listening on " + addr)
+	logg.Info(ctx, "apigateway-service listening on "+addr)
 	if err := router.Run(addr); err != nil {
 		log.Fatal(err)
 	}
