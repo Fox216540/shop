@@ -1,26 +1,35 @@
 package logger
 
 import (
-	"log"
 	"os"
+
+	"github.com/rs/zerolog"
 )
 
-type StdLogger struct {
-	log *log.Logger
+type ZeroLogger struct {
+	log zerolog.Logger
 }
 
-func NewStdLogger() *StdLogger {
-	return &StdLogger{log: log.New(os.Stdout, "apigateway-service ", log.LstdFlags)}
+func NewZeroLogger() *ZeroLogger {
+	logger := zerolog.New(os.Stdout).
+		With().
+		Timestamp().
+		Str("service", "apigateway-service").
+		Logger()
+
+	return &ZeroLogger{
+		log: logger,
+	}
 }
 
-func (l *StdLogger) Info(msg string) {
-	l.log.Println("INFO " + msg)
+func (l *ZeroLogger) Info(msg string) {
+	l.log.Info().Msg(msg)
 }
 
-func (l *StdLogger) Warn(msg string) {
-	l.log.Println("WARN " + msg)
+func (l *ZeroLogger) Warn(msg string) {
+	l.log.Warn().Msg(msg)
 }
 
-func (l *StdLogger) Error(msg string) {
-	l.log.Println("ERROR " + msg)
+func (l *ZeroLogger) Error(msg string) {
+	l.log.Error().Caller().Msg(msg)
 }
