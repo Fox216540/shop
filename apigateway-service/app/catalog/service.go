@@ -16,33 +16,17 @@ func NewService(catalogClient catalog.Client) UseCase {
 }
 
 func (s *service) GetCategories() ([]catalog.Category, error) {
-	categories, err := s.catalogClient.GetAllCategories()
-	if err != nil {
-		return nil, err
-	}
-	return categories, nil
+	return s.catalogClient.GetAllCategories()
 }
 
 func (s *service) GetProducts() ([]catalog.Product, error) {
-	products, err := s.catalogClient.GetAllProducts()
-	if err != nil {
-		return nil, err
-	}
-	return products, nil
+	return s.catalogClient.GetAllProducts()
 }
 
 func (s *service) GetProductsOfCategoryID(categoryID uuid.UUID) ([]catalog.Product, error) {
-	products, err := s.catalogClient.GetProductsOfCategoryID(categoryID)
-	if err != nil {
-		return nil, err
-	}
-	return products, nil
+	return s.catalogClient.GetProductsOfCategoryID(categoryID)
 }
 
 func (s *service) GetProductByID(ID uuid.UUID) (catalog.Product, error) {
-	product, err := s.catalogClient.GetProductByID(ID)
-	if err != nil {
-		return catalog.Product{}, err
-	}
-	return product, nil
+	return s.catalogClient.GetProductByID(ID)
 }
