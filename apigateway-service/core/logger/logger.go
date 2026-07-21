@@ -1,7 +1,10 @@
 package logger
 
+import "context"
+
 type Logger interface {
-	Info(msg string)
-	Warn(msg string)
-	Error(msg string)
+	Info(ctx context.Context, msg string)
+	Warn(ctx context.Context, msg string)
+	Error(ctx context.Context, err error)
+	Fatal(ctx context.Context, err error)
 }
