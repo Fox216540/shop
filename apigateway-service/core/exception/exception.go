@@ -51,52 +51,8 @@ func NewDomainException(msg, domain string, err error) *DomainError {
 	}
 }
 
-type NotFoundError struct {
-	*DomainError
-}
-
-func (e *NotFoundError) Error() string {
-	return e.DomainError.Error()
-}
-
-func (e *NotFoundError) Unwrap() error { return e.DomainError }
-
-func NewNotFoundError(msg, domain string, err error) *NotFoundError {
-	return &NotFoundError{
-		DomainError: NewDomainException(msg, domain, err),
-	}
-}
-
-type BadRequestError struct {
-	*DomainError
-}
-
-func (e *BadRequestError) Error() string {
-	return e.DomainError.Error()
-}
-
-func (e *BadRequestError) Unwrap() error { return e.DomainError }
-
-func NewBadRequestError(msg, domain string, err error) *BadRequestError {
-	return &BadRequestError{
-		DomainError: NewDomainException(msg, domain, err),
-	}
-}
-
 type ConflictError struct {
 	*DomainError
-}
-
-func (e *ConflictError) Error() string {
-	return e.DomainError.Error()
-}
-
-func (e *ConflictError) Unwrap() error { return e.DomainError }
-
-func NewConflictError(msg, domain string, err error) *ConflictError {
-	return &ConflictError{
-		DomainError: NewDomainException(msg, domain, err),
-	}
 }
 
 type UnauthorizedError struct {
