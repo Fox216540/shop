@@ -15,9 +15,5 @@ func NewService(authClient auth.Client) UseCase {
 	}
 }
 func (s *service) DecodeAccessToken(token string) (uuid.UUID, error) {
-	userID, err := s.authClient.DecodeAccessTokenOfUser(token)
-	if err != nil {
-		return uuid.Nil, err
-	}
-	return userID, nil
+	return s.authClient.DecodeAccessTokenOfUser(token)
 }
