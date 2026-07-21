@@ -27,18 +27,12 @@ func NewHTTPMapper(log logger.Logger) *HTTPMapper {
 
 func (m *HTTPMapper) MapError(ctx context.Context, e error) (statusCode int, message string) {
 	var (
-		nfe *exception.NotFoundError
-		bre *exception.BadRequestError
-		ce  *exception.ConflictError
-		ue  *exception.UnauthorizedError
-		se  *exception.ServerError
+		ce *exception.ConflictError
+		ue *exception.UnauthorizedError
+		se *exception.ServerError
 	)
 
 	switch {
-	case errors.As(e, &nfe):
-		return http.StatusNotFound, e.Error()
-	case errors.As(e, &bre):
-		return http.StatusBadRequest, e.Error()
 	case errors.As(e, &ce):
 		return http.StatusConflict, e.Error()
 	case errors.As(e, &ue):
