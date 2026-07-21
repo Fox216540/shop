@@ -10,6 +10,10 @@ type Exception struct {
 }
 
 func (e Exception) Error() string {
+	if e.Err == nil {
+		return fmt.Sprintf("Domain: %s\nLayer: %s\nMessage: %s",
+			e.Domain, e.Layer, e.Message)
+	}
 	return fmt.Sprintf("Domain: %s\nLayer: %s\nMessage: %s\nCause: %v",
 		e.Domain, e.Layer, e.Message, e.Err)
 }
@@ -47,6 +51,54 @@ func NewDomainException(msg, domain string, err error) *DomainError {
 	}
 }
 
+type NotFoundError struct {
+	*DomainError
+}
+
+func (e *NotFoundError) Error() string {
+	return e.DomainError.Error()
+}
+
+func (e *NotFoundError) Unwrap() error { return e.DomainError }
+
+func NewNotFoundError(msg, domain string, err error) *NotFoundError {
+	return &NotFoundError{
+		DomainError: NewDomainException(msg, domain, err),
+	}
+}
+
+type BadRequestError struct {
+	*DomainError
+}
+
+func (e *BadRequestError) Error() string {
+	return e.DomainError.Error()
+}
+
+func (e *BadRequestError) Unwrap() error { return e.DomainError }
+
+func NewBadRequestError(msg, domain string, err error) *BadRequestError {
+	return &BadRequestError{
+		DomainError: NewDomainException(msg, domain, err),
+	}
+}
+
+type ConflictError struct {
+	*DomainError
+}
+
+func (e *ConflictError) Error() string {
+	return e.DomainError.Error()
+}
+
+func (e *ConflictError) Unwrap() error { return e.DomainError }
+
+func NewConflictError(msg, domain string, err error) *ConflictError {
+	return &ConflictError{
+		DomainError: NewDomainException(msg, domain, err),
+	}
+}
+
 type UnauthorizedError struct {
 	*DomainError
 }
@@ -60,5 +112,23 @@ func (e *UnauthorizedError) Unwrap() error { return e.DomainError }
 func NewUnauthorizedError(msg, domain string, err error) *UnauthorizedError {
 	return &UnauthorizedError{
 		DomainError: NewDomainException(msg, domain, err),
+	}
+}
+
+type ServerError struct {
+	*Exception
+}
+
+func (e *ServerError) Error() string {
+	return e.Exception.Error()
+}
+
+func (e *ServerError) Unwrap() error {
+	return e.Exception
+}
+
+func NewServerError(msg, domain, layer string, err error) *ServerError {
+	return &ServerError{
+		Exception: NewException(msg, domain, layer, err),
 	}
 }
