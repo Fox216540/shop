@@ -15,33 +15,17 @@ func NewService(authClient auth.Client) UseCase {
 }
 
 func (s *service) LogIn(phoneOrEmail, password string) (string, auth.Tokens, string, error) {
-	name, tokens, msg, err := s.authClient.LogInUser(phoneOrEmail, password)
-	if err != nil {
-		return "", auth.Tokens{}, "", err
-	}
-	return name, tokens, msg, nil
+	return s.authClient.LogInUser(phoneOrEmail, password)
 }
 
 func (s *service) LogOut(token string) (string, error) {
-	msg, err := s.authClient.LogOutUser(token)
-	if err != nil {
-		return "", err
-	}
-	return msg, nil
+	return s.authClient.LogOutUser(token)
 }
 
 func (s *service) LogOutAll(token string) (string, error) {
-	msg, err := s.authClient.LogOutAllUser(token)
-	if err != nil {
-		return "", err
-	}
-	return msg, nil
+	return s.authClient.LogOutAllUser(token)
 }
 
 func (s *service) RefreshTokens(token string) (auth.Tokens, error) {
-	tokens, err := s.authClient.RefreshTokensOfUser(token)
-	if err != nil {
-		return auth.Tokens{}, err
-	}
-	return tokens, nil
+	return s.authClient.RefreshTokensOfUser(token)
 }
