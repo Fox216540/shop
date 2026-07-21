@@ -30,7 +30,7 @@ func (s *service) RegisterUser(dto dto.User) (string, auth.Tokens, string, error
 	if err != nil {
 		return "", auth.Tokens{}, "", err
 	}
-	return name, tokens, message, err
+	return name, tokens, message, nil
 }
 
 func (s *service) DeleteUser(id uuid.UUID) (string, error) {
