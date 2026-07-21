@@ -1,277 +1,285 @@
 package api
 
 import (
-	"errors"
+	"net/http"
+	"time"
+
 	shopApiGen "github.com/Fox216540/shop/api/gen"
 	aUseCase "github.com/Fox216540/shop/apigateway-service/app/auth"
+	bUseCase "github.com/Fox216540/shop/apigateway-service/app/basket"
 	cUseCase "github.com/Fox216540/shop/apigateway-service/app/catalog"
 	DTO "github.com/Fox216540/shop/apigateway-service/app/dto"
 	oUseCase "github.com/Fox216540/shop/apigateway-service/app/order"
 	uUseCase "github.com/Fox216540/shop/apigateway-service/app/user"
 	"github.com/Fox216540/shop/apigateway-service/core/metrics"
-	domainAuth "github.com/Fox216540/shop/apigateway-service/domain/auth"
+	"github.com/Fox216540/shop/apigateway-service/core/transport"
 	domainCatalog "github.com/Fox216540/shop/apigateway-service/domain/catalog"
 	domainOrder "github.com/Fox216540/shop/apigateway-service/domain/order"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	openapiTypes "github.com/oapi-codegen/runtime/types"
-	"net/http"
-	"time"
 )
 
 type HTTPHandler struct {
 	authUseCase    aUseCase.UseCase
+	basketUseCase  bUseCase.UseCase
 	catalogUseCase cUseCase.UseCase
 	userUseCase    uUseCase.UseCase
 	orderUseCase   oUseCase.UseCase
-	m              HTTPMapper
+	m              *HTTPMapper
 	metrics        metrics.Metrics
+	refreshMaxAge  int
 }
 
-func (h *HTTPHandler) userWithTokenResponse(name string, tokens domainAuth.Tokens, message string) shopApiGen.UserWithTokenResponse {
-	return shopApiGen.UserWithTokenResponse{
-		AccessToken: tokens.AccessToken,
-		Message:     message,
-		Name:        name,
+func NewHTTPHandler(
+	authUseCase aUseCase.UseCase,
+	basketUseCase bUseCase.UseCase,
+	catalogUseCase cUseCase.UseCase,
+	userUseCase uUseCase.UseCase,
+	orderUseCase oUseCase.UseCase,
+	mapper *HTTPMapper,
+	metrics metrics.Metrics,
+	refreshMaxAge int,
+) *HTTPHandler {
+	return &HTTPHandler{
+		authUseCase:    authUseCase,
+		basketUseCase:  basketUseCase,
+		catalogUseCase: catalogUseCase,
+		userUseCase:    userUseCase,
+		orderUseCase:   orderUseCase,
+		m:              mapper,
+		metrics:        metrics,
+		refreshMaxAge:  refreshMaxAge,
 	}
 }
 
-func (h *HTTPHandler) PostAuthLogin(c *gin.Context) {
-	var req shopApiGen.PostAuthLoginJSONRequestBody
-	if err := c.ShouldBindJSON(&req); err != nil {
-		//TODO: Придумать ошибку
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+func (h *HTTPHandler) writeMappedError(c *gin.Context, err error) {
+	c.JSON(h.m.MapError(c.Request.Context(), err))
+}
+
+func (h *HTTPHandler) writeMessage(c *gin.Context, status int, message string) {
+	c.JSON(status, shopApiGen.MessageResponse{Message: message})
+}
+
+func (h *HTTPHandler) bindJSON(c *gin.Context, req any) bool {
+	if err := c.ShouldBindJSON(req); err != nil {
+		h.writeMessage(c, http.StatusBadRequest, messages.InvalidJSON)
+		return false
+	}
+	return true
+}
+
+func (h *HTTPHandler) refreshToken(c *gin.Context) (string, bool) {
+	refresh, err := c.Cookie(messages.RefreshCookieName)
+	if err != nil {
+		h.writeMessage(c, http.StatusUnauthorized, messages.MissingRefreshCookie)
+		return "", false
+	}
+	return refresh, true
+}
+
+func (h *HTTPHandler) bearerToken(c *gin.Context) (string, bool) {
+	authHeader := c.GetHeader(transport.AuthorizationHeader)
+	prefix := transport.BearerPrefix
+	if len(authHeader) <= len(prefix) || authHeader[:len(prefix)] != prefix {
+		h.writeMessage(c, http.StatusUnauthorized, messages.Unauthorized)
+		return "", false
+	}
+	return authHeader[len(prefix):], true
+}
+
+func (h *HTTPHandler) setRefreshCookie(c *gin.Context, token string) {
+	http.SetCookie(c.Writer, refreshCookie(token, h.refreshMaxAge))
+}
+
+func (h *HTTPHandler) clearRefreshCookie(c *gin.Context) {
+	http.SetCookie(c.Writer, expiredRefreshCookie())
+}
+
+func (h *HTTPHandler) Login(c *gin.Context) {
+	var req shopApiGen.LoginJSONRequestBody
+	if !h.bindJSON(c, &req) {
 		return
 	}
+
 	name, tokens, message, err := h.authUseCase.LogIn(req.PhoneOrEmail, req.Password)
 	if err != nil {
 		h.metrics.IncLoginFailure()
-		c.JSON(h.m.MapError(err))
+		h.writeMappedError(c, err)
 		return
 	}
-	resp := h.userWithTokenResponse(name, tokens, message)
-	c.JSON(http.StatusOK, resp)
+
+	h.setRefreshCookie(c, tokens.RefreshToken)
+	c.JSON(http.StatusOK, userWithTokenResponse(name, tokens, message))
 }
 
-func (h *HTTPHandler) PostAuthLogout(c *gin.Context) {
-	refresh, err := c.Cookie("refresh")
-	if err != nil {
-		//TODO: Придумать ошибку
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Decode refresh token"})
+func (h *HTTPHandler) Logout(c *gin.Context) {
+	refresh, ok := h.refreshToken(c)
+	if !ok {
 		return
 	}
+
 	msg, err := h.authUseCase.LogOut(refresh)
 	if err != nil {
-		c.JSON(h.m.MapError(err))
+		h.writeMappedError(c, err)
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"message": msg})
+
+	h.clearRefreshCookie(c)
+	h.writeMessage(c, http.StatusOK, msg)
 }
 
-func (h *HTTPHandler) PostAuthLogoutAll(c *gin.Context) {
-	refresh, err := c.Cookie("refresh")
-	if err != nil {
-		//TODO: Придумать ошибку
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Decode refresh token"})
+func (h *HTTPHandler) LogoutAll(c *gin.Context) {
+	token, ok := h.bearerToken(c)
+	if !ok {
 		return
 	}
-	msg, err := h.authUseCase.LogOutAll(refresh)
+
+	msg, err := h.authUseCase.LogOutAll(token)
 	if err != nil {
-		c.JSON(h.m.MapError(err))
+		h.writeMappedError(c, err)
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"message": msg})
+
+	h.clearRefreshCookie(c)
+	h.writeMessage(c, http.StatusOK, msg)
 }
 
-func (h *HTTPHandler) PostAuthRefresh(c *gin.Context) {
-	refresh, err := c.Cookie("refresh")
-	if err != nil {
-		//TODO: Придумать ошибку
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Decode refresh token"})
+func (h *HTTPHandler) RefreshToken(c *gin.Context) {
+	refresh, ok := h.refreshToken(c)
+	if !ok {
 		return
 	}
-	msg, err := h.authUseCase.RefreshTokens(refresh)
+
+	tokens, err := h.authUseCase.RefreshTokens(refresh)
 	if err != nil {
-		c.JSON(h.m.MapError(err))
+		h.writeMappedError(c, err)
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"message": msg})
+
+	h.setRefreshCookie(c, tokens.RefreshToken)
+	c.JSON(http.StatusOK, shopApiGen.RefreshResponse{
+		AccessToken: tokens.AccessToken,
+		Message:     messages.RefreshSuccess,
+	})
 }
 
 func (h *HTTPHandler) GetCategories(c *gin.Context) {
 	categories, err := h.catalogUseCase.GetCategories()
 	if err != nil {
-		c.JSON(h.m.MapError(err))
+		h.writeMappedError(c, err)
 		return
 	}
-	resp := make([]shopApiGen.CategoryResponse, 0, len(categories))
-	for _, category := range categories {
-		resp = append(resp, shopApiGen.CategoryResponse{
-			Id:   category.ID,
-			Name: category.Name,
-		})
-	}
-	c.JSON(http.StatusOK, resp)
 
+	c.JSON(http.StatusOK, categoriesToResponse(categories))
 }
 
 func (h *HTTPHandler) getIDOfUser(c *gin.Context) (uuid.UUID, error) {
-	idValue, exists := c.Get("user_id")
+	idValue, exists := c.Get(transport.UserIDKey)
 	if !exists {
-		//TODO: Придумать ошибку
-		return uuid.Nil, errors.New("user id not found")
+		return uuid.Nil, NewMissingUserIDError(nil)
 	}
-	idString, ok := idValue.(string)
-	if !ok {
-		//TODO: Придумать ошибку
-		return uuid.Nil, errors.New("user id not found")
+
+	switch id := idValue.(type) {
+	case uuid.UUID:
+		return id, nil
+	case string:
+		parsed, err := uuid.Parse(id)
+		if err != nil {
+			return uuid.Nil, NewMissingUserIDError(err)
+		}
+		return parsed, nil
+	default:
+		return uuid.Nil, NewMissingUserIDError(nil)
 	}
-	id, err := uuid.Parse(idString)
+}
+
+func (h *HTTPHandler) getAuthenticatedUserID(c *gin.Context) (uuid.UUID, bool) {
+	userID, err := h.getIDOfUser(c)
 	if err != nil {
-		//TODO: Придумать ошибку
-		return uuid.Nil, errors.New("user id not found")
+		h.writeMessage(c, http.StatusUnauthorized, messages.Unauthorized)
+		return uuid.Nil, false
 	}
-	return id, nil
-}
-
-func (h *HTTPHandler) orderWithItemsResponse(order domainOrder.OrderWithItems) shopApiGen.OrderWithItemsResponse {
-	items := make([]shopApiGen.OrderItem, 0, len(order.Items))
-	for _, item := range order.Items {
-		items = append(items, shopApiGen.OrderItem{
-			Product: shopApiGen.ProductShort{
-				Currency: item.Product.Currency,
-				Id:       item.Product.ID,
-				Img:      item.Product.Img,
-				Name:     item.Product.Name,
-				Price:    item.Product.Price,
-			},
-			Quantity: item.Quantity,
-		})
-
-	}
-	return shopApiGen.OrderWithItemsResponse{
-		Currency:    order.Order.Currency,
-		Id:          order.Order.ID,
-		OrderNumber: order.Order.OrderNum,
-		Status:      order.Order.Status,
-		Total:       order.Order.Total,
-		OrderItems:  items,
-	}
-}
-
-func (h *HTTPHandler) ordersToResponse(orders []domainOrder.Order) []shopApiGen.OrderResponse {
-	resp := make([]shopApiGen.OrderResponse, 0, len(orders))
-	for _, order := range orders {
-		resp = append(resp, shopApiGen.OrderResponse{
-			Currency:    order.Currency,
-			Id:          order.ID,
-			OrderNumber: order.OrderNum,
-			Status:      order.Status,
-			Total:       order.Total,
-		})
-	}
-	return resp
+	return userID, true
 }
 
 func (h *HTTPHandler) GetOrders(c *gin.Context) {
-	userID, err := h.getIDOfUser(c)
-	if err != nil {
-		//TODO: Придумать ошибку
+	userID, ok := h.getAuthenticatedUserID(c)
+	if !ok {
 		return
 	}
+
 	orders, err := h.orderUseCase.GetOrders(userID)
 	if err != nil {
-		c.JSON(h.m.MapError(err))
+		h.writeMappedError(c, err)
 		return
 	}
-	c.JSON(http.StatusOK, h.ordersToResponse(orders))
+	c.JSON(http.StatusOK, ordersToResponse(orders))
 }
 
-func (h *HTTPHandler) PostOrders(c *gin.Context) {
-	userID, err := h.getIDOfUser(c)
-	if err != nil {
-		//TODO: Придумать ошибку
-		return
-	}
-	var req shopApiGen.PostOrdersJSONRequestBody
-	if err = c.ShouldBindJSON(&req); err != nil {
-		//TODO: Придумать ошибку
+func (h *HTTPHandler) CreateOrder(c *gin.Context) {
+	userID, ok := h.getAuthenticatedUserID(c)
+	if !ok {
 		return
 	}
 
-	items := make([]domainOrder.ProductRequest, 0, len(req.ProductItems))
-	for _, item := range req.ProductItems {
+	var req shopApiGen.CreateOrderJSONRequestBody
+	if !h.bindJSON(c, &req) {
+		return
+	}
+
+	items := make([]domainOrder.ProductRequest, 0, len(req.Items))
+	for _, item := range req.Items {
+		if item.Quantity < 1 {
+			h.writeMessage(c, http.StatusBadRequest, messages.InvalidArgument)
+			return
+		}
 		items = append(items, domainOrder.ProductRequest{
 			ID:       item.ProductId,
-			Price:    item.Value,
-			Quantity: item.Quantity,
-			Currency: item.Currency,
+			Price:    item.ExpectedPrice.Amount,
+			Quantity: uint64(item.Quantity),
+			Currency: item.ExpectedPrice.Currency,
 		})
 	}
+
 	start := time.Now()
 	o, err := h.orderUseCase.CreateOrder(userID, items)
 	h.metrics.ObserveOrderProcessing(time.Since(start).Seconds())
 	if err != nil {
-		c.JSON(h.m.MapError(err))
+		h.writeMappedError(c, err)
 		return
 	}
+
 	h.metrics.IncOrder()
-	c.JSON(http.StatusCreated, shopApiGen.OrderResponse{
-		Currency:    o.Currency,
-		Id:          o.ID,
-		OrderNumber: o.OrderNum,
-		Status:      o.Status,
-		Total:       o.Total,
-	})
+	c.JSON(http.StatusCreated, orderToResponse(o))
 }
 
-func (h *HTTPHandler) DeleteOrdersId(c *gin.Context, id openapiTypes.UUID) {
-	userID, err := h.getIDOfUser(c)
-	if err != nil {
-		//TODO: Придумать ошибку
+func (h *HTTPHandler) DeleteOrder(c *gin.Context, orderID shopApiGen.OrderId) {
+	userID, ok := h.getAuthenticatedUserID(c)
+	if !ok {
 		return
 	}
-	deletedID, msg, status, err := h.orderUseCase.DeleteOrder(userID, id)
+
+	deletedID, msg, status, err := h.orderUseCase.DeleteOrder(userID, orderID)
 	if err != nil {
-		c.JSON(h.m.MapError(err))
+		h.writeMappedError(c, err)
 		return
 	}
-	c.JSON(http.StatusOK, shopApiGen.OrderDeletedResponse{
-		Id:      deletedID,
-		Message: msg,
-		Status:  status,
-	})
+
+	c.JSON(http.StatusOK, orderDeletedResponse(deletedID, msg, status))
 }
 
-func (h *HTTPHandler) GetOrdersId(c *gin.Context, id openapiTypes.UUID) {
-	userID, err := h.getIDOfUser(c)
-	if err != nil {
-		//TODO: Придумать ошибку
+func (h *HTTPHandler) GetOrderById(c *gin.Context, orderID shopApiGen.OrderId) {
+	userID, ok := h.getAuthenticatedUserID(c)
+	if !ok {
 		return
 	}
-	o, err := h.orderUseCase.GetOrder(userID, id)
-	if err != nil {
-		c.JSON(h.m.MapError(err))
-		return
-	}
-	c.JSON(http.StatusOK, h.orderWithItemsResponse(o))
-}
 
-func (h *HTTPHandler) productsToResponse(products []domainCatalog.Product) []shopApiGen.ProductResponse {
-	resp := make([]shopApiGen.ProductResponse, 0, len(products))
-	for _, product := range products {
-		resp = append(resp, shopApiGen.ProductResponse{
-			Id:          product.ID,
-			Name:        product.Name,
-			Img:         product.Img,
-			Price:       product.Price,
-			CategoryId:  product.CategoryID,
-			Description: product.Description,
-			Stock:       product.Stock,
-			Currency:    product.Currency,
-		})
+	o, err := h.orderUseCase.GetOrder(userID, orderID)
+	if err != nil {
+		h.writeMappedError(c, err)
+		return
 	}
-	return resp
+	c.JSON(http.StatusOK, orderWithItemsToResponse(o))
 }
 
 func (h *HTTPHandler) GetProducts(c *gin.Context, params shopApiGen.GetProductsParams) {
@@ -279,33 +287,33 @@ func (h *HTTPHandler) GetProducts(c *gin.Context, params shopApiGen.GetProductsP
 		products []domainCatalog.Product
 		err      error
 	)
-	if params.Category != nil {
-		products, err = h.catalogUseCase.GetProductsOfCategoryID(*params.Category)
+	if params.CategoryId != nil {
+		products, err = h.catalogUseCase.GetProductsOfCategoryID(*params.CategoryId)
 	} else {
 		products, err = h.catalogUseCase.GetProducts()
 	}
 	if err != nil {
-		c.JSON(h.m.MapError(err))
+		h.writeMappedError(c, err)
 		return
 	}
-	c.JSON(http.StatusOK, h.productsToResponse(products))
+	c.JSON(http.StatusOK, productsToResponse(products))
 }
 
-func (h *HTTPHandler) GetProductById(c *gin.Context, id openapiTypes.UUID) {
-	products, err := h.catalogUseCase.GetProductsOfCategoryID(id)
+func (h *HTTPHandler) GetProductById(c *gin.Context, productID shopApiGen.ProductId, _ shopApiGen.GetProductByIdParams) {
+	product, err := h.catalogUseCase.GetProductByID(productID)
 	if err != nil {
-		c.JSON(h.m.MapError(err))
+		h.writeMappedError(c, err)
 		return
 	}
-	c.JSON(http.StatusOK, h.productsToResponse(products))
+	c.JSON(http.StatusOK, productToResponse(product))
 }
 
 func (h *HTTPHandler) CreateUser(c *gin.Context) {
 	var req shopApiGen.CreateUserJSONRequestBody
-	if err := c.ShouldBindJSON(&req); err != nil {
-		//TODO: Придумать ошибку
+	if !h.bindJSON(c, &req) {
 		return
 	}
+
 	userDTO := DTO.User{
 		Name:     req.Name,
 		Email:    string(req.Email),
@@ -315,114 +323,165 @@ func (h *HTTPHandler) CreateUser(c *gin.Context) {
 	}
 	name, tokens, msg, err := h.userUseCase.RegisterUser(userDTO)
 	if err != nil {
-		c.JSON(h.m.MapError(err))
+		h.writeMappedError(c, err)
 		return
 	}
-	resp := h.userWithTokenResponse(name, tokens, msg)
-	h.metrics.IncRegistration()
-	c.JSON(http.StatusCreated, resp)
 
+	h.setRefreshCookie(c, tokens.RefreshToken)
+	h.metrics.IncRegistration()
+	c.JSON(http.StatusCreated, userWithTokenResponse(name, tokens, msg))
 }
 
 func (h *HTTPHandler) DeleteUser(c *gin.Context) {
-	userID, err := h.getIDOfUser(c)
-	if err != nil {
-		//TODO: Придумать ошибку
+	userID, ok := h.getAuthenticatedUserID(c)
+	if !ok {
 		return
 	}
-	msg, err := h.userUseCase.DeleteUser(userID)
-	if err != nil {
-		c.JSON(h.m.MapError(err))
+
+	if _, err := h.userUseCase.DeleteUser(userID); err != nil {
+		h.writeMappedError(c, err)
 		return
 	}
-	c.JSON(http.StatusOK, shopApiGen.MessageResponse{
-		Message: msg,
-	})
+	c.Status(http.StatusNoContent)
 }
 
-func (h *HTTPHandler) PatchUsersMeEmail(c *gin.Context) {
-	userID, err := h.getIDOfUser(c)
-	if err != nil {
-		//TODO: Придумать ошибку
+func (h *HTTPHandler) UpdateUserEmail(c *gin.Context) {
+	userID, ok := h.getAuthenticatedUserID(c)
+	if !ok {
 		return
 	}
-	var req shopApiGen.PatchUsersMeEmailJSONRequestBody
-	if err = c.ShouldBindJSON(&req); err != nil {
-		//TODO: Придумать ошибку
+
+	var req shopApiGen.UpdateUserEmailJSONRequestBody
+	if !h.bindJSON(c, &req) {
 		return
 	}
 
 	msg, err := h.userUseCase.UpdateEmailOfUser(userID, string(req.Email))
 	if err != nil {
-		c.JSON(h.m.MapError(err))
+		h.writeMappedError(c, err)
 		return
 	}
-	c.JSON(http.StatusOK, shopApiGen.MessageResponse{
-		Message: msg,
-	})
+	h.writeMessage(c, http.StatusOK, msg)
 }
 
-func (h *HTTPHandler) PatchUsersMePassword(c *gin.Context) {
-	userID, err := h.getIDOfUser(c)
-	if err != nil {
-		//TODO: Придумать ошибку
+func (h *HTTPHandler) UpdateUserPassword(c *gin.Context) {
+	userID, ok := h.getAuthenticatedUserID(c)
+	if !ok {
 		return
 	}
-	var req shopApiGen.PatchUsersMePasswordJSONRequestBody
-	if err = c.ShouldBindJSON(&req); err != nil {
-		//TODO: Придумать ошибку
+
+	var req shopApiGen.UpdateUserPasswordJSONRequestBody
+	if !h.bindJSON(c, &req) {
 		return
 	}
 
 	msg, err := h.userUseCase.UpdatePasswordOfUser(userID, req.Password)
 	if err != nil {
-		c.JSON(h.m.MapError(err))
+		h.writeMappedError(c, err)
 		return
 	}
-	c.JSON(http.StatusOK, shopApiGen.MessageResponse{
-		Message: msg,
-	})
+	h.writeMessage(c, http.StatusOK, msg)
 }
 
-func (h *HTTPHandler) PatchUsersMePhone(c *gin.Context) {
-	userID, err := h.getIDOfUser(c)
-	if err != nil {
-		//TODO: Придумать ошибку
+func (h *HTTPHandler) UpdateUserPhone(c *gin.Context) {
+	userID, ok := h.getAuthenticatedUserID(c)
+	if !ok {
 		return
 	}
-	var req shopApiGen.PatchUsersMePhoneJSONRequestBody
-	if err = c.ShouldBindJSON(&req); err != nil {
-		//TODO: Придумать ошибку
+
+	var req shopApiGen.UpdateUserPhoneJSONRequestBody
+	if !h.bindJSON(c, &req) {
 		return
 	}
+
 	msg, err := h.userUseCase.UpdatePhoneOfUser(userID, req.Phone)
 	if err != nil {
-		c.JSON(h.m.MapError(err))
+		h.writeMappedError(c, err)
 		return
 	}
-	c.JSON(http.StatusOK, shopApiGen.MessageResponse{
-		Message: msg,
-	})
+	h.writeMessage(c, http.StatusOK, msg)
 }
 
-func (h *HTTPHandler) PatchUsersMeProfile(c *gin.Context) {
-	userID, err := h.getIDOfUser(c)
-	if err != nil {
-		//TODO: Придумать ошибку
+func (h *HTTPHandler) UpdateUserProfile(c *gin.Context) {
+	userID, ok := h.getAuthenticatedUserID(c)
+	if !ok {
 		return
 	}
-	var req shopApiGen.PatchUsersMeProfileJSONRequestBody
-	if err = c.ShouldBindJSON(&req); err != nil {
-		//TODO: Придумать ошибку
+
+	var req shopApiGen.UpdateUserProfileJSONRequestBody
+	if !h.bindJSON(c, &req) {
 		return
 	}
+
 	msg, name, err := h.userUseCase.UpdateProfileOfUser(userID, req.Name, req.Address)
 	if err != nil {
-		c.JSON(h.m.MapError(err))
+		h.writeMappedError(c, err)
 		return
 	}
-	c.JSON(http.StatusOK, shopApiGen.UserResponse{
-		Name:    name,
-		Message: msg,
-	})
+	c.JSON(http.StatusOK, userResponse(name, msg))
+}
+
+func (h *HTTPHandler) GetBasket(c *gin.Context, _ shopApiGen.GetBasketParams) {
+	userID, ok := h.getAuthenticatedUserID(c)
+	if !ok {
+		return
+	}
+
+	basket, err := h.basketUseCase.GetBasket(userID)
+	if err != nil {
+		h.writeMappedError(c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, basketToResponse(basket))
+}
+
+func (h *HTTPHandler) AddItemToBasket(c *gin.Context) {
+	userID, ok := h.getAuthenticatedUserID(c)
+	if !ok {
+		return
+	}
+
+	var req shopApiGen.AddItemToBasketJSONRequestBody
+	if !h.bindJSON(c, &req) {
+		return
+	}
+	if req.Quantity < 1 {
+		h.writeMessage(c, http.StatusBadRequest, messages.InvalidArgument)
+		return
+	}
+
+	item, err := h.basketUseCase.AddItemToBasket(userID, req.ProductId, uint64(req.Quantity))
+	if err != nil {
+		h.writeMappedError(c, err)
+		return
+	}
+	c.JSON(http.StatusCreated, basketItemResponse(item))
+}
+
+func (h *HTTPHandler) ClearBasket(c *gin.Context) {
+	userID, ok := h.getAuthenticatedUserID(c)
+	if !ok {
+		return
+	}
+
+	if err := h.basketUseCase.DeleteBasket(userID); err != nil {
+		h.writeMappedError(c, err)
+		return
+	}
+	c.Status(http.StatusNoContent)
+}
+
+func (h *HTTPHandler) RemoveItemFromBasket(c *gin.Context, productID shopApiGen.ProductId) {
+	userID, ok := h.getAuthenticatedUserID(c)
+	if !ok {
+		return
+	}
+
+	msg, err := h.basketUseCase.RemoveItemFromBasket(userID, productID)
+	if err != nil {
+		h.writeMappedError(c, err)
+		return
+	}
+	h.writeMessage(c, http.StatusOK, msg)
 }
